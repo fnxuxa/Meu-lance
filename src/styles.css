@@ -108,6 +108,70 @@ header {
 .mobile-only {
   display: none;
 }
+.mobile-menu-toggle {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--deep);
+  cursor: pointer;
+  padding: 0;
+}
+.mobile-menu-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+.mobile-menu {
+  display: none;
+}
+@media (max-width: 850px) {
+  .mobile-menu {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 16px 30px -18px rgba(11, 59, 43, 0.25);
+  }
+  .mobile-menu-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: white;
+    color: var(--muted);
+  }
+  .mobile-menu-search input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    color: #15221b;
+  }
+  .mobile-menu-links {
+    display: grid;
+    gap: 2px;
+  }
+  .mobile-menu-links a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .mobile-menu-links a:active {
+    background: var(--mint);
+  }
+  .mobile-menu-divider {
+    height: 1px;
+    background: var(--line);
+  }
+}
 .hero {
   max-width: 1240px;
   margin: 0 auto;
@@ -1407,13 +1471,20 @@ footer b {
 }
 .watch-card {
   display: grid;
-  grid-template-columns: 65px 1fr auto;
-  gap: 15px;
+  grid-template-columns: 84px 1fr auto;
+  gap: 16px;
   align-items: center;
-  padding: 15px;
+  padding: 12px;
   background: white;
   border: 1px solid #e0e8e4;
   border-radius: 18px;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.watch-card:hover {
+  box-shadow: 0 10px 28px rgba(15, 54, 35, 0.08);
+  transform: translateY(-2px);
 }
 .watch-card.winning {
   border-left: 4px solid #159365;
@@ -1422,20 +1493,57 @@ footer b {
   border-left: 4px solid #cf4545;
 }
 .watch-thumb {
-  height: 60px;
+  width: 84px;
+  height: 84px;
   display: grid;
   place-items: center;
   background: #edf5f1;
   border-radius: 13px;
   color: #0c6b4d;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.watch-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.watch-body h3 {
+  margin: 4px 0 8px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.watch-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+.watch-meta strong {
+  font-size: 16px;
+}
+.watch-meta span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.watch-cta {
+  white-space: nowrap;
 }
 .status-pill {
-  font-size: 9px;
-  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #08704e;
 }
 .outbid .status-pill {
   color: #b62e2e;
+}
+.watching .status-pill {
+  color: var(--muted);
 }
 .alert-pref {
   display: flex;
@@ -1460,10 +1568,15 @@ footer b {
     flex-direction: column;
   }
   .watch-card {
-    grid-template-columns: 55px 1fr;
+    grid-template-columns: 60px 1fr;
+  }
+  .watch-thumb {
+    width: 60px;
+    height: 60px;
   }
   .watch-card > .btn {
     grid-column: 1/-1;
+    margin-top: 4px;
   }
 }
 
