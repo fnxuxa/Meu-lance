@@ -1,0 +1,25 @@
+import type { SellerProfile } from '../components/TrustBadges';
+export type Listing = {
+  id: string;
+  slug: string;
+  sellerId?: string;
+  seller?: SellerProfile | null;
+  title: string;
+  category: string;
+  condition: string;
+  city: string;
+  state: string;
+  currentPriceCents: number;
+  startPriceCents: number;
+  minimumBidCents?: number;
+  endsAt: string;
+  bidCount: number;
+  status?: string;
+  image: string;
+  images: string[];
+  delivery: 'Envio' | 'Retirada' | 'Ambos';
+  description: string;
+  defects?: string;
+  featured?: boolean;
+  participantCount?: number;
+};

@@ -1,0 +1,1257 @@
+{
+  "date": "2026-09-21",
+  "sourceCounts": {
+    "v6": 55,
+    "v7": 66,
+    "v9": 75
+  },
+  "uniquePaths": 77,
+  "files": [
+    {
+      "file": ".env.example",
+      "versions": {
+        "v6": {
+          "bytes": 285,
+          "sha256": "01c36bde6ecf5d627e776dd4ef81b164ad6ea799948c8741acdf3e308a5b258e"
+        },
+        "v7": {
+          "bytes": 622,
+          "sha256": "6b1b63cdae3fcff3bf8788b8f74310eedbadd84d30da97e22420cf8343bc39f7"
+        },
+        "v9": {
+          "bytes": 622,
+          "sha256": "6b1b63cdae3fcff3bf8788b8f74310eedbadd84d30da97e22420cf8343bc39f7"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": ".github/workflows/ci.yml",
+      "versions": {
+        "v6": {
+          "bytes": 305,
+          "sha256": "4c2f16fe5171de818852f15d5e48d59d77f1bcda6c801d52d894e16049d08bdd"
+        },
+        "v7": {
+          "bytes": 794,
+          "sha256": "35a21a6fcfc07520b91c78d7304aafd9c53def55245000111da691ded34d4feb"
+        },
+        "v9": {
+          "bytes": 794,
+          "sha256": "35a21a6fcfc07520b91c78d7304aafd9c53def55245000111da691ded34d4feb"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": ".gitignore",
+      "versions": {
+        "v6": {
+          "bytes": 81,
+          "sha256": "32d0748762447bb121f1291f43c82de39b60f22ee8b83107493363f6167b7887"
+        },
+        "v7": {
+          "bytes": 150,
+          "sha256": "3ecc259206d4273165c96f6a46aeb433e04654e89a37002c8eaf37d7aeeec7a0"
+        },
+        "v9": {
+          "bytes": 150,
+          "sha256": "3ecc259206d4273165c96f6a46aeb433e04654e89a37002c8eaf37d7aeeec7a0"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": ".prettierignore",
+      "versions": {
+        "v7": {
+          "bytes": 81,
+          "sha256": "70e703c345ab32a7506febaf7f65f3937462c0c37e40b71b15497789e2e31844"
+        },
+        "v9": {
+          "bytes": 81,
+          "sha256": "70e703c345ab32a7506febaf7f65f3937462c0c37e40b71b15497789e2e31844"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": ".prettierrc.json",
+      "versions": {
+        "v7": {
+          "bytes": 81,
+          "sha256": "2bfec3964cd9521323d68520f8865e8ef60138324ed65152328ebb4bb1ffa97d"
+        },
+        "v9": {
+          "bytes": 81,
+          "sha256": "2bfec3964cd9521323d68520f8865e8ef60138324ed65152328ebb4bb1ffa97d"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "AGENTS.md",
+      "versions": {
+        "v6": {
+          "bytes": 33626,
+          "sha256": "faddf86ca17ccf89c403e56cfb37637297713fc8e329015450fda28673943bad"
+        },
+        "v7": {
+          "bytes": 33626,
+          "sha256": "faddf86ca17ccf89c403e56cfb37637297713fc8e329015450fda28673943bad"
+        },
+        "v9": {
+          "bytes": 33626,
+          "sha256": "faddf86ca17ccf89c403e56cfb37637297713fc8e329015450fda28673943bad"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "AUDITORIA_V8.md",
+      "versions": {
+        "v9": {
+          "bytes": 2683,
+          "sha256": "81bca262d53aee63b6f2d6f3a9e8c0a7e7f72163070a550e2cb8fda277de502e"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "IMPLEMENTACAO_STATUS.md",
+      "versions": {
+        "v9": {
+          "bytes": 810,
+          "sha256": "e7fc4af3d175c0577b4471759ff0e4a52cacc61f6737375462cedfef0586e834"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "PARTE_2_CONTINUACAO.md",
+      "versions": {
+        "v9": {
+          "bytes": 763,
+          "sha256": "6cf3cd1d3a62d9657f44202728b56dffdf676c649a6e7e8ab783b869ad10204e"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "README.md",
+      "versions": {
+        "v6": {
+          "bytes": 352,
+          "sha256": "8664b0d6aae6a8b4c2363b9d1573e17d5699e1fffcd3ca06ebd188a98ab38846"
+        },
+        "v7": {
+          "bytes": 1900,
+          "sha256": "e8965cd9fabbc2bc926ba512f627691e6b3e60b4b31d40355bd9258254844155"
+        },
+        "v9": {
+          "bytes": 1900,
+          "sha256": "e8965cd9fabbc2bc926ba512f627691e6b3e60b4b31d40355bd9258254844155"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "docs/CODEX_HANDOFF.md",
+      "versions": {
+        "v6": {
+          "bytes": 1096,
+          "sha256": "2a29b2127227816191802e68668b51a3e14103f277018386f6ed3c3c8dc25668"
+        },
+        "v7": {
+          "bytes": 1916,
+          "sha256": "4ac69cfe1fa147319b87e38e7facbd31e9a4a8ecd4d022793d2778d32c525c17"
+        },
+        "v9": {
+          "bytes": 1916,
+          "sha256": "4ac69cfe1fa147319b87e38e7facbd31e9a4a8ecd4d022793d2778d32c525c17"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "docs/legal-drafts/termos.md",
+      "versions": {
+        "v6": {
+          "bytes": 401,
+          "sha256": "ed41f5a9b53fa462ae4e2ea9df2a2421058bb7b28db6b7d3e29fbe6b9426f047"
+        },
+        "v7": {
+          "bytes": 401,
+          "sha256": "ed41f5a9b53fa462ae4e2ea9df2a2421058bb7b28db6b7d3e29fbe6b9426f047"
+        },
+        "v9": {
+          "bytes": 401,
+          "sha256": "ed41f5a9b53fa462ae4e2ea9df2a2421058bb7b28db6b7d3e29fbe6b9426f047"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "docs/payments.md",
+      "versions": {
+        "v6": {
+          "bytes": 1044,
+          "sha256": "f5246945ac3964a47ceadd62e42b7e5612e067884fab1926b15c0e200c1afecc"
+        },
+        "v7": {
+          "bytes": 1155,
+          "sha256": "2208cd95c7f7f7e4cb35f55ff95319a91a7f14ee842ce2b4d11e4c4dc19a5675"
+        },
+        "v9": {
+          "bytes": 1155,
+          "sha256": "2208cd95c7f7f7e4cb35f55ff95319a91a7f14ee842ce2b4d11e4c4dc19a5675"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "docs/runbook.md",
+      "versions": {
+        "v6": {
+          "bytes": 489,
+          "sha256": "acd0024756fc426f3bfae2275f6e425b1b33892449f73c5d52a209656f4e0b8a"
+        },
+        "v7": {
+          "bytes": 1467,
+          "sha256": "68f9a980af2c571c8bf8cc7e1d004cfa9455f7b701545330a941808b8cce5a06"
+        },
+        "v9": {
+          "bytes": 1467,
+          "sha256": "68f9a980af2c571c8bf8cc7e1d004cfa9455f7b701545330a941808b8cce5a06"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "index.html",
+      "versions": {
+        "v6": {
+          "bytes": 536,
+          "sha256": "5ca85acd08eb87207c04f8389f4e8acb12345dc32681dfa32c5afdafb10c8b7d"
+        },
+        "v7": {
+          "bytes": 1318,
+          "sha256": "03e374cbb2f139f01348592aafaf9670b950f4cf336fab090d1d8d872471437a"
+        },
+        "v9": {
+          "bytes": 1318,
+          "sha256": "03e374cbb2f139f01348592aafaf9670b950f4cf336fab090d1d8d872471437a"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "package-lock.json",
+      "versions": {
+        "v7": {
+          "bytes": 86133,
+          "sha256": "7e97c3edec03d1328a667df527db929a9439f8069cab70d83e6dcb0b1704671e"
+        },
+        "v9": {
+          "bytes": 86133,
+          "sha256": "7e97c3edec03d1328a667df527db929a9439f8069cab70d83e6dcb0b1704671e"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "package.json",
+      "versions": {
+        "v6": {
+          "bytes": 575,
+          "sha256": "aec45237a127b878434efbe7bf821c8c26da25903e474a98fc87cac00e274aed"
+        },
+        "v7": {
+          "bytes": 921,
+          "sha256": "df5d38942c1be5bcb34b645636d15ef5c6d733ad2d7d0ad7957c3386ecb67fcc"
+        },
+        "v9": {
+          "bytes": 921,
+          "sha256": "df5d38942c1be5bcb34b645636d15ef5c6d733ad2d7d0ad7957c3386ecb67fcc"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "public/icon.svg",
+      "versions": {
+        "v6": {
+          "bytes": 208,
+          "sha256": "ed403971adbef60935a7ec831c4ee82d690abde12e69c3e3a930c8e8b624dc55"
+        },
+        "v7": {
+          "bytes": 208,
+          "sha256": "ed403971adbef60935a7ec831c4ee82d690abde12e69c3e3a930c8e8b624dc55"
+        },
+        "v9": {
+          "bytes": 208,
+          "sha256": "ed403971adbef60935a7ec831c4ee82d690abde12e69c3e3a930c8e8b624dc55"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "public/manifest.webmanifest",
+      "versions": {
+        "v6": {
+          "bytes": 202,
+          "sha256": "d58806436692b23bd87b7fd3332611ee4cb742d854db50c50beea01f3cf736eb"
+        },
+        "v7": {
+          "bytes": 239,
+          "sha256": "1f4d29771086261235ceba0399b149e99fa2dfed49a702eb561ab09019ca90c4"
+        },
+        "v9": {
+          "bytes": 239,
+          "sha256": "1f4d29771086261235ceba0399b149e99fa2dfed49a702eb561ab09019ca90c4"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "public/sw.js",
+      "versions": {
+        "v6": {
+          "bytes": 520,
+          "sha256": "f11922a63c762d874a673807b1776ef6d17e3c774398faeb19c2546407f0ec02"
+        },
+        "v7": {
+          "bytes": 2167,
+          "sha256": "2c38bc68cb13a985b39952c09b1cb1d847a58b410d46b885c76339abd4a4f7a5"
+        },
+        "v9": {
+          "bytes": 2167,
+          "sha256": "2c38bc68cb13a985b39952c09b1cb1d847a58b410d46b885c76339abd4a4f7a5"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/app/App.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 8239,
+          "sha256": "39f2886d4eda1612defaea3b0e3b619d769e8dcf28f3a553bb42edb6ed021a3f"
+        },
+        "v7": {
+          "bytes": 12884,
+          "sha256": "f2f7d291df5deeaef64039a50842da0f705dd5723d239402af3599100e8b8849"
+        },
+        "v9": {
+          "bytes": 11431,
+          "sha256": "a7a882f77b59a6a08f79fa562af8aa7f0b21e4fc23ddfe6da9ee2a257bbacef7"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/components/AuctionCountdown.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 696,
+          "sha256": "2adac4f4a4f8bfc639fe08090e2043abac4ccb061b5ae1307c57ffe21b24d831"
+        },
+        "v7": {
+          "bytes": 896,
+          "sha256": "a50d17968b71b525460d9c170d8124442d5489d1aeb7215b69f0597d34084648"
+        },
+        "v9": {
+          "bytes": 896,
+          "sha256": "a50d17968b71b525460d9c170d8124442d5489d1aeb7215b69f0597d34084648"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/components/Header.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 572,
+          "sha256": "748fa1bc63b1fb0032ba77a754c70f432bec10228a992e45895c801c8970e20c"
+        },
+        "v7": {
+          "bytes": 812,
+          "sha256": "578d45b2b9da705d73abf9e23849c90e429f87902c7d0f2bfaba28097850be31"
+        },
+        "v9": {
+          "bytes": 1098,
+          "sha256": "9b72208cb01fea21fc7e413e1d6d51318ae2d026fa2caaea55f12a82104478e6"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/components/ListingCard.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 903,
+          "sha256": "61bc8bc196c52e6d64af2956245ea46ab28925ab041f22866b200136595185b7"
+        },
+        "v7": {
+          "bytes": 1233,
+          "sha256": "2ef58396595ad437399960b6bed59fd0422ec82dfe472bbeb0526d1f68598f0d"
+        },
+        "v9": {
+          "bytes": 1233,
+          "sha256": "2ef58396595ad437399960b6bed59fd0422ec82dfe472bbeb0526d1f68598f0d"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/components/Logo.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 188,
+          "sha256": "00fe423dafa02362fb4fe8df6080a24fe611c1eed45f50900944d3d048ee6930"
+        },
+        "v7": {
+          "bytes": 346,
+          "sha256": "09a553f76efbeb93a11cdd108d87942f33c48b2601c9ca5acdba820bce633e70"
+        },
+        "v9": {
+          "bytes": 346,
+          "sha256": "09a553f76efbeb93a11cdd108d87942f33c48b2601c9ca5acdba820bce633e70"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/components/TrustBadges.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 386,
+          "sha256": "19b56301787e07a594983b588543564d17f22f934b9aeb769a405db150db929e"
+        },
+        "v7": {
+          "bytes": 580,
+          "sha256": "cbafffc44f997fac4cee534123b3ec72d4d651661c12dcc294ee6756c9a0356e"
+        },
+        "v9": {
+          "bytes": 580,
+          "sha256": "cbafffc44f997fac4cee534123b3ec72d4d651661c12dcc294ee6756c9a0356e"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/account/MyAuctions.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1235,
+          "sha256": "bbb6c51fdc32518d8f4dc87da658dc3c6e1e9e61b83f9c93e3f41ae04cf0c240"
+        },
+        "v7": {
+          "bytes": 1881,
+          "sha256": "0829cb07a450b37cc3bb55c1da3501af47161c80494507ec968fc0d90f85045b"
+        },
+        "v9": {
+          "bytes": 2900,
+          "sha256": "21ded80c6d7614d1dd7fb1856b7080d48899f028a58060dca8cee14c885c854c"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/admin/AdminDashboard.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1427,
+          "sha256": "5bd1f1cbec97fce8fbdb92848d0cac33e224e2a48274b91486e3c70ce068e06a"
+        },
+        "v7": {
+          "bytes": 2080,
+          "sha256": "32f02bf589292343deaa5727604a8682bd7fccaf25cab5333868ceb961dabafa"
+        },
+        "v9": {
+          "bytes": 2986,
+          "sha256": "2f8f915a9a122a9a5558f05f8d7ab9b7f87dbb6b02a5c78c6e6cbbe7c49b9c09"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/auth/AuthPage.tsx",
+      "versions": {
+        "v9": {
+          "bytes": 2200,
+          "sha256": "fd0d64576f815e2acdef31fba73411c0840423e8111a08bc4f1844cbbc1f3b58"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/auth/RecoveryCard.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 988,
+          "sha256": "f89c0bc52aac35c72cc8965b454302face515051ce97a90592780c9fce8d165b"
+        },
+        "v7": {
+          "bytes": 1382,
+          "sha256": "5a864f546272809ffe9832cd3e8f2ecf68c40d78e99820cbd72a60111626e799"
+        },
+        "v9": {
+          "bytes": 1382,
+          "sha256": "5a864f546272809ffe9832cd3e8f2ecf68c40d78e99820cbd72a60111626e799"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/auth/useSession.ts",
+      "versions": {
+        "v9": {
+          "bytes": 632,
+          "sha256": "fa952171d99feeb4ac7a178b84f3a821f35b2bc1694f84dd0709657dc1236160"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/bidding/LiveBidStage.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1589,
+          "sha256": "dae472eb6327083de7ad3b19b3dd05a3b11493abea2316c170ff6970b0864037"
+        },
+        "v7": {
+          "bytes": 2220,
+          "sha256": "77dd746133d4051b243a668b6c46f0d57fcfb2b964cef1a16fc37d218d4e19b2"
+        },
+        "v9": {
+          "bytes": 2650,
+          "sha256": "eb58a8e8bd099e576e9de504b6deffe1ea8341e82aa2d5b07179ed02dd4037a8"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/bidding/ProxyBidPanel.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1493,
+          "sha256": "ebfee7c10de930eda1b1641eeb8412c6a8ebd1ab2e5d74807b29cb9fc76944d4"
+        },
+        "v7": {
+          "bytes": 1984,
+          "sha256": "6e1319ccfa5b4410db5adee32eadb26a0913888bd776a326b420fb6e7fe6e51b"
+        },
+        "v9": {
+          "bytes": 1984,
+          "sha256": "6e1319ccfa5b4410db5adee32eadb26a0913888bd776a326b420fb6e7fe6e51b"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/bidding/api.ts",
+      "versions": {
+        "v6": {
+          "bytes": 333,
+          "sha256": "4dd2b18a7f3314bcf95f76320f8556d5a03c9b8d8b407c8677bef1e9387c0e2e"
+        },
+        "v7": {
+          "bytes": 385,
+          "sha256": "cef54015a7bf104fac475e4121163ad74a14d50fa5ccf55f73f6dc439506e811"
+        },
+        "v9": {
+          "bytes": 385,
+          "sha256": "cef54015a7bf104fac475e4121163ad74a14d50fa5ccf55f73f6dc439506e811"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/bidding/useAuctionRealtime.ts",
+      "versions": {
+        "v6": {
+          "bytes": 495,
+          "sha256": "ecb46d379068825d827fd5d4be4ef5a08443438675ca180222fae860c69c2abf"
+        },
+        "v7": {
+          "bytes": 689,
+          "sha256": "5aa76499018bc9a8360994e8300382b05cf58785229833cc7de56e582eadc284"
+        },
+        "v9": {
+          "bytes": 683,
+          "sha256": "9654b11c45e7208f08310722c1e64cdb7884b449b331d84492dadff9e5e6af0a"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/disputes/DisputeCenter.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1722,
+          "sha256": "1b42801b501ea0c707d1f3e00fd2673d614be3c758ecaca3abea289580a16ce8"
+        },
+        "v7": {
+          "bytes": 2270,
+          "sha256": "8d469461eef692e1480c5642826a6f4c6d0d8678a3495f21377eaada8040d2a5"
+        },
+        "v9": {
+          "bytes": 2270,
+          "sha256": "8d469461eef692e1480c5642826a6f4c6d0d8678a3495f21377eaada8040d2a5"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/listings/CreateListingPage.tsx",
+      "versions": {
+        "v9": {
+          "bytes": 6044,
+          "sha256": "2bb8838868244c42c1b195cedaf22f68ee913527bb6d382507fdb02eb1b25ad2"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/listings/PublicQuestions.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1341,
+          "sha256": "5188a0ce9c11ce345a44c34a1bbf413a5f831a8e664d84a19bc7fac934308b0e"
+        },
+        "v7": {
+          "bytes": 1907,
+          "sha256": "34fab07f3fdd719ce7cd751115a360d9d65a2e9c7dea3974c8c8598b7d8e1edc"
+        },
+        "v9": {
+          "bytes": 1994,
+          "sha256": "9f74391b459305b26f57be077fc168c621093f38d7be99c4986aaf7b5add05e7"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/listings/mock.ts",
+      "versions": {
+        "v6": {
+          "bytes": 1993,
+          "sha256": "1282b880ed39fa3825c3021a4b285654adb201ddda9a0792c2a75a28af683341"
+        },
+        "v7": {
+          "bytes": 2480,
+          "sha256": "6d65fd569970dc4fd39a8aa74a33627edc19e5d7a673daa9a0002aa8d9b0b913"
+        },
+        "v9": {
+          "bytes": 3838,
+          "sha256": "bcea4b442a3d056e46aa61118198567b726b45e7e84de36fc4c7c8ab89349678"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/listings/useListings.ts",
+      "versions": {
+        "v9": {
+          "bytes": 2656,
+          "sha256": "297d02343a91fea966d4f57a6045a096bbd787e46323f7bb38d1c1390265b4d8"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/messaging/OrderChat.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 1616,
+          "sha256": "e2868086007d3fff78da2b31da282a044a40b65cc4c7473dfce27f92a795c02f"
+        },
+        "v7": {
+          "bytes": 2241,
+          "sha256": "ab771ce234f6fe9c9320a8db29696cfc74cd45161a03db5b33e84796100f7a1b"
+        },
+        "v9": {
+          "bytes": 2229,
+          "sha256": "758453a2da45d6313f88524dd70015df2c7b1dbe087b81cfdc5733849c6481d0"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/notifications/NotificationSettings.tsx",
+      "versions": {
+        "v9": {
+          "bytes": 2013,
+          "sha256": "18ae866003c31228e1b7b97c48939085018e3917f4f30a5bac537ac688672d82"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/features/orders/payment-provider.ts",
+      "versions": {
+        "v6": {
+          "bytes": 954,
+          "sha256": "6633ae6e63932a3ed7e487668e164ae9c8c11753dd004be58d59dc82b2244a3e"
+        },
+        "v7": {
+          "bytes": 1110,
+          "sha256": "b178886c328038e93fd9623ac3962faa91ca0875d6b6b2e8843ca477f2f66bce"
+        },
+        "v9": {
+          "bytes": 1110,
+          "sha256": "b178886c328038e93fd9623ac3962faa91ca0875d6b6b2e8843ca477f2f66bce"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/auction.test.ts",
+      "versions": {
+        "v6": {
+          "bytes": 336,
+          "sha256": "f79b1f7adcb9260933c1977b880e0697e4c0736942e93683ea953bd28918a802"
+        },
+        "v7": {
+          "bytes": 966,
+          "sha256": "07596b179ea68461ce2a24021a493a9e9f8fdfc7406fb44ef55749f59dfb762d"
+        },
+        "v9": {
+          "bytes": 966,
+          "sha256": "07596b179ea68461ce2a24021a493a9e9f8fdfc7406fb44ef55749f59dfb762d"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/auction.ts",
+      "versions": {
+        "v6": {
+          "bytes": 192,
+          "sha256": "163bf193d89df0aa4380eeb3f21f7e0b435dafcdb3082c107e840d6231ca88c8"
+        },
+        "v7": {
+          "bytes": 1170,
+          "sha256": "be04c9b3eeb2829d2c9eee5dae6791f663333f0e0c7a864ecc8305a375768855"
+        },
+        "v9": {
+          "bytes": 1170,
+          "sha256": "be04c9b3eeb2829d2c9eee5dae6791f663333f0e0c7a864ecc8305a375768855"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/images.ts",
+      "versions": {
+        "v6": {
+          "bytes": 711,
+          "sha256": "098f1749b3a6c4ff45869af7a5559ad0165c5604c4bafa56e3c4f2f1ef112860"
+        },
+        "v7": {
+          "bytes": 812,
+          "sha256": "c548d92de08729fce5521ba680952b46f157dcfc9b8b3e03b3c75fbdf9dc9f54"
+        },
+        "v9": {
+          "bytes": 812,
+          "sha256": "c548d92de08729fce5521ba680952b46f157dcfc9b8b3e03b3c75fbdf9dc9f54"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/money.test.ts",
+      "versions": {
+        "v6": {
+          "bytes": 336,
+          "sha256": "6e2a282bae994ed4970dd4f6e8f2df57b7614eee20f826093ad2599a9e82023b"
+        },
+        "v7": {
+          "bytes": 1043,
+          "sha256": "764d295db32bf3c77a246e09cb9ddc05ff3fc38c13961fdd918206d9921e84a6"
+        },
+        "v9": {
+          "bytes": 1043,
+          "sha256": "764d295db32bf3c77a246e09cb9ddc05ff3fc38c13961fdd918206d9921e84a6"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/money.ts",
+      "versions": {
+        "v6": {
+          "bytes": 477,
+          "sha256": "901458f775ed847b77734f171f8676d5f2db8fb6c134aec3057516a65605779e"
+        },
+        "v7": {
+          "bytes": 1089,
+          "sha256": "ba1c231c61634ab1dec3c6ca4db7a1679918c700b3354c6a892ae58acff2dbf9"
+        },
+        "v9": {
+          "bytes": 1089,
+          "sha256": "ba1c231c61634ab1dec3c6ca4db7a1679918c700b3354c6a892ae58acff2dbf9"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/pwa.ts",
+      "versions": {
+        "v6": {
+          "bytes": 241,
+          "sha256": "956247339c4b3c51f79ff1e0f0d8e63f8e21314afd424f4083dcb9d5c91d0792"
+        },
+        "v7": {
+          "bytes": 265,
+          "sha256": "e26d06dcc3c8f13fec1281d1ccc8fd2f2b45a25fd4f2abf3e2a767800bcb74b9"
+        },
+        "v9": {
+          "bytes": 265,
+          "sha256": "e26d06dcc3c8f13fec1281d1ccc8fd2f2b45a25fd4f2abf3e2a767800bcb74b9"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/lib/supabase.ts",
+      "versions": {
+        "v6": {
+          "bytes": 297,
+          "sha256": "090aa3aec5fae2b05e56c8a0503ed9c894379abaea126ffafaec5df3b8cca1c6"
+        },
+        "v7": {
+          "bytes": 327,
+          "sha256": "f0a6f3783ca273bc8dc55592cf63a0212d53fe5e9d4dd4d13fa620d99f52baa6"
+        },
+        "v9": {
+          "bytes": 327,
+          "sha256": "f0a6f3783ca273bc8dc55592cf63a0212d53fe5e9d4dd4d13fa620d99f52baa6"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/main.tsx",
+      "versions": {
+        "v6": {
+          "bytes": 464,
+          "sha256": "c94b1eb9a6050df03527ffa07078cfb8a1fa1c460551082cf15600fcb767da57"
+        },
+        "v7": {
+          "bytes": 982,
+          "sha256": "14062d368793db9945f0a37b64fab54e563349bf7f33d24d827edbb82c157077"
+        },
+        "v9": {
+          "bytes": 982,
+          "sha256": "14062d368793db9945f0a37b64fab54e563349bf7f33d24d827edbb82c157077"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/styles.css",
+      "versions": {
+        "v6": {
+          "bytes": 17476,
+          "sha256": "c8d50212a0325d07c3f8ddcce9b146f21dd8402132a20889b07c835daaeeefc5"
+        },
+        "v7": {
+          "bytes": 22558,
+          "sha256": "87cf7596348c1f3a0131636f842f37fd064ceaf4bc20c15829479507d981c7e8"
+        },
+        "v9": {
+          "bytes": 24585,
+          "sha256": "866889f32bd043fc8c448dcb2842dbc72b67931bd7582c6c339cb23dc359ac15"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/types/domain.ts",
+      "versions": {
+        "v6": {
+          "bytes": 238,
+          "sha256": "72252f5e2e570ef49717100a9704118cb08de0964ce41bcd617f37eff0509390"
+        },
+        "v7": {
+          "bytes": 298,
+          "sha256": "9a27cc32bd1a972adce69113ad67bbd9b685ce99ea4027135a4f782f98b5a288"
+        },
+        "v9": {
+          "bytes": 336,
+          "sha256": "f3e028f4c9f227e187d62fe26e51ffae1916d0e2ceb5d935d89e4cbf53c957d8"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "src/vite-env.d.ts",
+      "versions": {
+        "v7": {
+          "bytes": 362,
+          "sha256": "dfec0e5935864e4de88324f73f13c61b25fab93caae0f0880d16ac512d2d6574"
+        },
+        "v9": {
+          "bytes": 362,
+          "sha256": "dfec0e5935864e4de88324f73f13c61b25fab93caae0f0880d16ac512d2d6574"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/functions/close-auctions/index.ts",
+      "versions": {
+        "v6": {
+          "bytes": 459,
+          "sha256": "7b30b3a56aa01c3e690d97ef27248e711a995c3ac27c4c028f0caecd15d2c0d0"
+        },
+        "v7": {
+          "bytes": 1228,
+          "sha256": "c3daf9ab50ba90febd4826c8562b67c0df315f65c158ff27abe79959b13a952f"
+        },
+        "v9": {
+          "bytes": 1228,
+          "sha256": "c3daf9ab50ba90febd4826c8562b67c0df315f65c158ff27abe79959b13a952f"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/functions/mercadopago-oauth/index.ts",
+      "versions": {
+        "v6": {
+          "bytes": 609,
+          "sha256": "72fc8db657cc069a9758156ed916975e701a3f16b443d565bc8efb010600221a"
+        },
+        "v7": {
+          "bytes": 451,
+          "sha256": "57544a3fe00ef90ff57657b75df4cbefdddec1a0d5043632ae1bf66da4367e68"
+        },
+        "v9": {
+          "bytes": 451,
+          "sha256": "57544a3fe00ef90ff57657b75df4cbefdddec1a0d5043632ae1bf66da4367e68"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/functions/payments/index.ts",
+      "versions": {
+        "v6": {
+          "bytes": 245,
+          "sha256": "94c5c52ab4024df3d35c34dd3d763e0e9f71df2acdd4308185e816788601fc8e"
+        }
+      },
+      "decision": "Stub antigo de pagamento descartado; não comprovava operação real."
+    },
+    {
+      "file": "supabase/functions/send-notification/index.ts",
+      "versions": {
+        "v6": {
+          "bytes": 170,
+          "sha256": "6d6657f4c4d44ef1bc442f5156f93d5376e8a7b40950d5dc6b90b9703d1ec6b0"
+        },
+        "v7": {
+          "bytes": 474,
+          "sha256": "7e8367a8423dca7036c83bd33e9e563b75d1de21ac6488c48d4c9f0a9779a928"
+        },
+        "v9": {
+          "bytes": 474,
+          "sha256": "7e8367a8423dca7036c83bd33e9e563b75d1de21ac6488c48d4c9f0a9779a928"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/functions/webhooks/mercadopago/index.ts",
+      "versions": {
+        "v6": {
+          "bytes": 183,
+          "sha256": "2ad620233b8f13755f5a656c8fd724076ea50c735e160508532f37177d166eaa"
+        },
+        "v7": {
+          "bytes": 346,
+          "sha256": "385936344a9348c99cbeb5cb016f7a6c037a6a7f22b1a9542b75c4a8b3e025f5"
+        },
+        "v9": {
+          "bytes": 346,
+          "sha256": "385936344a9348c99cbeb5cb016f7a6c037a6a7f22b1a9542b75c4a8b3e025f5"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921122500_core.sql",
+      "versions": {
+        "v6": {
+          "bytes": 6471,
+          "sha256": "da5081169149c6e667086f7b0af006b8258973e2182ad865f65b09e51764204c"
+        },
+        "v7": {
+          "bytes": 6471,
+          "sha256": "da5081169149c6e667086f7b0af006b8258973e2182ad865f65b09e51764204c"
+        },
+        "v9": {
+          "bytes": 6471,
+          "sha256": "da5081169149c6e667086f7b0af006b8258973e2182ad865f65b09e51764204c"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921123500_social_disputes_realtime.sql",
+      "versions": {
+        "v6": {
+          "bytes": 6778,
+          "sha256": "22480a82f6a940917056c9bda9557693c98d80f088f4138a402578e957514281"
+        },
+        "v7": {
+          "bytes": 6778,
+          "sha256": "22480a82f6a940917056c9bda9557693c98d80f088f4138a402578e957514281"
+        },
+        "v9": {
+          "bytes": 6778,
+          "sha256": "22480a82f6a940917056c9bda9557693c98d80f088f4138a402578e957514281"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921131000_proxy_close_admin.sql",
+      "versions": {
+        "v6": {
+          "bytes": 3998,
+          "sha256": "a4f31bf033f4c85849f9c1745adb5f1c4ca69528682776f7c2c509d2193ec2b4"
+        },
+        "v7": {
+          "bytes": 557,
+          "sha256": "f72e05eef89c47728b76f41781671c95c5f99edcbd55ec0e47582584f998cff1"
+        },
+        "v9": {
+          "bytes": 557,
+          "sha256": "f72e05eef89c47728b76f41781671c95c5f99edcbd55ec0e47582584f998cff1"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921132500_notification_preferences.sql",
+      "versions": {
+        "v6": {
+          "bytes": 737,
+          "sha256": "6f63c2f6c38c61440122cc0a580a2083f62ff5da2ab4c20f6d4230c6b5b074b7"
+        },
+        "v7": {
+          "bytes": 737,
+          "sha256": "6f63c2f6c38c61440122cc0a580a2083f62ff5da2ab4c20f6d4230c6b5b074b7"
+        },
+        "v9": {
+          "bytes": 737,
+          "sha256": "6f63c2f6c38c61440122cc0a580a2083f62ff5da2ab4c20f6d4230c6b5b074b7"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921140000_hardening.sql",
+      "versions": {
+        "v7": {
+          "bytes": 21648,
+          "sha256": "8ff46ad60cefa0d43dc057bdea147edb5a3068a525376c78ec1fa7ebdbbb91f2"
+        },
+        "v9": {
+          "bytes": 21648,
+          "sha256": "8ff46ad60cefa0d43dc057bdea147edb5a3068a525376c78ec1fa7ebdbbb91f2"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921141000_auction_engine.sql",
+      "versions": {
+        "v7": {
+          "bytes": 17908,
+          "sha256": "45857735f965f3038189d3d200b7025fd5a43180fea31415f1b0848a87980068"
+        },
+        "v9": {
+          "bytes": 17908,
+          "sha256": "45857735f965f3038189d3d200b7025fd5a43180fea31415f1b0848a87980068"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/migrations/20260921204000_listing_creation_and_preferences.sql",
+      "versions": {
+        "v9": {
+          "bytes": 2043,
+          "sha256": "655fed6d8ebe4985e373ce317a96320cde8525cba7f934eeb8d548cea9162f08"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/scripts/promote-admin.sql",
+      "versions": {
+        "v7": {
+          "bytes": 482,
+          "sha256": "d5fd6c64e87d55b4530f4720ce897cdac4d1fd104264bb1314f9e65cacdc4e1d"
+        },
+        "v9": {
+          "bytes": 482,
+          "sha256": "d5fd6c64e87d55b4530f4720ce897cdac4d1fd104264bb1314f9e65cacdc4e1d"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/scripts/schedule-close-auctions.sql",
+      "versions": {
+        "v7": {
+          "bytes": 299,
+          "sha256": "2ecad184245775bc80275769543ed34944407e92d66e3ce879262c84611c5b0b"
+        },
+        "v9": {
+          "bytes": 299,
+          "sha256": "2ecad184245775bc80275769543ed34944407e92d66e3ce879262c84611c5b0b"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/seed.sql",
+      "versions": {
+        "v6": {
+          "bytes": 292,
+          "sha256": "48617de332f323888dd4a11ebfa3e0442119c594bb98eadc97e755edf44d0ddd"
+        },
+        "v7": {
+          "bytes": 292,
+          "sha256": "48617de332f323888dd4a11ebfa3e0442119c594bb98eadc97e755edf44d0ddd"
+        },
+        "v9": {
+          "bytes": 292,
+          "sha256": "48617de332f323888dd4a11ebfa3e0442119c594bb98eadc97e755edf44d0ddd"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/tests/00_supabase_stub.sql",
+      "versions": {
+        "v7": {
+          "bytes": 1883,
+          "sha256": "aef87d805666add569637dd6ee23dd56be0df492fabe47b2674855e64b982cff"
+        },
+        "v9": {
+          "bytes": 1883,
+          "sha256": "aef87d805666add569637dd6ee23dd56be0df492fabe47b2674855e64b982cff"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/tests/concurrency.sh",
+      "versions": {
+        "v7": {
+          "bytes": 2499,
+          "sha256": "c8a73275a5821cca4d70959e035944f5036ac0972ca8c91c2d8794ee369a11a4"
+        },
+        "v9": {
+          "bytes": 2499,
+          "sha256": "c8a73275a5821cca4d70959e035944f5036ac0972ca8c91c2d8794ee369a11a4"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/tests/database.sql",
+      "versions": {
+        "v7": {
+          "bytes": 24873,
+          "sha256": "74f0f29bdc532de14ab813fc49eb1cd0c2434bcb885002ea623ea24a1ad4fb02"
+        },
+        "v9": {
+          "bytes": 24873,
+          "sha256": "74f0f29bdc532de14ab813fc49eb1cd0c2434bcb885002ea623ea24a1ad4fb02"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "supabase/tests/run.sh",
+      "versions": {
+        "v7": {
+          "bytes": 681,
+          "sha256": "3e37facd9f22f6952a609cc55a21a2f3803bc12423e4d6a2dd6bce9ec3be93d5"
+        },
+        "v9": {
+          "bytes": 681,
+          "sha256": "3e37facd9f22f6952a609cc55a21a2f3803bc12423e4d6a2dd6bce9ec3be93d5"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "tsconfig.json",
+      "versions": {
+        "v6": {
+          "bytes": 419,
+          "sha256": "47a023d5d49bd82152be15615b8b3534a9407b4a95a885ecc61d22e1ee82a748"
+        },
+        "v7": {
+          "bytes": 527,
+          "sha256": "83efc1798334967d5a907f26b8cba31fa213f16b5ac0ed5c02fd38e7cf0ceb66"
+        },
+        "v9": {
+          "bytes": 527,
+          "sha256": "83efc1798334967d5a907f26b8cba31fa213f16b5ac0ed5c02fd38e7cf0ceb66"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "tsconfig.tsbuildinfo",
+      "versions": {
+        "v6": {
+          "bytes": 372,
+          "sha256": "772f5e757c0aa62409db207ea1cad307f0385877036e68cc2094046412d654b5"
+        }
+      },
+      "decision": "Cache de compilação descartado."
+    },
+    {
+      "file": "vercel.json",
+      "versions": {
+        "v7": {
+          "bytes": 1271,
+          "sha256": "0db9ff667aa9b02d1d3bd2d5812e381afa670f8002fa969a4f5cba8aa45fecba"
+        },
+        "v9": {
+          "bytes": 1271,
+          "sha256": "0db9ff667aa9b02d1d3bd2d5812e381afa670f8002fa969a4f5cba8aa45fecba"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    },
+    {
+      "file": "vite.config.ts",
+      "versions": {
+        "v6": {
+          "bytes": 132,
+          "sha256": "0ea84b4e2909b04e4c1cb1b92392a9f85bcb46605472763b15935d3498ba8ed3"
+        },
+        "v7": {
+          "bytes": 132,
+          "sha256": "0ea84b4e2909b04e4c1cb1b92392a9f85bcb46605472763b15935d3498ba8ed3"
+        },
+        "v9": {
+          "bytes": 132,
+          "sha256": "0ea84b4e2909b04e4c1cb1b92392a9f85bcb46605472763b15935d3498ba8ed3"
+        }
+      },
+      "decision": "Presente na consolidação; base mais recente, revisada conforme docs/REVISAO.md."
+    }
+  ]
+}
