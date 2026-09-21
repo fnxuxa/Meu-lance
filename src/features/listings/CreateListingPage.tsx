@@ -6,10 +6,13 @@ import { compressListingImage } from '../../lib/images';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
 import { parseBRLToCents } from '../../lib/money';
+import { BR_STATES, citiesForUf } from '../../lib/brazil';
+import { useDocumentMeta } from '../../lib/useDocumentMeta';
 type Photo = { file: File; url: string };
 type Cat = { id: string; name: string };
 export function CreateListingPage() {
   const { user, loading } = useSession();
+  useDocumentMeta({ title: 'Anunciar um leilão', noindex: true });
   const nav = useNavigate();
   const savedForm = useRef<FormData | null>(null);
   const draftId = useRef<string | null>(null);
@@ -24,7 +27,21 @@ export function CreateListingPage() {
   const [photos, setPhotos] = useState<Photo[]>([]),
     [cats, setCats] = useState<Cat[]>([]),
     [busy, setBusy] = useState(false),
-    [message, setMessage] = useState('');
+    [message, setMessage] = useState(''),
+    [uf, setUf] = useState(''),
+    [city, setCity] = useState(''),
+    [cityOptions, setCityOptions] = useState<string[]>([]);
+  useEffect(() => {
+    let active = true;
+    setCityOptions([]);
+    if (!uf) return;
+    void citiesForUf(uf).then((list) => {
+      if (active) setCityOptions(list);
+    });
+    return () => {
+      active = false;
+    };
+  }, [uf]);
   useEffect(() => {
     if (!supabase) return;
     void supabase
@@ -233,12 +250,44 @@ export function CreateListingPage() {
                 </select>
               </label>
               <label>
-                Cidade
-                <input name="city" required />
+                UF
+                <select
+                  name="state"
+                  required
+                  value={uf}
+                  onChange={(e) => {
+                    setUf(e.target.value);
+                    setCity('');
+                  }}
+                >
+                  <option value="" disabled>
+                    Selecione
+                  </option>
+                  {BR_STATES.map((s) => (
+                    <option value={s.uf} key={s.uf}>
+                      {s.name} ({s.uf})
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
-                UF
-                <input name="state" required maxLength={2} />
+                Cidade
+                <select
+                  name="city"
+                  required
+                  disabled={!uf}
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                >
+                  <option value="" disabled>
+                    {uf ? 'Selecione' : 'Escolha a UF primeiro'}
+                  </option>
+                  {cityOptions.map((c) => (
+                    <option value={c} key={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
                 Entrega

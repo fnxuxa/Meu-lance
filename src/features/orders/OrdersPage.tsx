@@ -6,6 +6,7 @@ import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { OrderChat } from '../messaging/OrderChat';
 import { DisputeCenter } from '../disputes/DisputeCenter';
+import { useDocumentMeta } from '../../lib/useDocumentMeta';
 const labels: Record<string, string> = {
   pending_payment: 'Aguardando pagamento',
   paid: 'Pago',
@@ -20,6 +21,7 @@ const labels: Record<string, string> = {
 };
 export function OrdersPage({ sales = false }: { sales?: boolean }) {
   const { user, loading } = useSession();
+  useDocumentMeta({ title: sales ? 'Minhas vendas' : 'Minhas compras', noindex: true });
   const query = useQuery({
     queryKey: ['orders', user?.id, sales],
     enabled: !!supabase && !!user,
@@ -61,6 +63,7 @@ export function OrdersPage({ sales = false }: { sales?: boolean }) {
 export function OrderPage() {
   const { id } = useParams();
   const { user, loading } = useSession();
+  useDocumentMeta({ title: 'Pedido', noindex: true });
   const query = useQuery({
     queryKey: ['order', id, user?.id],
     enabled: !!supabase && !!user && !!id,

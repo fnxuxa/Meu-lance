@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Routes, Route, Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
@@ -31,8 +31,40 @@ import { CreateListingPage } from '../features/listings/CreateListingPage';
 import { AuthPage } from '../features/auth/AuthPage';
 import { NotificationSettings } from '../features/notifications/NotificationSettings';
 import { formatBRL } from '../lib/money';
+import { useDocumentMeta, setJsonLd, removeJsonLd } from '../lib/useDocumentMeta';
 function Home() {
   const { data: listings, loading, error, demo } = useListings();
+  useDocumentMeta({
+    title: 'MeuLance — leilões online de usados com o melhor lance',
+    description:
+      'Compre e venda usados em leilões online no Brasil. Anuncie de graça, deixe o preço subir com a disputa e feche negócio com histórico de lances transparente.',
+    canonicalPath: '/',
+  });
+  useEffect(() => {
+    setJsonLd('ld-org', {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'MeuLance',
+      url: window.location.origin,
+      logo: window.location.origin + '/icon.svg',
+      description: 'Marketplace de leilões online de itens usados entre pessoas físicas no Brasil.',
+    });
+    setJsonLd('ld-site', {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'MeuLance',
+      url: window.location.origin,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${window.location.origin}/buscar?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    });
+    return () => {
+      removeJsonLd('ld-org');
+      removeJsonLd('ld-site');
+    };
+  }, []);
   return (
     <>
       <section className="hero">
@@ -62,7 +94,7 @@ function Home() {
           <div className="trust-row">
             <span>
               <ShieldCheck />
-              Pagamento indisponível nesta versão
+              Anuncie grátis, só paga se vender
             </span>
             <span>
               <CheckCircle2 />
@@ -144,6 +176,45 @@ function Home() {
           </article>
         </div>
       </section>
+      <section className="section">
+        <div className="section-head">
+          <div>
+            <span className="kicker">POR QUE LEILÃO</span>
+            <h2>
+              Preço fixo trava seu anúncio num chute.
+              <br />O lance encontra o valor real.
+            </h2>
+          </div>
+        </div>
+        <div className="compare-grid">
+          <div className="compare-card">
+            <span className="compare-tag">Anúncio de preço fixo</span>
+            <ul>
+              <li>Você chuta um valor e torce: alto demais, ninguém compra; baixo demais, você perde dinheiro.</li>
+              <li>Sem prazo, sem urgência — o anúncio junta poeira por semanas.</li>
+              <li>Cada comprador tenta pechinchar no particular, um de cada vez.</li>
+            </ul>
+          </div>
+          <div className="compare-card highlight">
+            <span className="compare-tag">Leilão progressivo no MeuLance</span>
+            <ul>
+              <li>Vários interessados disputam ao mesmo tempo e o preço sobe até o valor justo de mercado.</li>
+              <li>Contagem regressiva pública cria urgência real — as disputas acirram no fim.</li>
+              <li>Histórico de lances transparente dá segurança para o comprador pagar mais.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <div className="cta">
+        <div>
+          <span className="kicker">TEM ALGO PARADO EM CASA?</span>
+          <h2>Publique em minutos e deixe o mercado decidir o preço.</h2>
+          <p>Anúncio grátis. Você só paga uma pequena comissão quando o item é vendido.</p>
+        </div>
+        <Link className="btn light" to="/vender/novo">
+          Anunciar agora <ArrowRight />
+        </Link>
+      </div>
     </>
   );
 }
@@ -151,6 +222,11 @@ function SearchPage() {
   const [params, setParams] = useSearchParams();
   const { data: listingsData, loading, error, demo } = useListings();
   const q = params.get('q') ?? '';
+  useDocumentMeta({
+    title: q ? `${q} — resultados de leilão` : 'Leilões ativos de usados',
+    description: 'Busque leilões de usados por produto, categoria, cidade ou estado e dê seu lance.',
+    canonicalPath: '/buscar',
+  });
   const setQ = (value: string) => {
     const next = new URLSearchParams(params);
     next.set('q', value);
@@ -213,6 +289,36 @@ function Detail() {
   const { slug } = useParams();
   const { data: item, loading, error, demo, refresh } = useListing(slug);
   const [active, setActive] = useState(0);
+  useDocumentMeta({
+    title: item ? `${item.title} — ${item.city}/${item.state}` : 'Leilão',
+    description: item
+      ? `${item.title}: lance atual ${formatBRL(item.currentPriceCents)}, estado ${item.condition}, em ${item.city}/${item.state}. Dê seu lance no MeuLance.`
+      : undefined,
+    canonicalPath: slug ? `/l/${slug}` : undefined,
+  });
+  useEffect(() => {
+    if (!item) return;
+    setJsonLd('ld-product', {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: item.title,
+      description: item.description,
+      image: item.images,
+      category: item.category,
+      itemCondition:
+        item.condition === 'Novo'
+          ? 'https://schema.org/NewCondition'
+          : 'https://schema.org/UsedCondition',
+      offers: {
+        '@type': 'Offer',
+        price: (item.currentPriceCents / 100).toFixed(2),
+        priceCurrency: 'BRL',
+        availability: item.status === 'active' ? 'https://schema.org/InStock' : 'https://schema.org/SoldOut',
+        url: window.location.href,
+      },
+    });
+    return () => removeJsonLd('ld-product');
+  }, [item]);
   if (loading)
     return (
       <main className="page simple">
@@ -314,6 +420,130 @@ function NotFound() {
     </main>
   );
 }
+function HowItWorks() {
+  useDocumentMeta({
+    title: 'Como funciona — venda por leilão progressivo',
+    description:
+      'Entenda como funciona vender e comprar usados em leilão no MeuLance: anuncie grátis, receba lances progressivos e feche pelo valor real de mercado.',
+    canonicalPath: '/como-funciona',
+  });
+  useEffect(() => {
+    setJsonLd('ld-faq', {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Quanto custa anunciar no MeuLance?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Anunciar é grátis. O MeuLance cobra uma pequena comissão apenas sobre vendas concluídas.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Por que vender em leilão em vez de preço fixo?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Em um leilão, vários compradores disputam o mesmo item ao mesmo tempo, o que tende a levar o preço final até o valor real de mercado — em vez de você chutar um preço fixo e torcer.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'O que acontece quando o leilão termina?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'O maior lance vence, um pedido é criado automaticamente e comprador e vendedor combinam pagamento e entrega pelo chat do pedido.',
+          },
+        },
+      ],
+    });
+    return () => removeJsonLd('ld-faq');
+  }, []);
+  return (
+    <main className="page">
+      <div className="form-intro">
+        <span className="kicker">COMO FUNCIONA</span>
+        <h1>Seu preço não é um chute. É o que o mercado paga.</h1>
+        <p>
+          Anúncio de preço fixo trava seu item num número — alto demais e ninguém compra, baixo demais e
+          você perde dinheiro. No leilão progressivo do MeuLance, quem decide o preço são as pessoas que
+          realmente querem seu item, disputando lance a lance até o valor justo.
+        </p>
+      </div>
+      <section className="section" style={{ paddingTop: 0 }}>
+        <div className="section-head">
+          <div>
+            <span className="kicker">PARA QUEM VENDE</span>
+            <h2>Do anúncio ao dinheiro na conta, em 3 passos</h2>
+          </div>
+        </div>
+        <div className="steps steps-light">
+          <article>
+            <b>01</b>
+            <Gavel />
+            <h3>Anuncie de graça</h3>
+            <p>
+              Fotos, descrição e um preço inicial baixo — leilões com lance inicial atrativo atraem mais
+              disputa e terminam em valores mais altos.
+            </p>
+          </article>
+          <article>
+            <b>02</b>
+            <Sparkles />
+            <h3>Acompanhe os lances subirem</h3>
+            <p>Interessados disputam ao vivo, com contagem regressiva e histórico público de lances.</p>
+          </article>
+          <article>
+            <b>03</b>
+            <WalletCards />
+            <h3>Combine entrega e receba</h3>
+            <p>
+              O maior lance vence, um pedido é criado automaticamente e você combina envio ou retirada pelo
+              chat do pedido.
+            </p>
+          </article>
+        </div>
+      </section>
+      <section className="section">
+        <div className="section-head">
+          <div>
+            <span className="kicker">A DIFERENÇA NA PRÁTICA</span>
+            <h2>Leilão progressivo vs. anúncio de preço fixo</h2>
+          </div>
+        </div>
+        <div className="compare-grid">
+          <div className="compare-card">
+            <span className="compare-tag">Preço fixo</span>
+            <ul>
+              <li>Você define um número e espera — sem saber se é alto ou baixo demais.</li>
+              <li>Compradores pechincham no particular, um de cada vez, sem pressão de tempo.</li>
+              <li>Anúncios ficam parados por semanas sem gerar urgência.</li>
+            </ul>
+          </div>
+          <div className="compare-card highlight">
+            <span className="compare-tag">Leilão MeuLance</span>
+            <ul>
+              <li>O preço sobe conforme o interesse real — quem mais quer, mais paga.</li>
+              <li>Prazo com contagem regressiva pública cria urgência genuína no fim do leilão.</li>
+              <li>Histórico de lances transparente aumenta a confiança de quem está comprando.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <div className="cta">
+        <div>
+          <span className="kicker">PRONTO PARA COMEÇAR?</span>
+          <h2>Anuncie seu primeiro item agora mesmo.</h2>
+          <p>Leva menos de 5 minutos e você não paga nada até vender.</p>
+        </div>
+        <Link className="btn light" to="/vender/novo">
+          Quero vender <ArrowRight />
+        </Link>
+      </div>
+    </main>
+  );
+}
 function Simple({ title }: { title: string }) {
   return (
     <main className="page simple">
@@ -363,7 +593,8 @@ export function App() {
         <Route path="/conta/vendas" element={<OrdersPage sales />} />
         <Route path="/pedido/:id" element={<OrderPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        {['como-funciona', 'termos', 'privacidade', 'regras-de-leilao', 'itens-proibidos', 'ajuda'].map(
+        <Route path="/como-funciona" element={<HowItWorks />} />
+        {['termos', 'privacidade', 'regras-de-leilao', 'itens-proibidos', 'ajuda'].map(
           (p) => (
             <Route
               key={p}

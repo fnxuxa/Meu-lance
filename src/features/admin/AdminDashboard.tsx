@@ -2,8 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
+import { useDocumentMeta } from '../../lib/useDocumentMeta';
 export function AdminDashboard() {
   const { user, loading } = useSession();
+  useDocumentMeta({ title: 'Painel administrativo', noindex: true });
   const query = useQuery({
     queryKey: ['admin', user?.id],
     enabled: !!user && !!supabase,

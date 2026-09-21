@@ -55,10 +55,11 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
     ['Título', 'Console de videogame'],
     ['Descrição', 'Console usado em bom estado de conservação'],
     ['Valor inicial (R$)', 'abc123'],
-    ['Cidade', 'São Paulo'],
     ['UF', 'SP'],
   ] as const)
     fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  await screen.findByRole('option', { name: 'São Paulo' });
+  fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'São Paulo' } });
   fireEvent.change(screen.getByLabelText('Categoria'), { target: { value: 'cat' } });
   fireEvent.click(screen.getByRole('checkbox'));
   fireEvent.submit(screen.getByRole('button', { name: 'Publicar leilão' }).closest('form')!);

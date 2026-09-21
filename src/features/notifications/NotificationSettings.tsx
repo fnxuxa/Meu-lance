@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
+import { useDocumentMeta } from '../../lib/useDocumentMeta';
 type Pref = {
   auction_ending: boolean;
   outbid: boolean;
@@ -20,6 +21,7 @@ const initial: Pref = {
 };
 export function NotificationSettings() {
   const { user, loading: authLoading } = useSession();
+  useDocumentMeta({ title: 'Notificações', noindex: true });
   const [p, setP] = useState(initial),
     [msg, setMsg] = useState(''),
     [busy, setBusy] = useState(false),

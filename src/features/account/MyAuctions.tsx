@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
+import { useDocumentMeta } from '../../lib/useDocumentMeta';
 type Row = {
   id: string;
   slug: string;
@@ -17,6 +18,7 @@ type Item = Row & { state: 'winning' | 'outbid' | 'watching' };
 export function MyAuctions({ favoritesOnly = false }: { favoritesOnly?: boolean }) {
   const { user, loading } = useSession();
   const [filter, setFilter] = useState('all');
+  useDocumentMeta({ title: favoritesOnly ? 'Favoritos' : 'Meus lances', noindex: true });
   const query = useQuery({
     queryKey: ['my-auctions', user?.id, favoritesOnly],
     enabled: !!supabase && !!user,
