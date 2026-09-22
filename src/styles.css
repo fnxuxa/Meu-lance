@@ -242,6 +242,11 @@ header {
   background: white;
   border: 1px solid var(--line);
 }
+.star-btn.active {
+  color: #b8860b;
+  border-color: #f0dfa8;
+  background: #fdf8e9;
+}
 .light {
   background: white;
   color: var(--deep);
@@ -760,6 +765,95 @@ header {
 }
 .wide {
   width: 100%;
+}
+.orders-list {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+}
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.order-row strong {
+  margin-left: auto;
+}
+.order-status-pill {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #eef2ef;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.order-status-pill.paid,
+.order-status-pill.awaiting_shipment,
+.order-status-pill.shipped {
+  background: #eaf2fb;
+  color: #1d5fa8;
+}
+.order-status-pill.completed {
+  background: var(--mint);
+  color: #08704e;
+}
+.order-status-pill.disputed,
+.order-status-pill.payment_expired,
+.order-status-pill.cancelled {
+  background: #fdeeee;
+  color: #9a3131;
+}
+.tracking-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 8px 0;
+}
+.fulfillment-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+  margin: 20px 0;
+}
+.fulfillment-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+.fulfillment-card.highlight {
+  background: var(--mint);
+  border-color: #cdeadb;
+}
+.fulfillment-card .form-grid {
+  margin: 14px 0;
+}
+.fulfillment-card label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.fulfillment-card input {
+  border: 1px solid #cedbd3;
+  border-radius: 10px;
+  padding: 11px 13px;
+  outline: 0;
+}
+.fulfillment-card input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px #e5f5ed;
 }
 .detail-grid {
   display: grid;

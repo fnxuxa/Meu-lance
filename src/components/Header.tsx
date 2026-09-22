@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Bell, Gavel, Heart, Menu, Search, UserRound, X } from 'lucide-react';
+import { Bell, Gavel, Menu, Search, Star, UserRound, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSession } from '../features/auth/useSession';
@@ -41,8 +41,8 @@ export function Header() {
           </Link>
         </nav>
         <div className="icons">
-          <Link aria-label="Favoritos" to="/conta/favoritos">
-            <Heart />
+          <Link aria-label="Meus leilões" to="/conta/lances">
+            <Star />
           </Link>
           <Link aria-label="Notificações" to="/conta/notificacoes">
             <Bell />
@@ -88,7 +88,6 @@ export function Header() {
           <div className="mobile-menu-divider" />
           <nav className="mobile-menu-links">
             <Link to="/conta/lances">Meus leilões</Link>
-            <Link to="/conta/favoritos">Favoritos</Link>
             <Link to="/conta/notificacoes">Notificações</Link>
             <Link to="/conta/configuracoes">{user ? 'Minha conta' : 'Entrar'}</Link>
           </nav>

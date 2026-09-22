@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Routes, Route, Link, useParams, useSearchParams } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
   CheckCircle2,
@@ -588,7 +588,7 @@ export function App() {
         <Route path="/conta/lances" element={<MyAuctions />} />
         <Route path="/conta/notificacoes" element={<NotificationSettings />} />
         <Route path="/conta/configuracoes" element={<AccountSettings />} />
-        <Route path="/conta/favoritos" element={<MyAuctions favoritesOnly />} />
+        <Route path="/conta/favoritos" element={<Navigate to="/conta/lances" replace />} />
         <Route path="/conta/compras" element={<OrdersPage />} />
         <Route path="/conta/vendas" element={<OrdersPage sales />} />
         <Route path="/pedido/:id" element={<OrderPage />} />

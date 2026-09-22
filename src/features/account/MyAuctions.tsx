@@ -24,12 +24,12 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: 'Cancelado',
   removed: 'Removido',
 };
-export function MyAuctions({ favoritesOnly = false }: { favoritesOnly?: boolean }) {
+export function MyAuctions() {
   const { user, loading } = useSession();
   const [filter, setFilter] = useState('all');
-  useDocumentMeta({ title: favoritesOnly ? 'Favoritos' : 'Meus lances', noindex: true });
+  useDocumentMeta({ title: 'Meus leilões', noindex: true });
   const query = useQuery({
-    queryKey: ['my-auctions', user?.id, favoritesOnly],
+    queryKey: ['my-auctions', user?.id],
     enabled: !!supabase && !!user,
     refetchInterval: 15000,
     queryFn: async () => {
@@ -42,7 +42,7 @@ export function MyAuctions({ favoritesOnly = false }: { favoritesOnly?: boolean 
       const [bids, watches, leaders] = results.map(
         (x) => new Set((x.data ?? []).map((v) => v.listing_id as string)),
       );
-      const ids = [...new Set(favoritesOnly ? [...watches] : [...bids, ...watches])];
+      const ids = [...new Set([...bids, ...watches])];
       if (!ids.length) return [];
       const { data, error } = await supabase!
         .from('listings')
@@ -78,13 +78,13 @@ export function MyAuctions({ favoritesOnly = false }: { favoritesOnly?: boolean 
   const items = (query.data ?? []).filter((x) => filter === 'all' || x.state === filter);
   return (
     <main className="account-shell">
-      <h1>{favoritesOnly ? 'Meus favoritos' : 'Meus leilões'}</h1>
+      <h1>Meus leilões</h1>
       <nav className="auction-tabs">
         {[
           ['all', 'Todos'],
           ['winning', 'Liderando / vencidos'],
           ['outbid', 'Superados'],
-          ['watching', 'Acompanhando'],
+          ['watching', 'Acompanhando (⭐)'],
         ].map(([key, label]) => (
           <button className={filter === key ? 'active' : ''} key={key} onClick={() => setFilter(key)}>
             {label}

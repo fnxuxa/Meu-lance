@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
@@ -25,8 +26,9 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
   return (
     <div>
       <button
-        className="btn secondary"
+        className={'btn secondary star-btn' + (query.data ? ' active' : '')}
         disabled={!user || !supabase || busy || query.isPending || !!query.error}
+        aria-pressed={!!query.data}
         onClick={async () => {
           if (!user || !supabase) return;
           setBusy(true);
@@ -37,7 +39,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
             if (error) throw error;
             await query.refetch();
             await client.invalidateQueries({ queryKey: ['my-auctions', user.id] });
-            setMessage('Favoritos atualizados.');
+            setMessage(query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus leilões.');
           } catch (e) {
             setMessage(errorMessage(e));
           } finally {
@@ -45,9 +47,10 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
           }
         }}
       >
-        {query.data ? 'Remover dos favoritos' : 'Favoritar'}
+        <Star size={16} fill={query.data ? 'currentColor' : 'none'} />
+        {query.data ? 'Seguindo' : 'Seguir leilão'}
       </button>
-      {!user && <small>Entre para favoritar.</small>}
+      {!user && <small>Entre para seguir este leilão com uma estrela.</small>}
       {(message || query.error) && <p role="status">{message || errorMessage(query.error)}</p>}
     </div>
   );
