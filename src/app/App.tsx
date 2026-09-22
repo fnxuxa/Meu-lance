@@ -2,15 +2,29 @@ import { useEffect, useMemo, useState } from 'react';
 import { Routes, Route, Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
+  Ban,
+  Banknote,
+  Bomb,
+  Car,
   CheckCircle2,
   ChevronRight,
+  Cigarette,
+  FileWarning,
+  FlaskConical,
   Gavel,
+  Gem,
   MapPin,
+  PawPrint,
+  Pill,
   Search,
+  ShieldAlert as ShieldAlertIcon,
   ShieldCheck,
   Sparkles,
+  Stethoscope,
   Truck,
+  UtensilsCrossed,
   WalletCards,
+  Wrench,
 } from 'lucide-react';
 import { OrdersPage, OrderPage } from '../features/orders/OrdersPage';
 import { AccountSettings } from '../features/auth/AccountSettings';
@@ -573,6 +587,114 @@ function HowItWorks() {
     </main>
   );
 }
+const PROHIBITED_CATEGORIES = [
+  {
+    Icon: Bomb,
+    title: 'Armas, munições e explosivos',
+    text: 'Armas de fogo, peças essenciais, munição, insumos de recarga, explosivos, réplicas confundíveis com armas reais e itens controlados pelo Exército.',
+  },
+  {
+    Icon: Pill,
+    title: 'Drogas, medicamentos e produtos farmacêuticos',
+    text: 'Com ou sem receita, substâncias controladas, cannabis e produtos com alegações terapêuticas. A regulamentação sanitária da Anvisa continua valendo.',
+  },
+  {
+    Icon: Cigarette,
+    title: 'Cigarros, tabaco e vape',
+    text: 'Cigarros eletrônicos, tabaco e similares — bloqueados integralmente.',
+  },
+  {
+    Icon: Ban,
+    title: 'Produtos falsificados, pirateados ou roubados',
+    text: 'Réplicas, itens com serial adulterado ou de origem criminosa. A legislação exige que plataformas previnam produtos ilícitos e violações de propriedade intelectual.',
+  },
+  {
+    Icon: PawPrint,
+    title: 'Animais vivos e fauna/flora protegida',
+    text: 'Animais, espécies silvestres, partes de animais, produtos derivados de espécies ameaçadas e itens que exijam autorização ambiental.',
+  },
+  {
+    Icon: ShieldAlertIcon,
+    title: 'Produtos adultos/sexuais explícitos',
+    text: 'Bloqueados nesta fase inicial da plataforma.',
+  },
+  {
+    Icon: FileWarning,
+    title: 'Dados pessoais, documentos e contas',
+    text: 'RG, CPF, passaporte, CNH, contas bancárias, contas de redes sociais ou de jogos, cadastros, listas de clientes e qualquer banco de dados pessoal.',
+  },
+  {
+    Icon: Banknote,
+    title: 'Dinheiro, moeda, crédito e produtos financeiros',
+    text: 'Dinheiro em espécie, Pix "com desconto", saldo de carteira, cartões, contas bancárias, empréstimos e títulos.',
+  },
+  {
+    Icon: FlaskConical,
+    title: 'Produtos químicos perigosos',
+    text: 'Venenos, substâncias tóxicas controladas, precursores químicos, radioativos, agrotóxicos, pesticidas e raticidas.',
+  },
+  {
+    Icon: Car,
+    title: 'Veículos, imóveis e serviços',
+    text: 'Fora do escopo do MeuLance, que é focado em bens físicos comuns na faixa de preço e logística já definidas.',
+  },
+  {
+    Icon: Gem,
+    title: 'Joias e metais preciosos de alto valor',
+    text: 'Ouro, pedras preciosas e relógios caros — bloqueados nesta fase inicial pelo risco de falsificação, lavagem e roubo.',
+  },
+  {
+    Icon: UtensilsCrossed,
+    title: 'Alimentos, suplementos e cosméticos regulados',
+    text: 'Exigem controle de validade, registro, procedência e armazenamento — bloqueados no lançamento.',
+  },
+  {
+    Icon: Stethoscope,
+    title: 'Equipamentos médicos e produtos de saúde regulados',
+    text: 'Exigem regularização junto à Anvisa. Bloqueados até haver uma política específica.',
+  },
+  {
+    Icon: Wrench,
+    title: 'Itens de segurança usados de veículos',
+    text: 'Airbags, freios, cintos de segurança, direção, suspensão e semelhantes.',
+  },
+  {
+    Icon: FileWarning,
+    title: 'Conteúdo ilícito ou que promova abuso/discriminação',
+    text: 'Qualquer material ilegal, de apologia a crimes ou discriminação.',
+  },
+] as const;
+function ProhibitedItemsPage() {
+  useDocumentMeta({
+    title: 'Itens Proibidos',
+    description: 'Categorias de itens que não podem ser anunciados no MeuLance.',
+    canonicalPath: '/itens-proibidos',
+  });
+  return (
+    <main className="page simple legal-page prohibited-page">
+      <span className="kicker">MEULANCE</span>
+      <h1>Itens proibidos</h1>
+      <p>
+        Estas categorias não podem ser anunciadas no MeuLance. Anúncios encontrados nessas categorias são
+        removidos e a conta pode ser suspensa. Ver também os{' '}
+        <Link to="/termos">Termos de Uso</Link>.
+      </p>
+      <div className="prohibited-grid">
+        {PROHIBITED_CATEGORIES.map(({ Icon, title, text }) => (
+          <article className="prohibited-card" key={title}>
+            <Icon size={20} />
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </article>
+        ))}
+      </div>
+      <div className="notice">
+        <ShieldAlertIcon size={16} />
+        Viu um anúncio de item proibido? Use o botão "Denunciar anúncio" na página do item.
+      </div>
+    </main>
+  );
+}
 function Simple({ title }: { title: string }) {
   return (
     <main className="page simple">
@@ -636,8 +758,14 @@ function TermsPage() {
       </p>
       <h2>6. Itens proibidos</h2>
       <p>
-        É proibido anunciar itens roubados, falsificados, ilegais ou que violem direitos de terceiros. Ver{' '}
-        <Link to="/itens-proibidos">lista de itens proibidos</Link>.
+        É proibido anunciar, entre outras categorias: armas, munições e explosivos; drogas e medicamentos;
+        cigarros, tabaco e vape; produtos falsificados, pirateados ou roubados; animais vivos e fauna/flora
+        protegida; conteúdo adulto explícito; dados pessoais, documentos e contas; dinheiro e produtos
+        financeiros; produtos químicos perigosos; veículos, imóveis e serviços; joias e metais preciosos de
+        alto valor; alimentos, suplementos e cosméticos regulados; equipamentos médicos regulados; peças de
+        segurança automotivas usadas; e qualquer conteúdo ilícito. Lista completa e detalhada em{' '}
+        <Link to="/itens-proibidos">Itens proibidos</Link>. Anúncios nessas categorias são removidos e a
+        conta pode ser suspensa.
       </p>
       <h2>7. Cancelamento de leilão pelo vendedor</h2>
       <p>
@@ -688,7 +816,8 @@ export function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/como-funciona" element={<HowItWorks />} />
         <Route path="/termos" element={<TermsPage />} />
-        {['privacidade', 'regras-de-leilao', 'itens-proibidos', 'ajuda'].map(
+        <Route path="/itens-proibidos" element={<ProhibitedItemsPage />} />
+        {['privacidade', 'regras-de-leilao', 'ajuda'].map(
           (p) => (
             <Route
               key={p}
