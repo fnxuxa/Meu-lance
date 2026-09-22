@@ -1,8 +1,21 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { Bell, Gavel, ListOrdered, Menu, PackageSearch, Search, Star, Tags, UserRound, X } from 'lucide-react';
+import {
+  Bell,
+  Gavel,
+  ListOrdered,
+  Menu,
+  PackageSearch,
+  Search,
+  ShieldCheck,
+  Star,
+  Tags,
+  UserRound,
+  X,
+} from 'lucide-react';
 import { Logo } from './Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSession } from '../features/auth/useSession';
+import { useProfile } from '../features/auth/useProfile';
 export function Header() {
   const [q, setQ] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +24,8 @@ export function Header() {
   const nav = useNavigate();
   const location = useLocation();
   const { user } = useSession();
+  const profile = useProfile();
+  const needsVerification = !!user && !profile.data?.identity_verified_at;
   useEffect(() => {
     setMenuOpen(false);
     setAccountOpen(false);
@@ -87,6 +102,11 @@ export function Header() {
                       <PackageSearch size={15} /> Meus pedidos
                     </Link>
                     <Link to="/conta/notificacoes">Notificações</Link>
+                    {needsVerification && (
+                      <Link to="/conta/verificacao" className="verify-link">
+                        <ShieldCheck size={15} /> Verificar identidade
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <>
@@ -140,6 +160,11 @@ export function Header() {
             <Link to="/conta/compras">Meus pedidos</Link>
             <Link to="/conta/notificacoes">Notificações</Link>
             <Link to="/conta/configuracoes">{user ? 'Minha conta' : 'Entrar'}</Link>
+            {needsVerification && (
+              <Link to="/conta/verificacao" className="verify-link">
+                Verificar identidade
+              </Link>
+            )}
           </nav>
         </div>
       )}

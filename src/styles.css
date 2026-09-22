@@ -153,6 +153,16 @@ header {
   width: 15px;
   color: var(--muted);
 }
+.account-dropdown a.verify-link,
+.mobile-menu-links a.verify-link {
+  color: var(--green);
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+.account-dropdown a.verify-link svg {
+  color: var(--green);
+}
 .mobile-only {
   display: none;
 }
@@ -2133,6 +2143,15 @@ a.watch-thumb {
 .identity-pill.verified {
   background: var(--mint);
   color: #08704e;
+}
+.identity-cta {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.identity-cta .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .account-card.danger {
   display: flex;

@@ -89,10 +89,15 @@ function ProfileCard() {
         </span>
       </div>
       {!verified && (
-        <p className="muted">
-          Para vender, verifique sua identidade em{' '}
-          <Link to="/conta/verificacao">Verificação de identidade</Link>.
-        </p>
+        <div className="notice identity-cta">
+          <div>
+            <b>Verifique sua identidade para vender.</b>
+            <p style={{ margin: '2px 0 0' }}>Leva menos de 2 minutos: documento com foto + selfie.</p>
+          </div>
+          <Link className="btn primary" to="/conta/verificacao">
+            Verificar identidade
+          </Link>
+        </div>
       )}
       <form
         onSubmit={async (e) => {
