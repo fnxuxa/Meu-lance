@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, ShieldCheck, User } from 'lucide-react';
+import { Camera, LogOut, ShieldCheck, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from './useSession';
 import { useProfile } from './useProfile';
@@ -44,8 +44,11 @@ function ProfileCard() {
   return (
     <div className="account-card">
       <div className="account-identity">
-        <label className="account-avatar-upload">
+        <label className="account-avatar-upload" title="Clique para trocar sua foto de perfil">
           {avatarUrl ? <img src={avatarUrl} alt="" /> : <User size={20} />}
+          <span className="account-avatar-badge">
+            <Camera size={12} />
+          </span>
           <input
             hidden
             type="file"

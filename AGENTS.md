@@ -230,7 +230,7 @@ Implementações: `MockPaymentProvider` (dev/teste, simula tudo) e `MercadoPagoP
 |---|---|
 | Vencedor pagar após o fim | 48 horas |
 | Vendedor postar/entregar após pagamento | 3 dias |
-| Comprador confirmar/abrir disputa após entrega | 3 dias |
+| Comprador confirmar/abrir disputa após entrega | 7 dias |
 | Liberação automática se comprador não agir | ao fim do prazo acima |
 | Retirada local | confirmação por **código de retirada** (6 dígitos que o comprador informa ao vendedor na entrega) |
 

@@ -587,7 +587,7 @@ function TermsPage() {
       </p>
       <h2>4. Prazo para reclamar de um pedido entregue</h2>
       <p>
-        O comprador tem até <b>3 dias corridos a partir da entrega</b> para reportar um problema com o
+        O comprador tem até <b>7 dias corridos a partir da entrega</b> para reportar um problema com o
         pedido (item não recebido, diferente do anunciado, com defeito não declarado) e solicitar
         reembolso, abrindo uma disputa pela plataforma. Passado esse prazo sem reclamação registrada, o
         pedido é considerado concluído, o reembolso deixa de ser garantido pela plataforma, e o MeuLance

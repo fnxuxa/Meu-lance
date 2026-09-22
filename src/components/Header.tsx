@@ -1,21 +1,34 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { Bell, Gavel, Menu, Search, Star, UserRound, X } from 'lucide-react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Bell, Gavel, ListOrdered, Menu, PackageSearch, Search, Star, Tags, UserRound, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSession } from '../features/auth/useSession';
 export function Header() {
   const [q, setQ] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
   const nav = useNavigate();
   const location = useLocation();
   const { user } = useSession();
-  useEffect(() => setMenuOpen(false), [location.pathname]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setAccountOpen(false);
+  }, [location.pathname]);
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
   }, [menuOpen]);
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onClick(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) setAccountOpen(false);
+    }
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [accountOpen]);
   function submit(e: FormEvent) {
     e.preventDefault();
     nav(`/buscar${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''}`);
@@ -47,9 +60,43 @@ export function Header() {
           <Link aria-label="Notificações" to="/conta/notificacoes">
             <Bell />
           </Link>
-          <Link aria-label="Entrar ou acessar conta" to="/conta/configuracoes">
-            <UserRound />
-          </Link>
+          <div className="account-menu" ref={accountRef}>
+            <button
+              type="button"
+              aria-label="Minha conta"
+              aria-expanded={accountOpen}
+              onClick={() => setAccountOpen((v) => !v)}
+            >
+              <UserRound />
+            </button>
+            {accountOpen && (
+              <div className="account-dropdown">
+                {user ? (
+                  <>
+                    <Link to="/conta/configuracoes">Minha conta</Link>
+                    <Link to="/conta/lances">
+                      <Star size={15} /> Meus leilões
+                    </Link>
+                    <Link to="/conta/anuncios">
+                      <Tags size={15} /> Meus anúncios
+                    </Link>
+                    <Link to="/conta/vendas">
+                      <ListOrdered size={15} /> Minhas vendas
+                    </Link>
+                    <Link to="/conta/compras">
+                      <PackageSearch size={15} /> Meus pedidos
+                    </Link>
+                    <Link to="/conta/notificacoes">Notificações</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/entrar">Entrar</Link>
+                    <Link to="/cadastrar">Criar conta</Link>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
           <button
             type="button"
             className="mobile-only mobile-menu-toggle"
@@ -89,6 +136,8 @@ export function Header() {
           <nav className="mobile-menu-links">
             <Link to="/conta/lances">Meus leilões</Link>
             <Link to="/conta/anuncios">Meus anúncios</Link>
+            <Link to="/conta/vendas">Minhas vendas</Link>
+            <Link to="/conta/compras">Meus pedidos</Link>
             <Link to="/conta/notificacoes">Notificações</Link>
             <Link to="/conta/configuracoes">{user ? 'Minha conta' : 'Entrar'}</Link>
           </nav>
