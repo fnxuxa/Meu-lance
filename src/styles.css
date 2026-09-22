@@ -40,7 +40,7 @@ header {
   border-bottom: 1px solid var(--line);
 }
 .nav {
-  height: 72px;
+  height: 88px;
   max-width: 1240px;
   margin: auto;
   display: flex;
@@ -53,7 +53,7 @@ header {
   align-items: center;
 }
 .logo img {
-  height: 34px;
+  height: 70px;
   width: auto;
   display: block;
 }
@@ -330,7 +330,9 @@ header {
   border-radius: 17px;
 }
 .hero-panel-static img {
-  object-position: top;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-position: center;
 }
 .live {
   position: absolute;
@@ -1041,8 +1043,11 @@ footer b {
 }
 @media (max-width: 850px) {
   .nav {
-    height: 62px;
+    height: 78px;
     padding: 0 16px;
+  }
+  .logo img {
+    height: 54px;
   }
   .nav .search,
   .nav nav,
@@ -1078,6 +1083,9 @@ footer b {
   }
   .hero-panel img {
     height: 250px;
+  }
+  .hero-panel-static img {
+    height: auto;
   }
   .section,
   .page {
