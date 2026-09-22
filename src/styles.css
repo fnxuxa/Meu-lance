@@ -480,6 +480,18 @@ header {
   display: flex;
   gap: 5px;
 }
+.demo-tag {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: #b8860b;
+  color: white;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
 .card-body {
   padding: 15px;
 }
@@ -1017,6 +1029,10 @@ header {
   border: 1px solid var(--line);
   border-radius: 18px;
 }
+.seller-header > .btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
 .seller-avatar {
   width: 64px;
   height: 64px;
@@ -1099,6 +1115,9 @@ header {
   }
   .seller-meta {
     justify-content: center;
+  }
+  .seller-header > .btn {
+    margin: 12px 0 0;
   }
 }
 .detail-grid {
@@ -1183,6 +1202,56 @@ header {
 .protected b,
 .protected span {
   display: block;
+}
+.bid-history-chart {
+  max-width: 760px;
+  margin-top: 35px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 24px;
+}
+.bid-history-chart h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  margin: 0 0 14px;
+  color: var(--deep);
+}
+.bid-history-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.bid-history-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 10px 0 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.bid-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.bid-history-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.bid-history-list li span:first-child {
+  color: var(--muted);
+  min-width: 60px;
+}
+.bid-history-list li b {
+  margin-left: auto;
 }
 .detail-info {
   max-width: 760px;

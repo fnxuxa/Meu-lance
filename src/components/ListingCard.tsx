@@ -2,11 +2,12 @@ import { MapPin, Timer, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Listing } from '../types/domain';
 import { formatBRL } from '../lib/money';
-export function ListingCard({ item }: { item: Listing }) {
+export function ListingCard({ item, demo = false }: { item: Listing; demo?: boolean }) {
   return (
     <Link className="card" to={`/l/${item.slug}`}>
       <div className="card-img">
         <img src={item.image} alt={item.title} loading="lazy" />
+        {demo && <span className="demo-tag">DEMONSTRAÇÃO</span>}
         <span className="ending">
           <Timer size={13} />
           {new Date(item.endsAt).toLocaleString('pt-BR', {

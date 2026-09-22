@@ -12,15 +12,49 @@ import { useProfile } from '../auth/useProfile';
 import { BackButton } from '../../components/BackButton';
 type Photo = { file: File; url: string };
 type Cat = { id: string; name: string };
+type Draft = {
+  title?: string;
+  category?: string;
+  condition?: string;
+  description?: string;
+  defects?: string;
+  price?: string;
+  duration?: string;
+  state?: string;
+  city?: string;
+  delivery?: string;
+};
+const DRAFT_KEY = 'meulance:draft:create-listing';
+const DRAFT_FIELDS: (keyof Draft)[] = [
+  'title',
+  'category',
+  'condition',
+  'description',
+  'defects',
+  'price',
+  'duration',
+  'state',
+  'city',
+  'delivery',
+];
+function loadDraft(): Draft {
+  try {
+    return JSON.parse(localStorage.getItem(DRAFT_KEY) ?? '{}');
+  } catch {
+    return {};
+  }
+}
 export function CreateListingPage() {
   const { user, loading } = useSession();
   const profile = useProfile();
   useDocumentMeta({ title: 'Anunciar um leilão', noindex: true });
   const nav = useNavigate();
+  const formRef = useRef<HTMLFormElement>(null);
   const savedForm = useRef<FormData | null>(null);
   const draftId = useRef<string | null>(null);
   const uploadedCount = useRef(0);
   const photoUrls = useRef<string[]>([]);
+  const initialDraft = useRef<Draft>(loadDraft());
   useEffect(
     () => () => {
       photoUrls.current.forEach(URL.revokeObjectURL);
@@ -31,9 +65,26 @@ export function CreateListingPage() {
     [cats, setCats] = useState<Cat[]>([]),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
-    [uf, setUf] = useState(''),
-    [city, setCity] = useState(''),
-    [cityOptions, setCityOptions] = useState<string[]>([]);
+    [category, setCategory] = useState(initialDraft.current.category ?? ''),
+    [uf, setUf] = useState(initialDraft.current.state ?? ''),
+    [city, setCity] = useState(initialDraft.current.city ?? ''),
+    [cityOptions, setCityOptions] = useState<string[]>([]),
+    [draftRestored] = useState(() => DRAFT_FIELDS.some((k) => initialDraft.current[k]));
+  function saveDraft() {
+    if (!formRef.current || draftId.current) return;
+    const fd = new FormData(formRef.current);
+    const snapshot: Draft = {};
+    for (const key of DRAFT_FIELDS) {
+      const v = fd.get(key);
+      if (v) snapshot[key] = String(v);
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot));
+  }
+  const saveDraftTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  function scheduleDraftSave() {
+    clearTimeout(saveDraftTimer.current);
+    saveDraftTimer.current = setTimeout(saveDraft, 600);
+  }
   useEffect(() => {
     let active = true;
     setCityOptions([]);
@@ -131,6 +182,7 @@ export function CreateListingPage() {
         p_declaration_accepted: accepted,
       });
       if (pub) throw pub;
+      localStorage.removeItem(DRAFT_KEY);
       nav(published?.slug ? `/l/${published.slug}` : '/conta/vendas');
     } catch (err) {
       setMessage(
@@ -178,7 +230,13 @@ export function CreateListingPage() {
         <h1>O que você quer vender?</h1>
         <p>Mostre o estado real do item. Fotos e descrição transparentes reduzem disputas.</p>
       </div>
-      <form className="sell-form" onSubmit={submit}>
+      {draftRestored && (
+        <div className="notice">
+          <ShieldCheck />
+          Continuando de um rascunho salvo automaticamente neste navegador.
+        </div>
+      )}
+      <form className="sell-form" onSubmit={submit} onChange={scheduleDraftSave} ref={formRef}>
         <fieldset disabled={busy || !!draftId.current}>
           <section>
             <h2>Fotos do produto</h2>
@@ -216,12 +274,12 @@ export function CreateListingPage() {
             <h2>Sobre o item</h2>
             <label>
               Título
-              <input name="title" required minLength={8} maxLength={120} />
+              <input name="title" required minLength={8} maxLength={120} defaultValue={initialDraft.current.title} />
             </label>
             <div className="form-grid">
               <label>
                 Categoria
-                <select name="category" required defaultValue="">
+                <select name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
                   <option value="" disabled>
                     Selecione
                   </option>
@@ -234,7 +292,7 @@ export function CreateListingPage() {
               </label>
               <label>
                 Estado
-                <select name="condition" required>
+                <select name="condition" required defaultValue={initialDraft.current.condition ?? 'like_new'}>
                   <option value="like_new">Como novo</option>
                   <option value="good">Bom</option>
                   <option value="fair">Regular</option>
@@ -244,11 +302,17 @@ export function CreateListingPage() {
             </div>
             <label>
               Descrição
-              <textarea name="description" required minLength={20} rows={5} />
+              <textarea
+                name="description"
+                required
+                minLength={20}
+                rows={5}
+                defaultValue={initialDraft.current.description}
+              />
             </label>
             <label>
               Defeitos ou marcas de uso
-              <textarea name="defects" rows={3} />
+              <textarea name="defects" rows={3} defaultValue={initialDraft.current.defects} />
             </label>
           </section>
           <section>
@@ -256,11 +320,17 @@ export function CreateListingPage() {
             <div className="form-grid">
               <label>
                 Valor inicial (R$)
-                <input name="price" required inputMode="decimal" placeholder="50,00" />
+                <input
+                  name="price"
+                  required
+                  inputMode="decimal"
+                  placeholder="50,00"
+                  defaultValue={initialDraft.current.price}
+                />
               </label>
               <label>
                 Duração
-                <select name="duration">
+                <select name="duration" defaultValue={initialDraft.current.duration ?? '7'}>
                   <option value="7">7 dias</option>
                   <option value="3">3 dias</option>
                   <option value="5">5 dias</option>
@@ -309,7 +379,7 @@ export function CreateListingPage() {
               </label>
               <label>
                 Entrega
-                <select name="delivery">
+                <select name="delivery" defaultValue={initialDraft.current.delivery ?? 'both'}>
                   <option value="both">Envio e retirada</option>
                   <option value="shipping">Somente envio</option>
                   <option value="pickup">Somente retirada</option>

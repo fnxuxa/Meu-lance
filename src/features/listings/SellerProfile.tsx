@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { CalendarDays, MapPin, Star, User } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CalendarDays, MapPin, Star, User, UserPlus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
@@ -8,7 +9,55 @@ import { TrustBadges } from '../../components/TrustBadges';
 import { ListingCard } from '../../components/ListingCard';
 import { BackButton } from '../../components/BackButton';
 import { mapListing } from './useListings';
+import { useSession } from '../auth/useSession';
 type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; author_id: string };
+function FollowSellerButton({ sellerId }: { sellerId: string }) {
+  const { user } = useSession();
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const query = useQuery({
+    queryKey: ['seller-follow', sellerId, user?.id],
+    enabled: !!supabase && !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('seller_follows')
+        .select('seller_id')
+        .eq('follower_id', user!.id)
+        .eq('seller_id', sellerId)
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+  });
+  if (!user || user.id === sellerId) return null;
+  const following = !!query.data;
+  return (
+    <button
+      type="button"
+      className={'btn' + (following ? ' secondary' : ' primary')}
+      disabled={busy || query.isPending}
+      onClick={async () => {
+        if (!supabase || busy) return;
+        setBusy(true);
+        try {
+          const { error } = following
+            ? await supabase.from('seller_follows').delete().eq('follower_id', user.id).eq('seller_id', sellerId)
+            : await supabase.from('seller_follows').insert({ follower_id: user.id, seller_id: sellerId });
+          if (error) throw error;
+          await query.refetch();
+          await queryClient.invalidateQueries({ queryKey: ['seller-profile', sellerId] });
+        } catch (e) {
+          window.alert(errorMessage(e));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <UserPlus size={16} />
+      {following ? 'Seguindo' : 'Seguir vendedor'}
+    </button>
+  );
+}
 export function SellerProfile() {
   const { id } = useParams();
   const query = useQuery({
@@ -20,7 +69,7 @@ export function SellerProfile() {
           supabase!
             .from('public_profiles')
             .select(
-              'id,display_name,city,state,avatar_url,created_at,email_verified,phone_verified,identity_verified,completed_sales,rating_avg,rating_count,active_listings',
+              'id,display_name,city,state,avatar_url,created_at,email_verified,phone_verified,identity_verified,completed_sales,rating_avg,rating_count,active_listings,follower_count',
             )
             .eq('id', id!)
             .maybeSingle(),
@@ -96,9 +145,11 @@ export function SellerProfile() {
               Desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' })}
             </span>
             <span>{profile.completed_sales} vendas concluídas</span>
+            <span>{profile.follower_count} seguidores</span>
           </div>
           <TrustBadges seller={profile} />
         </div>
+        <FollowSellerButton sellerId={profile.id} />
       </div>
       <section className="section" style={{ padding: '32px 0 0' }}>
         <h2>Anúncios ativos</h2>

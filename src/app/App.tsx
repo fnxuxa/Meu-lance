@@ -35,6 +35,7 @@ import { AuctionCountdown } from '../components/AuctionCountdown';
 import { TrustBadges } from '../components/TrustBadges';
 import { LiveBidStage } from '../features/bidding/LiveBidStage';
 import { ProxyBidPanel } from '../features/bidding/ProxyBidPanel';
+import { BidHistoryChart } from '../features/bidding/BidHistoryChart';
 import { PublicQuestions } from '../features/listings/PublicQuestions';
 import { MyAuctions } from '../features/account/MyAuctions';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
@@ -161,15 +162,11 @@ function Home() {
             </Link>
           </div>
           <p role="status">
-            {demo
-              ? 'Demonstração: anúncios ilustrativos, sem transações reais.'
-              : loading
-                ? 'Carregando…'
-                : error || (!listings.length ? 'Ainda não há leilões ativos.' : '')}
+            {loading ? 'Carregando…' : error || (!listings.length ? 'Ainda não há leilões ativos.' : '')}
           </p>
           <div className="grid">
             {listings.slice(0, 4).map((x) => (
-              <ListingCard key={x.id} item={x} />
+              <ListingCard key={x.id} item={x} demo={demo} />
             ))}
           </div>
         </section>
@@ -303,12 +300,11 @@ function SearchPage() {
       </div>
       <p className="results-count">
         {loading ? 'Carregando leilões…' : `${result.length} leilões encontrados`}
-        {demo && ' · modo demonstração'}
       </p>
       {error && <p className="auth-message">{error}</p>}
       <div className="grid">
         {result.map((x) => (
-          <ListingCard key={x.id} item={x} />
+          <ListingCard key={x.id} item={x} demo={demo} />
         ))}
       </div>
       {!loading && !error && !result.length && (
@@ -399,19 +395,19 @@ function Detail() {
           </p>
           <TrustBadges seller={item.seller} />
           <AuctionCountdown endsAt={item.endsAt} />
-          <FavoriteButton key={item.id} listingId={item.id} />
+          <FavoriteButton key={'fav-' + item.id} listingId={item.id} />
           <LiveBidStage
             listingId={item.id}
             initialPrice={item.currentPriceCents}
             initialCount={item.bidCount}
-            key={item.id}
+            key={'live-' + item.id}
             startCents={item.startPriceCents}
             minimumCents={item.minimumBidCents}
             disabled={demo || item.status !== 'active'}
             onSuccess={refresh}
           />
           <ProxyBidPanel
-            key={item.id}
+            key={'proxy-' + item.id}
             listingId={item.id}
             currentCents={item.currentPriceCents}
             minimumCents={item.minimumBidCents}
@@ -427,6 +423,7 @@ function Detail() {
           </div>
         </div>
       </div>
+      <BidHistoryChart listingId={item.id} startPriceCents={item.startPriceCents} />
       <div className="detail-info">
         <span className="kicker">DESCRIÇÃO</span>
         <h2>Sobre este item</h2>
