@@ -34,6 +34,8 @@ import { AuthPage } from '../features/auth/AuthPage';
 import { NotificationSettings } from '../features/notifications/NotificationSettings';
 import { formatBRL } from '../lib/money';
 import { useDocumentMeta, setJsonLd, removeJsonLd } from '../lib/useDocumentMeta';
+import { Reveal } from '../components/Reveal';
+import { HammerLink } from '../components/HammerLink';
 function Home() {
   const { data: listings, loading, error, demo } = useListings();
   useDocumentMeta({
@@ -88,10 +90,10 @@ function Home() {
               <Search />
               Quero comprar
             </Link>
-            <Link className="btn secondary" to="/vender/novo">
+            <HammerLink className="btn secondary" to="/vender/novo">
               <Gavel />
               Quero vender
-            </Link>
+            </HammerLink>
           </div>
           <div className="trust-row">
             <span>
@@ -130,97 +132,108 @@ function Home() {
           </div>
         )}
       </section>
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <span className="kicker">ACABANDO AGORA</span>
-            <h2>Últimas chances</h2>
+      <Reveal>
+        <section className="section">
+          <div className="section-head">
+            <div>
+              <span className="kicker">ACABANDO AGORA</span>
+              <h2>Últimas chances</h2>
+            </div>
+            <Link to="/buscar">
+              Ver todos <ChevronRight />
+            </Link>
           </div>
-          <Link to="/buscar">
-            Ver todos <ChevronRight />
-          </Link>
-        </div>
-        <p role="status">
-          {demo
-            ? 'Demonstração: anúncios ilustrativos, sem transações reais.'
-            : loading
-              ? 'Carregando…'
-              : error || (!listings.length ? 'Ainda não há leilões ativos.' : '')}
-        </p>
-        <div className="grid">
-          {listings.slice(0, 4).map((x) => (
-            <ListingCard key={x.id} item={x} />
-          ))}
-        </div>
-      </section>
-      <section className="how">
-        <div>
-          <span className="kicker">SIMPLES E SEGURO</span>
-          <h2>
-            Você escolhe o lado.
-            <br />A plataforma organiza o fluxo.
-          </h2>
-        </div>
-        <div className="steps">
-          <article>
-            <b>01</b>
-            <Gavel />
-            <h3>Anuncie ou dê um lance</h3>
-            <p>Crie seu leilão ou dispute itens que você quer.</p>
-          </article>
-          <article>
-            <b>02</b>
-            <WalletCards />
-            <h3>Pague pelo provedor</h3>
-            <p>Pagamentos reais ficam desativados até homologação do Mercado Pago.</p>
-          </article>
-          <article>
-            <b>03</b>
-            <Truck />
-            <h3>Envie ou retire</h3>
-            <p>Envio com rastreio ou retirada conforme o anúncio.</p>
-          </article>
-        </div>
-      </section>
-      <section className="section">
-        <div className="section-head">
+          <p role="status">
+            {demo
+              ? 'Demonstração: anúncios ilustrativos, sem transações reais.'
+              : loading
+                ? 'Carregando…'
+                : error || (!listings.length ? 'Ainda não há leilões ativos.' : '')}
+          </p>
+          <div className="grid">
+            {listings.slice(0, 4).map((x) => (
+              <ListingCard key={x.id} item={x} />
+            ))}
+          </div>
+        </section>
+      </Reveal>
+      <Reveal>
+        <section className="how">
           <div>
-            <span className="kicker">POR QUE LEILÃO</span>
+            <span className="kicker">SIMPLES E SEGURO</span>
             <h2>
-              Preço fixo trava seu anúncio num chute.
-              <br />O lance encontra o valor real.
+              Você escolhe o lado.
+              <br />A plataforma organiza o fluxo.
             </h2>
           </div>
-        </div>
-        <div className="compare-grid">
-          <div className="compare-card">
-            <span className="compare-tag">Anúncio de preço fixo</span>
-            <ul>
-              <li>Você chuta um valor e torce: alto demais, ninguém compra; baixo demais, você perde dinheiro.</li>
-              <li>Sem prazo, sem urgência — o anúncio junta poeira por semanas.</li>
-              <li>Cada comprador tenta pechinchar no particular, um de cada vez.</li>
-            </ul>
+          <div className="steps">
+            <article>
+              <b>01</b>
+              <Gavel />
+              <h3>Anuncie ou dê um lance</h3>
+              <p>Crie seu leilão ou dispute itens que você quer.</p>
+            </article>
+            <article>
+              <b>02</b>
+              <WalletCards />
+              <h3>Pague pelo provedor</h3>
+              <p>Pagamentos reais ficam desativados até homologação do Mercado Pago.</p>
+            </article>
+            <article>
+              <b>03</b>
+              <Truck />
+              <h3>Envie ou retire</h3>
+              <p>Envio com rastreio ou retirada conforme o anúncio.</p>
+            </article>
           </div>
-          <div className="compare-card highlight">
-            <span className="compare-tag">Leilão progressivo no MeuLance</span>
-            <ul>
-              <li>Vários interessados disputam ao mesmo tempo e o preço sobe até o valor justo de mercado.</li>
-              <li>Contagem regressiva pública cria urgência real — as disputas acirram no fim.</li>
-              <li>Histórico de lances transparente dá segurança para o comprador pagar mais.</li>
-            </ul>
+        </section>
+      </Reveal>
+      <Reveal>
+        <section className="section">
+          <div className="section-head">
+            <div>
+              <span className="kicker">POR QUE LEILÃO</span>
+              <h2>
+                Preço fixo trava seu anúncio num chute.
+                <br />O lance encontra o valor real.
+              </h2>
+            </div>
           </div>
+          <div className="compare-grid">
+            <div className="compare-card">
+              <span className="compare-tag">Anúncio de preço fixo</span>
+              <ul>
+                <li>
+                  Você chuta um valor e torce: alto demais, ninguém compra; baixo demais, você perde
+                  dinheiro.
+                </li>
+                <li>Sem prazo, sem urgência — o anúncio junta poeira por semanas.</li>
+                <li>Cada comprador tenta pechinchar no particular, um de cada vez.</li>
+              </ul>
+            </div>
+            <div className="compare-card highlight">
+              <span className="compare-tag">Leilão progressivo no MeuLance</span>
+              <ul>
+                <li>Vários interessados disputam ao mesmo tempo e o preço sobe até o valor justo de mercado.</li>
+                <li>Contagem regressiva pública cria urgência real — as disputas acirram no fim.</li>
+                <li>Histórico de lances transparente dá segurança para o comprador pagar mais.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+      <Reveal>
+        <div className="cta">
+          <div>
+            <span className="kicker">TEM ALGO PARADO EM CASA?</span>
+            <h2>Publique em minutos e deixe o mercado decidir o preço.</h2>
+            <p>Anúncio grátis. Você só paga uma pequena comissão quando o item é vendido.</p>
+          </div>
+          <Link className="btn light" to="/vender/novo">
+            Anunciar agora <ArrowRight />
+          </Link>
         </div>
-      </section>
-      <div className="cta">
-        <div>
-          <span className="kicker">TEM ALGO PARADO EM CASA?</span>
-          <h2>Publique em minutos e deixe o mercado decidir o preço.</h2>
-          <p>Anúncio grátis. Você só paga uma pequena comissão quando o item é vendido.</p>
-        </div>
-        <Link className="btn light" to="/vender/novo">
-          Anunciar agora <ArrowRight />
-        </Link>
-      </div>
+      </Reveal>
     </>
   );
 }
@@ -477,76 +490,82 @@ function HowItWorks() {
           realmente querem seu item, disputando lance a lance até o valor justo.
         </p>
       </div>
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="section-head">
+      <Reveal>
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="section-head">
+            <div>
+              <span className="kicker">PARA QUEM VENDE</span>
+              <h2>Do anúncio ao dinheiro na conta, em 3 passos</h2>
+            </div>
+          </div>
+          <div className="steps steps-light">
+            <article>
+              <b>01</b>
+              <Gavel />
+              <h3>Anuncie de graça</h3>
+              <p>
+                Fotos, descrição e um preço inicial baixo — leilões com lance inicial atrativo atraem mais
+                disputa e terminam em valores mais altos.
+              </p>
+            </article>
+            <article>
+              <b>02</b>
+              <Sparkles />
+              <h3>Acompanhe os lances subirem</h3>
+              <p>Interessados disputam ao vivo, com contagem regressiva e histórico público de lances.</p>
+            </article>
+            <article>
+              <b>03</b>
+              <WalletCards />
+              <h3>Combine entrega e receba</h3>
+              <p>
+                O maior lance vence, um pedido é criado automaticamente e você combina envio ou retirada
+                pelo chat do pedido.
+              </p>
+            </article>
+          </div>
+        </section>
+      </Reveal>
+      <Reveal>
+        <section className="section">
+          <div className="section-head">
+            <div>
+              <span className="kicker">A DIFERENÇA NA PRÁTICA</span>
+              <h2>Leilão progressivo vs. anúncio de preço fixo</h2>
+            </div>
+          </div>
+          <div className="compare-grid">
+            <div className="compare-card">
+              <span className="compare-tag">Preço fixo</span>
+              <ul>
+                <li>Você define um número e espera — sem saber se é alto ou baixo demais.</li>
+                <li>Compradores pechincham no particular, um de cada vez, sem pressão de tempo.</li>
+                <li>Anúncios ficam parados por semanas sem gerar urgência.</li>
+              </ul>
+            </div>
+            <div className="compare-card highlight">
+              <span className="compare-tag">Leilão MeuLance</span>
+              <ul>
+                <li>O preço sobe conforme o interesse real — quem mais quer, mais paga.</li>
+                <li>Prazo com contagem regressiva pública cria urgência genuína no fim do leilão.</li>
+                <li>Histórico de lances transparente aumenta a confiança de quem está comprando.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+      <Reveal>
+        <div className="cta">
           <div>
-            <span className="kicker">PARA QUEM VENDE</span>
-            <h2>Do anúncio ao dinheiro na conta, em 3 passos</h2>
+            <span className="kicker">PRONTO PARA COMEÇAR?</span>
+            <h2>Anuncie seu primeiro item agora mesmo.</h2>
+            <p>Leva menos de 5 minutos e você não paga nada até vender.</p>
           </div>
+          <Link className="btn light" to="/vender/novo">
+            Quero vender <ArrowRight />
+          </Link>
         </div>
-        <div className="steps steps-light">
-          <article>
-            <b>01</b>
-            <Gavel />
-            <h3>Anuncie de graça</h3>
-            <p>
-              Fotos, descrição e um preço inicial baixo — leilões com lance inicial atrativo atraem mais
-              disputa e terminam em valores mais altos.
-            </p>
-          </article>
-          <article>
-            <b>02</b>
-            <Sparkles />
-            <h3>Acompanhe os lances subirem</h3>
-            <p>Interessados disputam ao vivo, com contagem regressiva e histórico público de lances.</p>
-          </article>
-          <article>
-            <b>03</b>
-            <WalletCards />
-            <h3>Combine entrega e receba</h3>
-            <p>
-              O maior lance vence, um pedido é criado automaticamente e você combina envio ou retirada pelo
-              chat do pedido.
-            </p>
-          </article>
-        </div>
-      </section>
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <span className="kicker">A DIFERENÇA NA PRÁTICA</span>
-            <h2>Leilão progressivo vs. anúncio de preço fixo</h2>
-          </div>
-        </div>
-        <div className="compare-grid">
-          <div className="compare-card">
-            <span className="compare-tag">Preço fixo</span>
-            <ul>
-              <li>Você define um número e espera — sem saber se é alto ou baixo demais.</li>
-              <li>Compradores pechincham no particular, um de cada vez, sem pressão de tempo.</li>
-              <li>Anúncios ficam parados por semanas sem gerar urgência.</li>
-            </ul>
-          </div>
-          <div className="compare-card highlight">
-            <span className="compare-tag">Leilão MeuLance</span>
-            <ul>
-              <li>O preço sobe conforme o interesse real — quem mais quer, mais paga.</li>
-              <li>Prazo com contagem regressiva pública cria urgência genuína no fim do leilão.</li>
-              <li>Histórico de lances transparente aumenta a confiança de quem está comprando.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-      <div className="cta">
-        <div>
-          <span className="kicker">PRONTO PARA COMEÇAR?</span>
-          <h2>Anuncie seu primeiro item agora mesmo.</h2>
-          <p>Leva menos de 5 minutos e você não paga nada até vender.</p>
-        </div>
-        <Link className="btn light" to="/vender/novo">
-          Quero vender <ArrowRight />
-        </Link>
-      </div>
+      </Reveal>
     </main>
   );
 }

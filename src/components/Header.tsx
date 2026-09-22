@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { HammerLink } from './HammerLink';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSession } from '../features/auth/useSession';
 import { useProfile } from '../features/auth/useProfile';
@@ -64,9 +65,9 @@ export function Header() {
         <nav>
           <Link to="/buscar">Explorar</Link>
           <Link to="/como-funciona">Como funciona</Link>
-          <Link className="sell-link" to="/vender/novo">
-            Vender
-          </Link>
+          <HammerLink className="sell-link" to="/vender/novo">
+            <Gavel size={15} /> Vender
+          </HammerLink>
         </nav>
         <div className="icons">
           <Link aria-label="Meus leilões" to="/conta/lances">
@@ -148,9 +149,9 @@ export function Header() {
           <nav className="mobile-menu-links">
             <Link to="/buscar">Explorar leilões</Link>
             <Link to="/como-funciona">Como funciona</Link>
-            <Link className="sell-link" to="/vender/novo">
+            <HammerLink className="sell-link" to="/vender/novo">
               <Gavel size={16} /> Vender
-            </Link>
+            </HammerLink>
           </nav>
           <div className="mobile-menu-divider" />
           <nav className="mobile-menu-links">
