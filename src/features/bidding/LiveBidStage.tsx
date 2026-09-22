@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Gavel, Radio } from 'lucide-react';
-import { placeBid } from './api';
+import { autoWatch, placeBid } from './api';
 import { formatBRL, parseBRLToCents } from '../../lib/money';
 import { minimumBid, QUICK_BID_STEPS_CENTS } from '../../lib/auction';
 import { errorMessage } from '../../lib/errors';
@@ -28,6 +29,7 @@ export function LiveBidStage({
   const pending = useRef<{ amount: number; key: string } | null>(null),
     locked = useRef(false);
   const min = minimumCents ?? minimumBid(initialPrice, initialCount, startCents);
+  const queryClient = useQueryClient();
   async function bid() {
     if (disabled || !confirmed || locked.current) return;
     locked.current = true;
@@ -38,6 +40,7 @@ export function LiveBidStage({
       if (cents < min) throw new Error('BID_TOO_LOW');
       if (pending.current?.amount !== cents) pending.current = { amount: cents, key: crypto.randomUUID() };
       await placeBid(listingId, cents, pending.current.key);
+      void autoWatch(listingId).then(() => queryClient.invalidateQueries({ queryKey: ['favorite'] }));
       pending.current = null;
       setConfirmed(false);
       setAmount('');

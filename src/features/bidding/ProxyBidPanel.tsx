@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Bot } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { formatBRL, parseBRLToCents } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
+import { autoWatch } from './api';
 export function ProxyBidPanel({
   listingId,
   currentCents,
@@ -22,6 +24,7 @@ export function ProxyBidPanel({
     [message, setMessage] = useState('');
   const pending = useRef<{ amount: number; key: string } | null>(null),
     locked = useRef(false);
+  const queryClient = useQueryClient();
   async function activate() {
     if (!supabase || disabled || !confirmed || locked.current) return;
     locked.current = true;
@@ -36,6 +39,7 @@ export function ProxyBidPanel({
         p_idempotency: pending.current.key,
       });
       if (error) throw error;
+      void autoWatch(listingId).then(() => queryClient.invalidateQueries({ queryKey: ['favorite'] }));
       pending.current = null;
       setConfirmed(false);
       setMessage('Limite registrado. Consulte sua posição na Central de Lances.');
