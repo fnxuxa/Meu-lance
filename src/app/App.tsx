@@ -52,6 +52,7 @@ import { Reveal } from '../components/Reveal';
 import { HammerLink } from '../components/HammerLink';
 import { BackButton } from '../components/BackButton';
 import { ReportListingButton } from '../features/listings/ReportListingButton';
+import { SellerProfile } from '../features/listings/SellerProfile';
 function Home() {
   const { data: listings, loading, error, demo } = useListings();
   useDocumentMeta({
@@ -126,7 +127,7 @@ function Home() {
             </span>
           </div>
         </div>
-        {listings[0] ? (
+        {listings[0] && !demo ? (
           <div className="hero-panel">
             <div className="live">
               <span />
@@ -437,7 +438,13 @@ function Detail() {
           </>
         )}
         <h3>Vendedor</h3>
-        <p>{item.seller?.display_name ?? (demo ? 'Perfil de demonstração' : 'Perfil indisponível')}</p>
+        {item.seller && !demo ? (
+          <p>
+            <Link to={`/vendedor/${item.sellerId}`}>{item.seller.display_name}</Link>
+          </p>
+        ) : (
+          <p>{demo ? 'Perfil de demonstração' : 'Perfil indisponível'}</p>
+        )}
         <TrustBadges seller={item.seller} />
         {!demo && <ReportListingButton listingId={item.id} sellerId={item.sellerId} />}
       </div>
@@ -801,6 +808,7 @@ export function App() {
         <Route path="/buscar" element={<SearchPage />} />
         <Route path="/vender/novo" element={<CreateListingPage />} />
         <Route path="/l/:slug" element={<Detail />} />
+        <Route path="/vendedor/:id" element={<SellerProfile />} />
         <Route path="/recuperar-senha" element={<RecoveryCard />} />
         <Route path="/entrar" element={<AuthPage mode="login" />} />
         <Route path="/cadastrar" element={<AuthPage mode="signup" />} />

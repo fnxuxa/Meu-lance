@@ -1,10 +1,123 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Trash2, XCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+const REPORT_REASON_LABEL: Record<string, string> = {
+  suspected_stolen: 'Suspeito de item roubado',
+  prohibited_item: 'Item proibido',
+  misleading: 'Anúncio enganoso',
+  other: 'Outro motivo',
+};
+type Report = {
+  id: string;
+  reason: string;
+  details: string | null;
+  created_at: string;
+  listing_id: string | null;
+  listings: { title: string; slug: string } | null;
+  profiles: { display_name: string } | null;
+};
+function ReportQueue({ isStaff }: { isStaff: boolean }) {
+  const queryClient = useQueryClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: ['admin-reports'],
+    enabled: isStaff && !!supabase,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('reports')
+        .select('id,reason,details,created_at,listing_id,listings(title,slug),profiles!reports_reporter_id_fkey(display_name)')
+        .eq('status', 'open')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data as unknown as Report[];
+    },
+  });
+  async function refresh() {
+    await queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
+    await queryClient.invalidateQueries({ queryKey: ['admin'] });
+  }
+  async function resolve(id: string, status: 'resolved' | 'dismissed') {
+    if (!supabase || busyId) return;
+    setBusyId(id);
+    try {
+      const { error } = await supabase.rpc('resolve_report', { p_id: id, p_status: status });
+      if (error) throw error;
+      await refresh();
+    } catch (e) {
+      window.alert(errorMessage(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+  async function removeListing(r: Report) {
+    if (!supabase || busyId || !r.listing_id) return;
+    if (!window.confirm(`Remover o anúncio "${r.listings?.title}"? Essa ação avisa o vendedor.`)) return;
+    setBusyId(r.id);
+    try {
+      const { error } = await supabase.rpc('staff_remove_listing', {
+        p_listing: r.listing_id,
+        p_reason: REPORT_REASON_LABEL[r.reason] ?? r.reason,
+      });
+      if (error) throw error;
+      await supabase.rpc('resolve_report', { p_id: r.id, p_status: 'resolved' });
+      await refresh();
+    } catch (e) {
+      window.alert(errorMessage(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Denúncias abertas</h2>
+      {!query.data?.length && <p className="muted">Nenhuma denúncia aberta.</p>}
+      <div className="verification-list">
+        {query.data?.map((r) => (
+          <article className="verification-card" key={r.id}>
+            <div>
+              <b>{REPORT_REASON_LABEL[r.reason] ?? r.reason}</b>
+              <span className="muted">
+                {new Date(r.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              Denunciado por {r.profiles?.display_name ?? 'usuário'}
+              {r.listings && (
+                <>
+                  {' · '}
+                  <Link to={`/l/${r.listings.slug}`} target="_blank" rel="noopener">
+                    {r.listings.title}
+                  </Link>
+                </>
+              )}
+            </p>
+            {r.details && <p style={{ margin: 0 }}>{r.details}</p>}
+            <div className="verification-actions">
+              {r.listing_id && (
+                <button className="btn ghost-danger" disabled={busyId === r.id} onClick={() => void removeListing(r)}>
+                  <Trash2 size={15} /> Remover anúncio
+                </button>
+              )}
+              <button className="btn secondary" disabled={busyId === r.id} onClick={() => void resolve(r.id, 'resolved')}>
+                <CheckCircle2 size={15} /> Marcar resolvida
+              </button>
+              <button className="btn secondary" disabled={busyId === r.id} onClick={() => void resolve(r.id, 'dismissed')}>
+                <XCircle size={15} /> Descartar
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 type Verification = {
   id: string;
   user_id: string;
@@ -157,10 +270,10 @@ export function AdminDashboard() {
               ),
             )}
           </div>
+          <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
-          <p>
-            Este painel apresenta métricas. As ferramentas de moderação e resolução ainda estão em
-            desenvolvimento.
+          <p className="muted">
+            Disputas de pedidos ainda são resolvidas fora deste painel.
           </p>
         </>
       )}
