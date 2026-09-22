@@ -48,7 +48,7 @@ function Home() {
       '@type': 'Organization',
       name: 'MeuLance',
       url: window.location.origin,
-      logo: window.location.origin + '/icon.svg',
+      logo: window.location.origin + '/logo.png',
       description: 'Marketplace de leilões online de itens usados entre pessoas físicas no Brasil.',
     });
     setJsonLd('ld-site', {
@@ -108,7 +108,7 @@ function Home() {
             </span>
           </div>
         </div>
-        {listings[0] && (
+        {listings[0] ? (
           <div className="hero-panel">
             <div className="live">
               <span />
@@ -123,6 +123,10 @@ function Home() {
                 Acompanhar disputa <ArrowRight />
               </Link>
             </div>
+          </div>
+        ) : (
+          <div className="hero-panel hero-panel-static">
+            <img src="/landing.png" alt="MeuLance — leilão na palma da mão" />
           </div>
         )}
       </section>
