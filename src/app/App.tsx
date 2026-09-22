@@ -37,6 +37,7 @@ import { useDocumentMeta, setJsonLd, removeJsonLd } from '../lib/useDocumentMeta
 import { Reveal } from '../components/Reveal';
 import { HammerLink } from '../components/HammerLink';
 import { BackButton } from '../components/BackButton';
+import { ReportListingButton } from '../features/listings/ReportListingButton';
 function Home() {
   const { data: listings, loading, error, demo } = useListings();
   useDocumentMeta({
@@ -424,6 +425,7 @@ function Detail() {
         <h3>Vendedor</h3>
         <p>{item.seller?.display_name ?? (demo ? 'Perfil de demonstração' : 'Perfil indisponível')}</p>
         <TrustBadges seller={item.seller} />
+        {!demo && <ReportListingButton listingId={item.id} sellerId={item.sellerId} />}
       </div>
       <PublicQuestions key={item.id} listingId={item.id} sellerId={item.sellerId} />
     </main>

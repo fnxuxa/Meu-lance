@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { CheckCircle2, PackageCheck, ShieldAlert, Truck } from 'lucide-react';
+import { CheckCircle2, PackageCheck, ShieldAlert, Star, Truck } from 'lucide-react';
 import { BackButton } from '../../components/BackButton';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
@@ -165,6 +165,106 @@ function ConfirmDeliveryCard({ orderId, onSuccess }: { orderId: string; onSucces
     </div>
   );
 }
+function ReviewCard({
+  orderId,
+  authorId,
+  subjectId,
+  subjectLabel,
+}: {
+  orderId: string;
+  authorId: string;
+  subjectId: string;
+  subjectLabel: string;
+}) {
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  const query = useQuery({
+    queryKey: ['review', orderId, authorId],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('reviews')
+        .select('rating,comment')
+        .eq('order_id', orderId)
+        .eq('author_id', authorId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  if (query.isPending) return null;
+  if (query.data) {
+    return (
+      <div className="fulfillment-card">
+        <h2>
+          <Star size={18} /> Sua avaliação de {subjectLabel}
+        </h2>
+        <div className="star-display">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Star key={n} size={18} fill={n <= query.data!.rating ? 'currentColor' : 'none'} />
+          ))}
+        </div>
+        {query.data.comment && <p className="muted">{query.data.comment}</p>}
+      </div>
+    );
+  }
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!supabase || busy || !rating) return;
+    setBusy(true);
+    setMessage('');
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .insert({ order_id: orderId, author_id: authorId, subject_id: subjectId, rating, comment: comment.trim() || null });
+      if (error) throw error;
+      await query.refetch();
+    } catch (err) {
+      setMessage(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form className="fulfillment-card highlight" onSubmit={submit}>
+      <h2>
+        <Star size={18} /> Avalie {subjectLabel}
+      </h2>
+      <p className="muted">Sua nota ajuda outros usuários a confiar na plataforma.</p>
+      <div className="star-picker">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            type="button"
+            key={n}
+            aria-label={`${n} estrelas`}
+            onMouseEnter={() => setHoverRating(n)}
+            onMouseLeave={() => setHoverRating(0)}
+            onClick={() => setRating(n)}
+          >
+            <Star size={26} fill={n <= (hoverRating || rating) ? 'currentColor' : 'none'} />
+          </button>
+        ))}
+      </div>
+      <textarea
+        placeholder="Comentário (opcional)"
+        maxLength={500}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+      />
+      <button className="btn primary" disabled={busy || !rating}>
+        {busy ? 'Enviando…' : 'Enviar avaliação'}
+      </button>
+      {message && (
+        <p role="status" className="auth-message error">
+          {message}
+        </p>
+      )}
+    </form>
+  );
+}
 export function OrderPage() {
   const { id } = useParams();
   const { user, loading } = useSession();
@@ -245,6 +345,12 @@ export function OrderPage() {
           <ShieldAlert size={16} />O pagamento ao vendedor segue as regras do Mercado Pago para esse pedido.
           Isso ainda não está automatizado nesta versão.
         </div>
+      )}
+      {o.status === 'completed' && isBuyer && (
+        <ReviewCard orderId={o.id} authorId={user.id} subjectId={o.seller_id} subjectLabel="o vendedor" />
+      )}
+      {o.status === 'completed' && isSeller && (
+        <ReviewCard orderId={o.id} authorId={user.id} subjectId={o.buyer_id} subjectLabel="o comprador" />
       )}
       <OrderChat key={o.id + user.id} orderId={o.id} userId={user.id} />
       {isBuyer && ['paid', 'awaiting_shipment', 'shipped', 'delivered'].includes(o.status) && (
