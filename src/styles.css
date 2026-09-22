@@ -1804,6 +1804,26 @@ a.watch-thumb {
   }
 }
 
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+.back-btn:hover {
+  color: var(--green);
+  transform: translateX(-2px);
+}
 .results-count {
   color: #6b7c74;
   margin: 0 0 16px;

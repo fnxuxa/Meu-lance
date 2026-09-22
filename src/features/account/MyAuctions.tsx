@@ -7,6 +7,7 @@ import { useSession } from '../auth/useSession';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { BackButton } from '../../components/BackButton';
 type Row = {
   id: string;
   slug: string;
@@ -78,6 +79,7 @@ export function MyAuctions() {
   const items = (query.data ?? []).filter((x) => filter === 'all' || x.state === filter);
   return (
     <main className="account-shell">
+      <BackButton />
       <h1>Meus leilões</h1>
       <nav className="auction-tabs">
         {[

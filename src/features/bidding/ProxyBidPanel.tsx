@@ -84,11 +84,13 @@ export function ProxyBidPanel({
             disabled={disabled || busy}
             onChange={(e) => setConfirmed(e.target.checked)}
           />
-          Confirmo o compromisso de compra até este limite e aceito os{' '}
-          <Link to="/termos" target="_blank" rel="noopener">
-            Termos de Uso
-          </Link>
-          .
+          <span>
+            Confirmo o compromisso de compra até este limite e aceito os{' '}
+            <Link to="/termos" target="_blank" rel="noopener">
+              Termos de Uso
+            </Link>
+            .
+          </span>
         </label>
         <button
           className="btn primary"

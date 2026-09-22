@@ -8,6 +8,7 @@ import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 import { compressListingImage } from '../../lib/images';
 import { BR_STATES, citiesForUf } from '../../lib/brazil';
+import { BackButton } from '../../components/BackButton';
 function ProfileCard() {
   const { user } = useSession();
   const profile = useProfile();
@@ -211,6 +212,7 @@ export function AccountSettings() {
   return (
     <main className="page">
       <div className="account-settings-shell">
+        <BackButton />
         <ProfileCard />
         <form
           className="account-card"

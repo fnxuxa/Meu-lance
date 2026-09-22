@@ -8,6 +8,7 @@ import { errorMessage } from '../../lib/errors';
 import { useSession } from './useSession';
 import { useProfile } from './useProfile';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { BackButton } from '../../components/BackButton';
 export function IdentityVerification() {
   const { user, loading } = useSession();
   const profile = useProfile();
@@ -50,6 +51,7 @@ export function IdentityVerification() {
   if (profile.data?.identity_verified_at)
     return (
       <main className="page simple">
+        <BackButton />
         <h1>Verificação de identidade</h1>
         <div className="notice">
           <CheckCircle2 size={16} />
@@ -60,6 +62,7 @@ export function IdentityVerification() {
   if (row?.status === 'pending')
     return (
       <main className="page simple">
+        <BackButton />
         <h1>Verificação de identidade</h1>
         <div className="notice">
           <Clock size={16} />
@@ -71,6 +74,7 @@ export function IdentityVerification() {
   return (
     <main className="page auth-page">
       <div className="auth-card">
+        <BackButton />
         <span className="auth-card-icon">
           <ShieldCheck size={22} />
         </span>

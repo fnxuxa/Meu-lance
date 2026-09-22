@@ -7,6 +7,7 @@ import { useSession } from '../auth/useSession';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { BackButton } from '../../components/BackButton';
 type Row = {
   id: string;
   slug: string;
@@ -90,6 +91,7 @@ export function MyListings() {
     );
   return (
     <main className="account-shell">
+      <BackButton />
       <h1>Meus anúncios</h1>
       <p className="muted">
         Você pode cancelar um anúncio livremente enquanto ninguém deu lance. Depois do primeiro lance,

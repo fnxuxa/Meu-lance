@@ -36,6 +36,7 @@ import { formatBRL } from '../lib/money';
 import { useDocumentMeta, setJsonLd, removeJsonLd } from '../lib/useDocumentMeta';
 import { Reveal } from '../components/Reveal';
 import { HammerLink } from '../components/HammerLink';
+import { BackButton } from '../components/BackButton';
 function Home() {
   const { data: listings, loading, error, demo } = useListings();
   useDocumentMeta({
@@ -354,6 +355,7 @@ function Detail() {
   if (!item) return <NotFound />;
   return (
     <main className="page detail">
+      <BackButton fallback="/buscar" />
       {demo && <p className="notice">Demonstração: anúncio ilustrativo. Lances não serão enviados.</p>}
       <div className="detail-grid">
         <div className="gallery">
@@ -615,6 +617,15 @@ function TermsPage() {
         reembolso, abrindo uma disputa pela plataforma. Passado esse prazo sem reclamação registrada, o
         pedido é considerado concluído, o reembolso deixa de ser garantido pela plataforma, e o MeuLance
         não se responsabiliza por reclamações feitas fora desse período.
+      </p>
+      <h2>4.1 Devolução do item e frete de devolução</h2>
+      <p>
+        Quando o motivo da reclamação é responsabilidade do vendedor (item diferente do anunciado, com
+        defeito não declarado ou não enviado), comprador e vendedor devem combinar a devolução — endereço,
+        transportadora e prazo — diretamente pelo chat do pedido. Nesse caso, o custo do frete de devolução
+        é do vendedor: ele deve reembolsar o valor do frete ao comprador ou fornecer um código de postagem
+        pago. O reembolso do item só é confirmado pela plataforma depois que o vendedor confirma o
+        recebimento da devolução. O MeuLance não contrata transportadora nem antecipa esse custo.
       </p>
       <h2>5. Entrega</h2>
       <p>

@@ -105,11 +105,13 @@ export function LiveBidStage({
           disabled={disabled || busy}
           onChange={(e) => setConfirmed(e.target.checked)}
         />
-        Entendo que este lance é compromisso de compra e aceito os{' '}
-        <Link to="/termos" target="_blank" rel="noopener">
-          Termos de Uso
-        </Link>
-        .
+        <span>
+          Entendo que este lance é compromisso de compra e aceito os{' '}
+          <Link to="/termos" target="_blank" rel="noopener">
+            Termos de Uso
+          </Link>
+          .
+        </span>
       </label>
       <button
         className="btn primary"

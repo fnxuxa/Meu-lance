@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { CheckCircle2, PackageCheck, ShieldAlert, Truck } from 'lucide-react';
+import { BackButton } from '../../components/BackButton';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { formatBRL } from '../../lib/money';
@@ -39,6 +40,7 @@ export function OrdersPage({ sales = false }: { sales?: boolean }) {
   });
   return (
     <main className="page simple">
+      <BackButton />
       <h1>{sales ? 'Minhas vendas' : 'Meus pedidos'}</h1>
       {loading || (user && query.isPending) ? (
         <p>Carregando…</p>
@@ -211,6 +213,7 @@ export function OrderPage() {
   const isSeller = o.seller_id === user.id;
   return (
     <main className="page simple">
+      <BackButton fallback="/conta/compras" />
       <h1>Pedido {o.id.slice(0, 8)}</h1>
       <p>
         {formatBRL(o.amount_cents)} · <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>

@@ -9,6 +9,7 @@ import { parseBRLToCents } from '../../lib/money';
 import { BR_STATES, citiesForUf } from '../../lib/brazil';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 import { useProfile } from '../auth/useProfile';
+import { BackButton } from '../../components/BackButton';
 type Photo = { file: File; url: string };
 type Cat = { id: string; name: string };
 export function CreateListingPage() {
@@ -158,6 +159,7 @@ export function CreateListingPage() {
   if (!profile.data?.identity_verified_at)
     return (
       <main className="page simple">
+        <BackButton />
         <h1>Verifique sua identidade para vender</h1>
         <p>
           Para evitar fraude e venda de itens roubados, pedimos documento com foto e uma selfie antes de
@@ -170,6 +172,7 @@ export function CreateListingPage() {
     );
   return (
     <main className="page sell-page">
+      <BackButton />
       <div className="form-intro">
         <span className="kicker">NOVO LEILÃO</span>
         <h1>O que você quer vender?</h1>
@@ -328,11 +331,13 @@ export function CreateListingPage() {
         <section>
           <label className="setting-row">
             <input type="checkbox" name="declaration" required />
-            Declaro que o item é meu e que as fotos e informações são verdadeiras.
+            <span>Declaro que o item é meu e que as fotos e informações são verdadeiras.</span>
           </label>
           <label className="setting-row">
             <input type="checkbox" name="terms" required />
-            Li e aceito os <Link to="/termos">Termos de Uso</Link> do MeuLance.
+            <span>
+              Li e aceito os <Link to="/termos">Termos de Uso</Link> do MeuLance.
+            </span>
           </label>
           <button className="btn primary wide" disabled={busy || photos.length < 3}>
             Publicar leilão <ArrowRight />
