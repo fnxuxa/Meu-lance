@@ -25,9 +25,11 @@ import { PublicQuestions } from '../features/listings/PublicQuestions';
 import { MyAuctions } from '../features/account/MyAuctions';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
 import { RecoveryCard } from '../features/auth/RecoveryCard';
+import { IdentityVerification } from '../features/auth/IdentityVerification';
 
 import { useListings, useListing } from '../features/listings/useListings';
 import { CreateListingPage } from '../features/listings/CreateListingPage';
+import { MyListings } from '../features/listings/MyListings';
 import { AuthPage } from '../features/auth/AuthPage';
 import { NotificationSettings } from '../features/notifications/NotificationSettings';
 import { formatBRL } from '../lib/money';
@@ -556,6 +558,59 @@ function Simple({ title }: { title: string }) {
     </main>
   );
 }
+function TermsPage() {
+  useDocumentMeta({ title: 'Termos de Uso', canonicalPath: '/termos' });
+  return (
+    <main className="page simple legal-page">
+      <span className="kicker">MEULANCE</span>
+      <h1>Termos de Uso</h1>
+      <div className="notice">
+        <ShieldCheck size={16} />
+        Rascunho de trabalho — ainda não revisado por advogado. Não é um documento jurídico definitivo.
+      </div>
+      <h2>1. O que é o MeuLance</h2>
+      <p>
+        O MeuLance é uma plataforma de leilões online entre pessoas físicas para venda de itens usados. Ao
+        criar uma conta, você concorda com estes Termos.
+      </p>
+      <h2>2. Lances são compromisso de compra</h2>
+      <p>
+        Ao confirmar um lance, você assume o compromisso de pagar aquele valor caso vença o leilão. Lances
+        não podem ser cancelados após confirmados.
+      </p>
+      <h2>3. Verificação de identidade do vendedor</h2>
+      <p>
+        Para publicar leilões, o vendedor precisa verificar a identidade com documento oficial e selfie.
+        Isso reduz o risco de fraude e de venda de itens de origem ilícita, mas não elimina esse risco por
+        completo — o MeuLance intermedia o encontro entre comprador e vendedor, não garante a procedência
+        do item.
+      </p>
+      <h2>4. Prazo para reclamar de um pedido entregue</h2>
+      <p>
+        O comprador tem até <b>3 dias corridos a partir da entrega</b> para reportar um problema com o
+        pedido (item não recebido, diferente do anunciado, com defeito não declarado) e solicitar
+        reembolso, abrindo uma disputa pela plataforma. Passado esse prazo sem reclamação registrada, o
+        pedido é considerado concluído, o reembolso deixa de ser garantido pela plataforma, e o MeuLance
+        não se responsabiliza por reclamações feitas fora desse período.
+      </p>
+      <h2>5. Entrega</h2>
+      <p>
+        Envio ou retirada são combinados diretamente entre comprador e vendedor pelo chat do pedido,
+        conforme a modalidade escolhida no anúncio. O MeuLance não contrata nem gerencia a transportadora.
+      </p>
+      <h2>6. Itens proibidos</h2>
+      <p>
+        É proibido anunciar itens roubados, falsificados, ilegais ou que violem direitos de terceiros. Ver{' '}
+        <Link to="/itens-proibidos">lista de itens proibidos</Link>.
+      </p>
+      <h2>7. Cancelamento de leilão pelo vendedor</h2>
+      <p>
+        O vendedor pode cancelar um anúncio livremente enquanto não houver lances. Após o primeiro lance,
+        o cancelamento só é permitido se faltar mais de 1 dia para o encerramento.
+      </p>
+    </main>
+  );
+}
 function Footer() {
   return (
     <footer>
@@ -591,10 +646,13 @@ export function App() {
         <Route path="/conta/favoritos" element={<Navigate to="/conta/lances" replace />} />
         <Route path="/conta/compras" element={<OrdersPage />} />
         <Route path="/conta/vendas" element={<OrdersPage sales />} />
+        <Route path="/conta/anuncios" element={<MyListings />} />
+        <Route path="/conta/verificacao" element={<IdentityVerification />} />
         <Route path="/pedido/:id" element={<OrderPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/como-funciona" element={<HowItWorks />} />
-        {['termos', 'privacidade', 'regras-de-leilao', 'itens-proibidos', 'ajuda'].map(
+        <Route path="/termos" element={<TermsPage />} />
+        {['privacidade', 'regras-de-leilao', 'itens-proibidos', 'ajuda'].map(
           (p) => (
             <Route
               key={p}

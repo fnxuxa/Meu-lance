@@ -973,6 +973,20 @@ footer b {
 .simple h1 {
   text-transform: capitalize;
 }
+.legal-page {
+  max-width: 760px;
+}
+.legal-page h1 {
+  text-transform: none;
+}
+.legal-page h2 {
+  font-size: 18px;
+  margin: 30px 0 8px;
+}
+.legal-page p {
+  color: #3d4a44;
+  line-height: 1.7;
+}
 @media (max-width: 850px) {
   .nav {
     height: 62px;
@@ -1360,6 +1374,46 @@ footer b {
   grid-template-columns: 1.1fr 0.9fr;
   gap: 16px;
 }
+.admin-verifications {
+  margin: 28px 0;
+}
+.admin-verifications h2 {
+  font-size: 19px;
+  margin-bottom: 12px;
+}
+.verification-list {
+  display: grid;
+  gap: 12px;
+}
+.verification-card {
+  background: #fff;
+  border: 1px solid #e0e8e4;
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 10px;
+}
+.verification-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13.5px;
+}
+.verification-thumbs {
+  display: flex;
+  gap: 10px;
+  min-height: 32px;
+  align-items: center;
+}
+.verification-thumbs img {
+  height: 140px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.verification-actions {
+  display: flex;
+  gap: 10px;
+}
 .admin-grid section {
   background: #fff;
   border: 1px solid #e0e8e4;
@@ -1622,6 +1676,16 @@ footer b {
 }
 .watch-cta {
   white-space: nowrap;
+}
+.watch-cta.locked {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+  max-width: 120px;
+  cursor: help;
+}
+a.watch-thumb {
+  cursor: pointer;
 }
 .status-pill {
   display: inline-flex;
@@ -1939,16 +2003,22 @@ footer b {
   font-size: 13.5px;
   color: #3d4a44;
 }
-.account-card input {
+.account-card input,
+.account-card select {
   border: 1px solid #ccd9d2;
   border-radius: 11px;
   padding: 12px 13px;
   font: inherit;
   outline: 0;
+  background: white;
 }
-.account-card input:focus {
+.account-card input:focus,
+.account-card select:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px #e5f5ed;
+}
+.account-card .form-grid {
+  margin-bottom: 6px;
 }
 .account-identity {
   display: flex;
@@ -1965,6 +2035,41 @@ footer b {
   place-items: center;
   font-weight: 800;
   flex-shrink: 0;
+}
+.account-avatar-upload {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--green);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  overflow: hidden;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.account-avatar-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.identity-pill {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fdeeee;
+  color: #9a3131;
+  white-space: nowrap;
+}
+.identity-pill.verified {
+  background: var(--mint);
+  color: #08704e;
 }
 .account-card.danger {
   display: flex;

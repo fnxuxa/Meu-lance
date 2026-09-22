@@ -1,10 +1,180 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, ShieldCheck } from 'lucide-react';
+import { LogOut, ShieldCheck, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from './useSession';
+import { useProfile } from './useProfile';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { compressListingImage } from '../../lib/images';
+import { BR_STATES, citiesForUf } from '../../lib/brazil';
+function ProfileCard() {
+  const { user } = useSession();
+  const profile = useProfile();
+  const [displayName, setDisplayName] = useState(''),
+    [fullName, setFullName] = useState(''),
+    [uf, setUf] = useState(''),
+    [city, setCity] = useState(''),
+    [cityOptions, setCityOptions] = useState<string[]>([]),
+    [avatarUrl, setAvatarUrl] = useState<string | null>(null),
+    [busy, setBusy] = useState(false),
+    [uploadingAvatar, setUploadingAvatar] = useState(false),
+    [message, setMessage] = useState(''),
+    [status, setStatus] = useState<'error' | 'success' | ''>('');
+  useEffect(() => {
+    if (!profile.data) return;
+    setDisplayName(profile.data.display_name ?? '');
+    setFullName(profile.data.full_name ?? '');
+    setUf(profile.data.state ?? '');
+    setCity(profile.data.city ?? '');
+    setAvatarUrl(profile.data.avatar_url);
+  }, [profile.data]);
+  useEffect(() => {
+    let active = true;
+    if (!uf) return void setCityOptions([]);
+    void citiesForUf(uf).then((list) => {
+      if (active) setCityOptions(list);
+    });
+    return () => {
+      active = false;
+    };
+  }, [uf]);
+  if (!user || profile.isPending) return null;
+  const verified = !!profile.data?.identity_verified_at;
+  return (
+    <div className="account-card">
+      <div className="account-identity">
+        <label className="account-avatar-upload">
+          {avatarUrl ? <img src={avatarUrl} alt="" /> : <User size={20} />}
+          <input
+            hidden
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={uploadingAvatar}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file || !supabase || !user) return;
+              setUploadingAvatar(true);
+              setMessage('');
+              try {
+                const compressed = await compressListingImage(file, 400, 0.85);
+                const path = `${user.id}/avatar-${crypto.randomUUID()}.webp`;
+                const up = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true });
+                if (up.error) throw up.error;
+                const url = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+                const { error } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+                if (error) throw error;
+                setAvatarUrl(url);
+                await profile.refetch();
+              } catch (err) {
+                setStatus('error');
+                setMessage(errorMessage(err));
+              } finally {
+                setUploadingAvatar(false);
+              }
+            }}
+          />
+        </label>
+        <div>
+          <h2 style={{ margin: 0 }}>Meu perfil</h2>
+          <p className="muted" style={{ margin: 0 }}>
+            {user.email}
+          </p>
+        </div>
+        <span className={'identity-pill' + (verified ? ' verified' : '')}>
+          {verified ? 'Identidade verificada' : 'Identidade não verificada'}
+        </span>
+      </div>
+      {!verified && (
+        <p className="muted">
+          Para vender, verifique sua identidade em{' '}
+          <Link to="/conta/verificacao">Verificação de identidade</Link>.
+        </p>
+      )}
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!supabase || !user || busy) return;
+          setBusy(true);
+          setMessage('');
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .update({
+                display_name: displayName.trim(),
+                full_name: fullName.trim() || null,
+                city: city.trim() || null,
+                state: uf || null,
+              })
+              .eq('id', user.id);
+            if (error) throw error;
+            setStatus('success');
+            setMessage('Perfil atualizado.');
+            await profile.refetch();
+          } catch (err) {
+            setStatus('error');
+            setMessage(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          Nome de exibição
+          <input
+            required
+            minLength={2}
+            maxLength={40}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
+        </label>
+        <label>
+          Nome completo (privado)
+          <input maxLength={120} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        </label>
+        <div className="form-grid">
+          <label>
+            UF
+            <select
+              value={uf}
+              onChange={(e) => {
+                setUf(e.target.value);
+                setCity('');
+              }}
+            >
+              <option value="">Selecione</option>
+              {BR_STATES.map((s) => (
+                <option value={s.uf} key={s.uf}>
+                  {s.name} ({s.uf})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Cidade
+            <select value={city} disabled={!uf} onChange={(e) => setCity(e.target.value)}>
+              <option value="">{uf ? 'Selecione' : 'Escolha a UF primeiro'}</option>
+              {cityOptions.map((c) => (
+                <option value={c} key={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <button className="btn primary" disabled={busy}>
+          {busy ? 'Salvando…' : 'Salvar perfil'}
+        </button>
+        {message && (
+          <p className={`auth-message ${status}`} role="status">
+            {message}
+          </p>
+        )}
+      </form>
+    </div>
+  );
+}
 export function AccountSettings() {
   const { user, loading } = useSession();
   useDocumentMeta({ title: 'Minha conta', noindex: true });
@@ -30,21 +200,10 @@ export function AccountSettings() {
         </Link>
       </main>
     );
-  const initial = (user.email ?? '?').charAt(0).toUpperCase();
   return (
     <main className="page">
       <div className="account-settings-shell">
-        <div className="account-card">
-          <div className="account-identity">
-            <span className="account-avatar">{initial}</span>
-            <div>
-              <h2 style={{ margin: 0 }}>Minha conta</h2>
-              <p className="muted" style={{ margin: 0 }}>
-                {user.email}
-              </p>
-            </div>
-          </div>
-        </div>
+        <ProfileCard />
         <form
           className="account-card"
           onSubmit={async (e) => {

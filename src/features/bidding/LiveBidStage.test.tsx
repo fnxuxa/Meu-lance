@@ -3,6 +3,7 @@ import React from 'react';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { LiveBidStage } from './LiveBidStage';
 import { placeBid, autoWatch } from './api';
 vi.mock('./api', () => ({ placeBid: vi.fn(), autoWatch: vi.fn().mockResolvedValue(undefined) }));
@@ -12,7 +13,11 @@ afterEach(() => {
 });
 function renderWithClient(ui: React.ReactElement) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  );
 }
 describe('confirmação de lance', () => {
   it('não envia ao apenas selecionar valor e preserva chave em retry', async () => {

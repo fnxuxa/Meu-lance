@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Gavel, Radio } from 'lucide-react';
 import { autoWatch, placeBid } from './api';
 import { formatBRL, parseBRLToCents } from '../../lib/money';
@@ -104,7 +105,11 @@ export function LiveBidStage({
           disabled={disabled || busy}
           onChange={(e) => setConfirmed(e.target.checked)}
         />
-        Entendo que este lance é compromisso de compra.
+        Entendo que este lance é compromisso de compra e aceito os{' '}
+        <Link to="/termos" target="_blank" rel="noopener">
+          Termos de Uso
+        </Link>
+        .
       </label>
       <button
         className="btn primary"

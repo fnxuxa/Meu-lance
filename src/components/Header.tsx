@@ -88,6 +88,7 @@ export function Header() {
           <div className="mobile-menu-divider" />
           <nav className="mobile-menu-links">
             <Link to="/conta/lances">Meus leilões</Link>
+            <Link to="/conta/anuncios">Meus anúncios</Link>
             <Link to="/conta/notificacoes">Notificações</Link>
             <Link to="/conta/configuracoes">{user ? 'Minha conta' : 'Entrar'}</Link>
           </nav>

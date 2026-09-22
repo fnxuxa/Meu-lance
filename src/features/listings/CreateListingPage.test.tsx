@@ -3,6 +3,7 @@ import React from 'react';
 import { afterEach, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CreateListingPage } from './CreateListingPage';
 const mocks = vi.hoisted(() => ({ rpc: vi.fn(), upload: vi.fn(), insert: vi.fn() }));
 vi.mock('../auth/useSession', () => ({ useSession: () => ({ user: { id: 'seller' }, loading: false }) }));
@@ -18,9 +19,21 @@ vi.mock('../../lib/supabase', () => ({
               eq: () => ({ order: async () => ({ data: [{ id: 'cat', name: 'Games' }], error: null }) }),
             }),
           }
-        : { insert: mocks.insert },
+        : table === 'profiles'
+          ? {
+              select: () => ({
+                eq: () => ({
+                  single: async () => ({ data: { identity_verified_at: '2026-01-01T00:00:00Z' }, error: null }),
+                }),
+              }),
+            }
+          : { insert: mocks.insert },
   },
 }));
+function renderWithProviders(ui: React.ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+}
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -38,7 +51,7 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
         ? { error: { message: 'Falha temporária' } }
         : { data: { slug: 'novo-item' }, error: null },
   );
-  render(
+  renderWithProviders(
     <MemoryRouter initialEntries={['/vender/novo']}>
       <Routes>
         <Route path="/vender/novo" element={<CreateListingPage />} />
@@ -61,7 +74,7 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
   await screen.findByRole('option', { name: 'São Paulo' });
   fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'São Paulo' } });
   fireEvent.change(screen.getByLabelText('Categoria'), { target: { value: 'cat' } });
-  fireEvent.click(screen.getByRole('checkbox'));
+  for (const cb of screen.getAllByRole('checkbox')) fireEvent.click(cb);
   fireEvent.submit(screen.getByRole('button', { name: 'Publicar leilão' }).closest('form')!);
   await screen.findByText('Informe um valor válido, como 1.234,50.');
   expect(mocks.rpc).not.toHaveBeenCalled();

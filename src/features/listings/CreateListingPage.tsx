@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { ArrowRight, ShieldCheck, UploadCloud, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { compressListingImage } from '../../lib/images';
 import { useSession } from '../auth/useSession';
@@ -8,10 +8,12 @@ import { errorMessage } from '../../lib/errors';
 import { parseBRLToCents } from '../../lib/money';
 import { BR_STATES, citiesForUf } from '../../lib/brazil';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { useProfile } from '../auth/useProfile';
 type Photo = { file: File; url: string };
 type Cat = { id: string; name: string };
 export function CreateListingPage() {
   const { user, loading } = useSession();
+  const profile = useProfile();
   useDocumentMeta({ title: 'Anunciar um leilão', noindex: true });
   const nav = useNavigate();
   const savedForm = useRef<FormData | null>(null);
@@ -137,7 +139,7 @@ export function CreateListingPage() {
       setBusy(false);
     }
   }
-  if (loading)
+  if (loading || (user && profile.isPending))
     return (
       <main className="page simple">
         <p>Carregando conta…</p>
@@ -147,10 +149,23 @@ export function CreateListingPage() {
     return (
       <main className="page simple">
         <h1>Entre para vender</h1>
-        <p>Você precisa de uma conta verificada para criar um leilão.</p>
+        <p>Você precisa de uma conta para criar um leilão.</p>
         <button className="btn primary" onClick={() => nav('/entrar')}>
           Entrar
         </button>
+      </main>
+    );
+  if (!profile.data?.identity_verified_at)
+    return (
+      <main className="page simple">
+        <h1>Verifique sua identidade para vender</h1>
+        <p>
+          Para evitar fraude e venda de itens roubados, pedimos documento com foto e uma selfie antes de
+          liberar a publicação de leilões.
+        </p>
+        <Link className="btn primary" to="/conta/verificacao">
+          Verificar identidade
+        </Link>
       </main>
     );
   return (
@@ -302,12 +317,22 @@ export function CreateListingPage() {
               <ShieldCheck />
               Ao publicar, você declara que o item é seu e as informações são verdadeiras.
             </div>
+            <div className="notice">
+              <ShieldCheck />
+              Você pode cancelar livremente enquanto ninguém der lance. Depois do primeiro lance, só dá
+              para cancelar se faltar mais de 1 dia para o fim — perto do encerramento o compromisso do
+              comprador é respeitado e o anúncio não pode mais ser removido.
+            </div>
           </section>
         </fieldset>
         <section>
           <label className="setting-row">
             <input type="checkbox" name="declaration" required />
             Declaro que o item é meu e que as fotos e informações são verdadeiras.
+          </label>
+          <label className="setting-row">
+            <input type="checkbox" name="terms" required />
+            Li e aceito os <Link to="/termos">Termos de Uso</Link> do MeuLance.
           </label>
           <button className="btn primary wide" disabled={busy || photos.length < 3}>
             Publicar leilão <ArrowRight />

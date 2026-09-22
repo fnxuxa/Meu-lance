@@ -60,9 +60,14 @@ export function OrdersPage({ sales = false }: { sales?: boolean }) {
         <p>Nenhum pedido registrado.</p>
       )}
       {sales && (
-        <Link className="btn secondary" to="/vender/novo">
-          Criar anúncio
-        </Link>
+        <div className="hero-actions">
+          <Link className="btn secondary" to="/vender/novo">
+            Criar anúncio
+          </Link>
+          <Link className="btn secondary" to="/conta/anuncios">
+            Meus anúncios
+          </Link>
+        </div>
       )}
     </main>
   );

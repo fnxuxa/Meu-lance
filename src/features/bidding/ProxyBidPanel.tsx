@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Bot } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { formatBRL, parseBRLToCents } from '../../lib/money';
@@ -83,7 +84,11 @@ export function ProxyBidPanel({
             disabled={disabled || busy}
             onChange={(e) => setConfirmed(e.target.checked)}
           />
-          Confirmo o compromisso de compra até este limite.
+          Confirmo o compromisso de compra até este limite e aceito os{' '}
+          <Link to="/termos" target="_blank" rel="noopener">
+            Termos de Uso
+          </Link>
+          .
         </label>
         <button
           className="btn primary"
