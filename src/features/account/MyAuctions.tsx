@@ -56,7 +56,9 @@ export function MyAuctions() {
         return {
           ...l,
           state: leaders.has(l.id) ? 'winning' : bids.has(l.id) ? 'outbid' : 'watching',
-          image: image ? supabase!.storage.from('listing-images').getPublicUrl(image.storage_path).data.publicUrl : null,
+          image: image
+            ? supabase!.storage.from('listing-images').getPublicUrl(image.storage_path).data.publicUrl
+            : null,
         } as Item;
       });
     },

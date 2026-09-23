@@ -8,12 +8,16 @@ import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 import { BackButton } from '../../components/BackButton';
+import { RelistForm } from './RelistForm';
 type Row = {
   id: string;
   slug: string;
   title: string;
   status: string;
   current_price_cents: number;
+  start_price_cents: number;
+  orders: { status: string }[] | null;
+  second_chance_offers: { status: string }[] | null;
   bid_count: number;
   ends_at: string | null;
   listing_images: { storage_path: string; sort_order: number }[];
@@ -26,13 +30,28 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: 'Cancelado',
   removed: 'Removido',
 };
+/** Mesma regra de relist_listing(): sem lances, ou vencedor que não pagou e nada em andamento. */
+function relistReason(l: Row): 'no_bids' | 'unpaid' | null {
+  if (l.status === 'ended_no_bids') return 'no_bids';
+  if (
+    l.status === 'ended_with_winner' &&
+    !!l.orders?.length &&
+    l.orders.every((o) => ['payment_expired', 'cancelled'].includes(o.status)) &&
+    !l.second_chance_offers?.some((o) => o.status === 'pending')
+  )
+    return 'unpaid';
+  return null;
+}
 function cancelability(l: Row): { canCancel: boolean; reason?: string } {
   if (!['draft', 'active'].includes(l.status)) return { canCancel: false };
   if (l.bid_count === 0) return { canCancel: true };
   if (!l.ends_at) return { canCancel: true };
   const hoursLeft = (new Date(l.ends_at).getTime() - Date.now()) / 3_600_000;
   if (hoursLeft > 24) return { canCancel: true };
-  return { canCancel: false, reason: 'Tem lance e falta menos de 1 dia para o fim — não pode mais cancelar.' };
+  return {
+    canCancel: false,
+    reason: 'Tem lance e falta menos de 1 dia para o fim — não pode mais cancelar.',
+  };
 }
 export function MyListings() {
   const { user, loading } = useSession();
@@ -46,7 +65,9 @@ export function MyListings() {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from('listings')
-        .select('id,slug,title,status,current_price_cents,bid_count,ends_at,listing_images(storage_path,sort_order)')
+        .select(
+          'id,slug,title,status,current_price_cents,start_price_cents,bid_count,ends_at,listing_images(storage_path,sort_order),orders(status),second_chance_offers(status)',
+        )
         .eq('seller_id', user!.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -54,7 +75,9 @@ export function MyListings() {
         const image = [...(l.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0];
         return {
           ...l,
-          image: image ? supabase!.storage.from('listing-images').getPublicUrl(image.storage_path).data.publicUrl : null,
+          image: image
+            ? supabase!.storage.from('listing-images').getPublicUrl(image.storage_path).data.publicUrl
+            : null,
         };
       });
     },
@@ -95,8 +118,8 @@ export function MyListings() {
       <h1>Meus anúncios</h1>
       <p className="muted">
         Você pode cancelar um anúncio livremente enquanto ninguém deu lance. Depois do primeiro lance,
-        cancelar só é permitido se faltar mais de 1 dia para o fim — perto do encerramento, o compromisso
-        do comprador é respeitado.
+        cancelar só é permitido se faltar mais de 1 dia para o fim — perto do encerramento, o compromisso do
+        comprador é respeitado.
       </p>
       {message && (
         <p role="alert" className="auth-message error">
@@ -114,7 +137,9 @@ export function MyListings() {
                 {l.image ? <img src={l.image} alt="" loading="lazy" /> : <ImageOff size={20} />}
               </Link>
               <div className="watch-body">
-                <span className="status-pill">{STATUS_LABEL[l.status] ?? l.status}</span>
+                <span className="status-pill">
+                  {relistReason(l) === 'unpaid' ? 'Vencedor não pagou' : (STATUS_LABEL[l.status] ?? l.status)}
+                </span>
                 <Link to={'/l/' + l.slug}>
                   <h3>{l.title}</h3>
                 </Link>
@@ -138,6 +163,17 @@ export function MyListings() {
                     Não é mais possível cancelar
                   </span>
                 ))}
+              {relistReason(l) && (
+                <RelistForm
+                  listingId={l.id}
+                  previousStartCents={l.start_price_cents}
+                  unpaid={relistReason(l) === 'unpaid'}
+                  onDone={() => {
+                    void query.refetch();
+                    void queryClient.invalidateQueries({ queryKey: ['listings'] });
+                  }}
+                />
+              )}
             </div>
           );
         })}

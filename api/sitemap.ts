@@ -13,6 +13,17 @@ export default async function handler(req: any, res: any) {
     '/regras-de-leilao',
     '/itens-proibidos',
     '/ajuda',
+    // páginas de categoria (espelham src/lib/categories.ts)
+    ...[
+      'celulares',
+      'pc-games',
+      'eletronicos',
+      'casa',
+      'ferramentas',
+      'esportes',
+      'instrumentos',
+      'colecionaveis',
+    ].map((c) => `/c/${c}`),
   ];
   let listings: { slug: string; created_at: string }[] = [];
   if (base && key) {

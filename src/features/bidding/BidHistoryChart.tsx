@@ -2,11 +2,25 @@ import { useQuery } from '@tanstack/react-query';
 import { TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { formatBRL } from '../../lib/money';
-type BidRow = { id: string; amount_cents: number; kind: string; created_at: string; bidder_mask: string };
+import { plural } from '../../lib/text';
+type BidRow = {
+  id: string;
+  amount_cents: number;
+  kind: string;
+  created_at: string;
+  bidder_mask: string;
+  sequence_no: number;
+};
 const WIDTH = 560;
 const HEIGHT = 160;
 const PAD = 28;
-export function BidHistoryChart({ listingId, startPriceCents }: { listingId: string; startPriceCents: number }) {
+export function BidHistoryChart({
+  listingId,
+  startPriceCents,
+}: {
+  listingId: string;
+  startPriceCents: number;
+}) {
   const query = useQuery({
     queryKey: ['bid-history', listingId],
     enabled: !!supabase,
@@ -14,9 +28,10 @@ export function BidHistoryChart({ listingId, startPriceCents }: { listingId: str
     queryFn: async () => {
       const { data, error } = await supabase!
         .from('public_bids')
-        .select('id,amount_cents,kind,created_at,bidder_mask')
+        .select('id,amount_cents,kind,created_at,bidder_mask,sequence_no')
         .eq('listing_id', listingId)
-        .order('created_at', { ascending: true });
+        // sequence_no desempata lances com o mesmo horário (AGENTS.md §20); created_at sozinho é ambíguo
+        .order('sequence_no', { ascending: true });
       if (error) throw error;
       return data as BidRow[];
     },
@@ -32,7 +47,9 @@ export function BidHistoryChart({ listingId, startPriceCents }: { listingId: str
     x: PAD + i * step,
     y: HEIGHT - PAD - ((p.amount_cents - min) / range) * (HEIGHT - PAD * 2),
   }));
-  const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  const linePath = coords
+    .map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(' ');
   const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${HEIGHT - PAD} L${coords[0].x.toFixed(1)},${HEIGHT - PAD} Z`;
   return (
     <div className="bid-history-chart">
@@ -46,7 +63,14 @@ export function BidHistoryChart({ listingId, startPriceCents }: { listingId: str
             <stop offset="100%" stopColor="#07864f" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <line x1={PAD} y1={HEIGHT - PAD} x2={WIDTH - PAD} y2={HEIGHT - PAD} stroke="#e2e9e4" strokeWidth="1" />
+        <line
+          x1={PAD}
+          y1={HEIGHT - PAD}
+          x2={WIDTH - PAD}
+          y2={HEIGHT - PAD}
+          stroke="#e2e9e4"
+          strokeWidth="1"
+        />
         <path d={areaPath} fill={`url(#bh-grad-${listingId})`} />
         <path d={linePath} fill="none" stroke="#07864f" strokeWidth="2.5" strokeLinejoin="round" />
         {coords.map((c, i) => (
@@ -63,7 +87,7 @@ export function BidHistoryChart({ listingId, startPriceCents }: { listingId: str
       </svg>
       <div className="bid-history-range">
         <span>Início: {formatBRL(startPriceCents)}</span>
-        <span>{bids.length} lances</span>
+        <span>{plural(bids.length, 'lance', 'lances')}</span>
         <span>Atual: {formatBRL(points[points.length - 1].amount_cents)}</span>
       </div>
       <ul className="bid-history-list">

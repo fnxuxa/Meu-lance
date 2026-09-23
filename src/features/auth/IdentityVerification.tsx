@@ -66,8 +66,8 @@ export function IdentityVerification() {
         <h1>Verificação de identidade</h1>
         <div className="notice">
           <Clock size={16} />
-          Seus documentos foram enviados em {new Date(row.created_at).toLocaleDateString('pt-BR')} e estão
-          em análise. Isso costuma levar até 1 dia útil.
+          Seus documentos foram enviados em {new Date(row.created_at).toLocaleDateString('pt-BR')} e estão em
+          análise. Isso costuma levar até 1 dia útil.
         </div>
       </main>
     );
@@ -80,8 +80,8 @@ export function IdentityVerification() {
         </span>
         <h1>Verifique sua identidade</h1>
         <p className="muted">
-          Para vender no MeuLance, pedimos um documento com foto e uma selfie — isso ajuda a evitar fraude
-          e a venda de itens roubados. Um documento nunca é publicado; só nossa equipe tem acesso.
+          Para vender no MeuLance, pedimos um documento com foto e uma selfie — isso ajuda a evitar fraude e a
+          venda de itens roubados. Um documento nunca é publicado; só nossa equipe tem acesso.
         </p>
         {row?.status === 'rejected' && (
           <div className="auth-message error">

@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /conta/
-Disallow: /pedido/
-Disallow: /admin
-Disallow: /vender/novo
-
-Sitemap: /sitemap.xml

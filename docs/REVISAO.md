@@ -64,3 +64,12 @@ Os testes SQL usam stubs dos schemas Auth/Storage do Supabase. Eles executam Pos
 8. Auditar atualização de um banco v6 preexistente, se houver. Não se pode simplesmente pressupor que migrations de mesmo nome tiveram o mesmo conteúdo.
 
 Não foram publicados site, banco ou pagamentos; credenciais não foram solicitadas nem inventadas.
+
+## Revisão 22/09/2026 — SEO, navegação, páginas e microinterações
+
+- **Bugs:** nova rota abria na posição de rolagem da anterior (agora volta ao topo); histórico de lances ordenava só por `created_at` (agora `sequence_no`); "1 lances"; páginas Privacidade/Regras/Ajuda eram placeholder com título sem acento; campo de busca do cabeçalho não refletia `?q=`; 404 dentro de anúncio/categoria perdia `noindex`; página sem `description` herdava a da página anterior; E2E desatualizados desde a redução da demo.
+- **SEO:** `api/seo.ts` injeta título, descrição, imagem, canonical e JSON-LD reais em `/l/:slug` e `/c/:slug` (prévias de link e buscadores sem executar JS; 404 real para inexistentes). `robots.txt` virou função com `Sitemap` absoluto (o relativo é inválido). Sitemap inclui categorias. Open Graph/Twitter completos, BreadcrumbList, `noindex` em busca com termo livre, anúncios encerrados e 404. É meta-injeção, não SSR: o conteúdo continua renderizado no cliente (decisão SSR/pré-render da seção 15 segue aberta).
+- **Páginas/funcionalidades:** `/c/:categoria`, filtros na URL (categoria, entrega, condição, ordenação), busca sem acento e multi-termo, Regras de leilão, Ajuda/FAQ, Privacidade (rascunho — REVISAR COM ADVOGADO), compartilhar anúncio, banner de encerrado, `/u/:id` como alias do perfil público.
+- **UX/animações:** contagem regressiva ao vivo nos cards, skeletons, estado vazio com CTA, galeria com setas/teclado/gesto, destaque do preço quando muda, categorias na home, rodapé completo, link "pular para o conteúdo", foco visível; tudo respeita `prefers-reduced-motion`.
+- **Performance:** rotas carregadas sob demanda (JS inicial 628 kB → 562 kB).
+- **Pendente desta frente:** tema escuro (o CSS tem cores fixas espalhadas; exige tokenizar antes), `landing.png` de 420 kB sem versão WebP, SSR/pré-render.

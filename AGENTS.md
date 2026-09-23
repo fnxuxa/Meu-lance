@@ -158,7 +158,7 @@ Convenção: `id uuid primary key default gen_random_uuid()`, `created_at timest
 - **listing_images**: `listing_id`, `storage_path`, `position`, `width`, `height`, `content_hash`.
 - **bids** (append-only, imutável): `listing_id`, `bidder_id`, `amount_cents`, `kind` (`manual|auto`), `max_amount_cents` (nulo em lance automático gerado), `device_id`, `ip_hash`, `created_at`. Sem UPDATE/DELETE por ninguém (policy + trigger que bloqueia).
 - **proxy_bids** (lance automático): `listing_id`, `bidder_id`, `max_amount_cents`. Único por `(listing_id, bidder_id)`.
-- **orders**: `listing_id` (único), `buyer_id`, `seller_id`, `amount_cents`, `fee_cents`, `seller_net_cents`, `status`, `payment_due_at`, `ship_by`, `shipped_at`, `carrier`, `tracking_code`, `delivered_at`, `confirm_by`, `confirmed_at`, `pickup_code_hash`, `completed_at`, `cancel_reason`.
+- **orders**: `listing_id` (um pedido "vivo" por leilão: índice único parcial fora de `payment_expired`/`cancelled`), `buyer_id`, `seller_id`, `amount_cents`, `fee_cents`, `seller_net_cents`, `status`, `payment_due_at`, `ship_by`, `shipped_at`, `carrier`, `tracking_code`, `delivered_at`, `confirm_by`, `confirmed_at`, `completed_at`, `buyer_fee_cents`, `cancel_reason`.
 - **payments**: `order_id`, `provider`, `provider_payment_id`, `method` (`pix|card`), `status`, `amount_cents`, `idempotency_key` (único), `raw jsonb`.
 - **payment_events**: `provider`, `event_id` (único), `payload jsonb`, `processed_at`. Deduplicação de webhook.
 - **refunds**: `payment_id`, `amount_cents`, `reason`, `status`, `provider_refund_id`.
@@ -232,7 +232,7 @@ Implementações: `MockPaymentProvider` (dev/teste, simula tudo) e `MercadoPagoP
 | Vendedor postar/entregar após pagamento | 3 dias |
 | Comprador confirmar/abrir disputa após entrega | 7 dias |
 | Liberação automática se comprador não agir | ao fim do prazo acima |
-| Retirada local | confirmação por **código de retirada** (6 dígitos que o comprador informa ao vendedor na entrega) |
+| Retirada local | o comprador confirma pelo **botão "Confirmar recebimento"** na plataforma (Meus pedidos / pedido). Não existe código de retirada |
 
 Não pagou no prazo: pedido `payment_expired`, `strike` ao comprador, opção de oferecer ao segundo maior lance (decisão aberta).
 Vendedor não enviou: cancelamento automático, reembolso integral, `strike` ao vendedor.
@@ -435,7 +435,7 @@ Lance superado, leilão terminando (1h, 10min), vencedor, pagamento pendente/exp
 
 **Produto:**
 - [ ] Anti-sniping ligado? Duração e limite de extensões.
-- [ ] Oferecer ao segundo colocado se o vencedor não pagar?
+- [x] Oferecer ao segundo colocado se o vencedor não pagar? **Decidido (22/09/2026):** opcional, o vendedor marca ao criar o anúncio (`listings.second_chance_enabled`).
 - [ ] Prazos finais (pagamento, envio, confirmação).
 - [ ] Faixa de preço inicial máxima e limites para contas novas.
 - [ ] SEO: SPA com pré-render ou SSR (Next.js)?
@@ -467,7 +467,7 @@ Cada fase termina com testes passando e o app rodando de ponta a ponta.
 - [ ] **Fase 2 — Anúncios:** categorias, criar/editar anúncio, upload de imagens, página do leilão, listagem e busca com filtros, localização.
 - [ ] **Fase 3 — Lances:** `place_bid` (função Postgres), lance manual, **lance automático**, incrementos, realtime, contador com hora do servidor, prorrogação, histórico mascarado, testes de concorrência.
 - [ ] **Fase 4 — Fechamento e pedido:** job de fechamento, criação de `order`, máquina de estados, notificações (in-app e e-mail), watchlist e alertas.
-- [ ] **Fase 5 — Pagamento (mock):** `PaymentProvider`, `MockPaymentProvider`, fluxo completo pagar → enviar → confirmar → liberar, código de retirada, prazos e expirações automáticas.
+- [ ] **Fase 5 — Pagamento (mock):** `PaymentProvider`, `MockPaymentProvider`, fluxo completo pagar → enviar → confirmar (botão do comprador) → liberar, prazos e expirações automáticas.
 - [ ] **Fase 6 — Confiança e segurança:** verificação de telefone/CPF, antifraude, strikes, denúncias, perguntas, chat do pedido, avaliações, reputação.
 - [ ] **Fase 7 — Disputas e admin:** disputas com evidências, painel de moderação, `app_config` editável, métricas, `audit_log`.
 - [ ] **Fase 8 — Mercado Pago real (sandbox):** OAuth do vendedor, checkout Pix/cartão, webhooks, split/retenção conforme decisão, reembolso, reconciliação.
@@ -519,4 +519,18 @@ Leia docs/REVISAO.md para o estado real; o roadmap acima não significa implemen
 - Publicação exige aceite; retries de publicação do próprio anúncio já ativo são idempotentes. Fotos publicadas não podem ser apagadas/sobrescritas pelo vendedor.
 - Não mostrar verificação/reputação sem dados reais. Não usar MockPaymentProvider para comprovar pagamento: ele é exclusivo de testes em memória.
 - Usar as migrations corretivas aditivas; não reescrever migrations históricas nem aplicar a base v7 sobre banco v6 sem auditar diferenças de histórico.
+- Estado do item (22/09/2026): checklist de funcionamento por categoria em app_config.condition_checklists (respostas yes/no/untested/na), gravado só por set_listing_condition_report enquanto rascunho. publish_listing exige checklist completo; resposta "no" ou condição for_parts exige descrição do defeito; resposta "no", defeito descrito ou for_parts exige ao menos 1 foto com listing_images.is_defect.
+- Venda "no estado" = condition for_parts. _lock_bidding recusa lance manual e proxy sem registro em as_is_acknowledgments (RPC acknowledge_as_is). Disputa com motivo damaged é recusada para for_parts. O snapshot da disputa inclui condição e checklist. Explicações ficam nos Termos (§8–11), não na tela do leilão.
+- Taxa de proteção do comprador: app_config.buyer_fee_bps (padrão 300) gravada em orders.buyer_fee_cents no fechamento. Ver docs/payments.md.
+- Sugestão de valor inicial: suggest_start_price usa sale_price_samples (sem dados pessoais; amostra removida se o pedido expira ou é cancelado). Relançamento: relist_listing reabre o mesmo anúncio encerrado sem lances, com novo valor inicial e duração.
+- Buscas salvas: saved_searches (máx. 10 por usuário) com alerta in-app quando um leilão compatível fica ativo (publicação ou relançamento), no máximo um aviso por usuário por leilão.
+- Confirmação de recebimento (22/09/2026): só pelo botão do comprador (confirm_delivery), aceito a partir de paid/awaiting_shipment/shipped/delivered, inclusive na retirada em mãos. Não há código de retirada.
+- Oferta ao 2º colocado: opcional por anúncio. expire_unpaid_orders (cron a cada 5 min) só expira pedidos com payments_live = true; ao expirar, dá 1 strike ao comprador e, com a opção ligada, cria uma única second_chance_offers para o maior lance de outro participante, pelo valor desse lance, com prazo de app_config.second_chance_hours (24h). accept_second_chance cria o novo pedido; aceitar é opcional.
+- IMEI: obrigatório nas categorias de app_config.imei_required_categories (padrão celulares), validado com Luhn por set_listing_imei, guardado em listing_imeis (privado: vendedor, comprador após pagamento, staff). purge_expired_imeis apaga 20 dias (imei_retention_days) após o pedido concluído/reembolsado; cleanup_expired_listings espera o IMEI sair. Link de consulta: página oficial da Anatel (Celular Legal).
+- Termos de Uso: por decisão do dono do produto (22/09/2026), a página /termos não mostra mais o aviso de rascunho. O texto continua sem revisão jurídica; o item do checklist de go-live (seção 16) segue pendente.
+- Relançar (relist_listing): vale para ended_no_bids e para ended_with_winner sem pedido em andamento (todos payment_expired/cancelled) e sem oferta pendente. Cada relançamento abre uma nova rodada (listings.auction_round): lances antigos ficam guardados em bids com a rodada anterior, public_bids mostra só a rodada atual, auction_leaders é limpo e proxy_bids desativados.
+- Reputação durável: reviews sobrevivem à limpeza (order_id vira NULL) e guardam subject_role e listing_title; vendas concluídas = profiles.completed_sales_count (trigger). Em public_profiles, rating_avg/rating_count são só avaliações como vendedor; buyer_rating_* separado.
+- Limpeza automática: block_bid_mutation só libera DELETE (nunca UPDATE) para cleanup_expired_listings, via chave de transação meulance.bid_purge. Antes disso a limpeza falhava para todo leilão com lances. Lances de leilões concluídos são apagados junto após a retenção; validar esse prazo com advogado (rastreabilidade de leilão).
+- errorMessage nunca mostra texto técnico do banco (Postgrest/Storage): só códigos de domínio traduzidos ou mensagem genérica.
+- Testes de banco locais pulam migrations que dependem de pg_cron (indisponível no Postgres embarcado, no PGlite e no Postgres de CI).
 - Rodar lint, typecheck, testes, build e format:check. Banco local: test:db:native; navegador: test:e2e. Não declarar integração Supabase hospedada validada com base apenas nos stubs.

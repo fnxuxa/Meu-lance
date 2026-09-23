@@ -39,7 +39,9 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
             if (error) throw error;
             await query.refetch();
             await client.invalidateQueries({ queryKey: ['my-auctions', user.id] });
-            setMessage(query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus leilões.');
+            setMessage(
+              query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus leilões.',
+            );
           } catch (e) {
             setMessage(errorMessage(e));
           } finally {

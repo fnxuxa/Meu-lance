@@ -10,7 +10,14 @@ import { ListingCard } from '../../components/ListingCard';
 import { BackButton } from '../../components/BackButton';
 import { mapListing } from './useListings';
 import { useSession } from '../auth/useSession';
-type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; author_id: string };
+type ReviewRow = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  author_id: string;
+  listing_title: string | null;
+};
 function FollowSellerButton({ sellerId }: { sellerId: string }) {
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -41,7 +48,11 @@ function FollowSellerButton({ sellerId }: { sellerId: string }) {
         setBusy(true);
         try {
           const { error } = following
-            ? await supabase.from('seller_follows').delete().eq('follower_id', user.id).eq('seller_id', sellerId)
+            ? await supabase
+                .from('seller_follows')
+                .delete()
+                .eq('follower_id', user.id)
+                .eq('seller_id', sellerId)
             : await supabase.from('seller_follows').insert({ follower_id: user.id, seller_id: sellerId });
           if (error) throw error;
           await query.refetch();
@@ -58,36 +69,80 @@ function FollowSellerButton({ sellerId }: { sellerId: string }) {
     </button>
   );
 }
+/** Média das avaliações recebidas como vendedor em vendas anteriores (sobrevive à limpeza de pedidos). */
+function ReputationSummary({ avg, count, sales }: { avg: number | null; count: number; sales: number }) {
+  const value = avg === null ? 0 : Number(avg);
+  return (
+    <section className="reputation-summary" aria-label="Reputação como vendedor">
+      {count > 0 ? (
+        <>
+          <div className="reputation-score">
+            <strong>
+              {value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+            </strong>
+            <span className="review-stars" aria-hidden>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <Star key={n} size={16} fill={n <= Math.round(value) ? 'currentColor' : 'none'} />
+              ))}
+            </span>
+            <span className="sr-only">{value.toLocaleString('pt-BR')} de 5 estrelas</span>
+          </div>
+          <div>
+            <b>
+              Média de {count} {count === 1 ? 'avaliação' : 'avaliações'} de compradores
+            </b>
+            <span className="muted">
+              {sales} {sales === 1 ? 'venda concluída' : 'vendas concluídas'} no MeuLance
+            </span>
+          </div>
+        </>
+      ) : (
+        <div>
+          <b>Ainda sem avaliações como vendedor</b>
+          <span className="muted">
+            {sales > 0
+              ? `${sales} ${sales === 1 ? 'venda concluída' : 'vendas concluídas'}, ainda sem nota.`
+              : 'As notas aparecem aqui depois das primeiras vendas concluídas.'}
+          </span>
+        </div>
+      )}
+    </section>
+  );
+}
 export function SellerProfile() {
   const { id } = useParams();
   const query = useQuery({
     queryKey: ['seller-profile', id],
     enabled: !!supabase && !!id,
     queryFn: async () => {
-      const [{ data: profile, error: pe }, { data: listingRows, error: le }, { data: reviewRows, error: re }] =
-        await Promise.all([
-          supabase!
-            .from('public_profiles')
-            .select(
-              'id,display_name,city,state,avatar_url,created_at,email_verified,phone_verified,identity_verified,completed_sales,rating_avg,rating_count,active_listings,follower_count',
-            )
-            .eq('id', id!)
-            .maybeSingle(),
-          supabase!
-            .from('listings')
-            .select(
-              'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,categories(name),listing_images(storage_path,sort_order)',
-            )
-            .eq('seller_id', id!)
-            .eq('status', 'active')
-            .order('ends_at'),
-          supabase!
-            .from('reviews')
-            .select('id,rating,comment,created_at,author_id')
-            .eq('subject_id', id!)
-            .order('created_at', { ascending: false })
-            .limit(30),
-        ]);
+      const [
+        { data: profile, error: pe },
+        { data: listingRows, error: le },
+        { data: reviewRows, error: re },
+      ] = await Promise.all([
+        supabase!
+          .from('public_profiles')
+          .select(
+            'id,display_name,city,state,avatar_url,created_at,email_verified,phone_verified,identity_verified,completed_sales,rating_avg,rating_count,active_listings,follower_count',
+          )
+          .eq('id', id!)
+          .maybeSingle(),
+        supabase!
+          .from('listings')
+          .select(
+            'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,categories(name),listing_images(storage_path,sort_order)',
+          )
+          .eq('seller_id', id!)
+          .eq('status', 'active')
+          .order('ends_at'),
+        supabase!
+          .from('reviews')
+          .select('id,rating,comment,created_at,author_id,listing_title')
+          .eq('subject_id', id!)
+          .eq('subject_role', 'seller')
+          .order('created_at', { ascending: false })
+          .limit(30),
+      ]);
       if (pe || le || re) throw pe ?? le ?? re;
       if (!profile) return null;
       const authorIds = [...new Set((reviewRows as ReviewRow[]).map((r) => r.author_id))];
@@ -142,7 +197,8 @@ export function SellerProfile() {
             )}
             <span>
               <CalendarDays size={13} />
-              Desde {new Date(profile.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' })}
+              Desde{' '}
+              {new Date(profile.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' })}
             </span>
             <span>{profile.completed_sales} vendas concluídas</span>
             <span>{profile.follower_count} seguidores</span>
@@ -151,6 +207,11 @@ export function SellerProfile() {
         </div>
         <FollowSellerButton sellerId={profile.id} />
       </div>
+      <ReputationSummary
+        avg={profile.rating_avg}
+        count={profile.rating_count}
+        sales={profile.completed_sales}
+      />
       <section className="section" style={{ padding: '32px 0 0' }}>
         <h2>Anúncios ativos</h2>
         {!listings.length ? (
@@ -185,6 +246,7 @@ export function SellerProfile() {
                     {new Date(r.created_at).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
+                {r.listing_title && <p className="muted small review-item">Comprou: {r.listing_title}</p>}
                 {r.comment && <p>{r.comment}</p>}
               </article>
             ))}

@@ -13,11 +13,15 @@ const pg=new EmbeddedPostgres({databaseDir:dir,user:'postgres',password:randomUU
 let client,passed=0,failed=false;
 try{
  await pg.initialise();await pg.start();client=pg.getPgClient('postgres','127.0.0.1');await client.connect();
- client.on('notice',n=>{if(n.message.startsWith('ok -'))passed++});
- async function run(path){console.log(path);await client.query((await readFile(path,'utf8')).replace(/^\\set.*$/gm,''))}
+ client.on('notice',n=>{if(n.message.startsWith('ok -')){passed++;if(process.env.DEBUG_DB)console.log(n.message)}});
+ const {rows:[cron]}=await client.query("select count(*)>0 as ok from pg_available_extensions where name='pg_cron'");
+ async function run(path){const sql=(await readFile(path,'utf8')).replace(/^\\set.*$/gm,'');
+  // O Postgres embarcado não traz pg_cron; o agendamento só é validado no Supabase.
+  if(!cron.ok&&/pg_cron|\bcron\.job\b/i.test(sql)){console.log(path+' (ignorado: pg_cron indisponível)');return}
+  console.log(path);await client.query(sql)}
  await run('supabase/tests/00_supabase_stub.sql');
  for(const f of(await readdir('supabase/migrations')).filter(f=>f.endsWith('.sql')).sort())await run('supabase/migrations/'+f);
- await run('supabase/seed.sql');await run('supabase/tests/database.sql');await run('supabase/tests/regressions.sql');
+ await run('supabase/seed.sql');await run('supabase/tests/database.sql');await run('supabase/tests/regressions.sql');await run('supabase/tests/features.sql');
  const auction='99999999-9999-9999-9999-999999999999';
  await client.query(`insert into auth.users(id,email,raw_user_meta_data) select ('d000000'||i||'-0000-0000-0000-0000000000d'||i)::uuid,'c'||i||'@x.com',jsonb_build_object('display_name','User'||i) from generate_series(1,6)i;
  insert into listings(id,seller_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)

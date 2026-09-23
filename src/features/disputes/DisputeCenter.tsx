@@ -4,10 +4,13 @@ import { errorMessage } from '../../lib/errors';
 export function DisputeCenter({
   orderId,
   userId,
+  asIs = false,
   onSuccess,
 }: {
   orderId: string;
   userId: string;
+  /** item vendido no estado: dano/mau funcionamento não é motivo de disputa (Termos, §10) */
+  asIs?: boolean;
   onSuccess?: () => void;
 }) {
   const [reason, setReason] = useState('not_as_described'),
@@ -47,8 +50,8 @@ export function DisputeCenter({
       <label>
         Motivo
         <select value={reason} onChange={(e) => setReason(e.target.value)}>
-          <option value="not_as_described">Item diferente do anúncio</option>
-          <option value="damaged">Produto danificado</option>
+          <option value="not_as_described">Item diferente do anúncio / defeito não declarado</option>
+          {!asIs && <option value="damaged">Produto danificado</option>}
           <option value="not_shipped">Não recebi / não foi enviado</option>
           <option value="other">Outro</option>
         </select>
@@ -64,6 +67,12 @@ export function DisputeCenter({
           onChange={(e) => setDescription(e.target.value)}
         />
       </label>
+      {asIs && (
+        <p className="muted small">
+          Item vendido no estado: a disputa vale para item diferente do anunciado, defeito não declarado no
+          checklist ou item não enviado.
+        </p>
+      )}
       <button className="btn primary" disabled={busy || description.trim().length < 20}>
         Registrar disputa
       </button>

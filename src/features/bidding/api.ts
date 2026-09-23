@@ -18,7 +18,10 @@ export async function autoWatch(listingId: string) {
     if (!data.user) return;
     await supabase
       .from('watchlist')
-      .upsert({ user_id: data.user.id, listing_id: listingId }, { onConflict: 'user_id,listing_id', ignoreDuplicates: true });
+      .upsert(
+        { user_id: data.user.id, listing_id: listingId },
+        { onConflict: 'user_id,listing_id', ignoreDuplicates: true },
+      );
   } catch {
     // silencioso: favoritar é um extra, não deve quebrar o fluxo de lance
   }

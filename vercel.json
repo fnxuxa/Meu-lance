@@ -1,7 +1,10 @@
 {
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/((?!assets/|.*\\..*).*)", "destination": "/index.html" }
+    { "source": "/robots.txt", "destination": "/api/robots" },
+    { "source": "/l/:slug", "destination": "/api/seo?kind=l&slug=:slug" },
+    { "source": "/c/:slug", "destination": "/api/seo?kind=c&slug=:slug" },
+    { "source": "/((?!assets/|api/|.*\\..*).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

@@ -6,8 +6,9 @@ import type { Listing } from '../../types/domain';
 import { errorMessage } from '../../lib/errors';
 import { syncServerClock } from '../../lib/clock';
 import { minimumBid } from '../../lib/auction';
+import { conditionLabel, type Checklist } from '../../lib/condition';
 const selection =
-  'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,categories(name),listing_images(storage_path,sort_order)';
+  'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,condition_checklist,second_chance_enabled,categories(name,slug),listing_images(storage_path,sort_order,is_defect)';
 type Row = {
   id: string;
   slug: string;
@@ -24,29 +25,27 @@ type Row = {
   delivery_mode: string;
   description: string;
   defects_declared: string | null;
-  categories: { name: string } | null;
-  listing_images: { storage_path: string; sort_order: number }[];
+  condition_checklist: Checklist | null;
+  second_chance_enabled?: boolean;
+  categories: { name: string; slug: string } | null;
+  listing_images: { storage_path: string; sort_order: number; is_defect?: boolean }[];
 };
 export function mapListing(r: Row): Listing {
-  const urls = [...(r.listing_images ?? [])]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((x) => supabase!.storage.from('listing-images').getPublicUrl(x.storage_path).data.publicUrl);
+  const publicUrl = (path: string) =>
+    supabase!.storage.from('listing-images').getPublicUrl(path).data.publicUrl;
+  const sorted = [...(r.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const urls = sorted.map((x) => publicUrl(x.storage_path));
   return {
     id: r.id,
     slug: r.slug,
     sellerId: r.seller_id,
     title: r.title,
     category: r.categories?.name ?? 'Outros',
-    condition:
-      (
-        {
-          new: 'Novo',
-          like_new: 'Como novo',
-          good: 'Bom',
-          fair: 'Regular',
-          for_parts: 'Para peças',
-        } as Record<string, string>
-      )[r.condition] ?? r.condition,
+    categorySlug: r.categories?.slug,
+    condition: conditionLabel(r.condition),
+    conditionCode: r.condition,
+    checklist: r.condition_checklist ?? undefined,
+    secondChance: !!r.second_chance_enabled,
     city: r.city,
     state: r.state,
     currentPriceCents: r.current_price_cents,
@@ -59,6 +58,7 @@ export function mapListing(r: Row): Listing {
     delivery: r.delivery_mode === 'pickup' ? 'Retirada' : r.delivery_mode === 'shipping' ? 'Envio' : 'Ambos',
     description: r.description,
     defects: r.defects_declared ?? undefined,
+    defectImages: sorted.filter((x) => x.is_defect).map((x) => publicUrl(x.storage_path)),
   };
 }
 export function useListings() {

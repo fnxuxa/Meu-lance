@@ -25,7 +25,7 @@ insert into auth.users(id, email, raw_user_meta_data, email_confirmed_at) values
  ('5e000000-0000-0000-0000-000000000005', 'sara@x.com',  '{"display_name":"Sara","full_name":"Sara Vendedora"}', now());
 select tests.ok((select count(*) = 4 from profiles), 'trigger cria profile no cadastro');
 select tests.ok((select count(*) = 4 from notification_preferences), 'trigger cria preferências de notificação');
-update profiles set phone_e164 = '+5534999990005' where id = '5e000000-0000-0000-0000-000000000005';
+update profiles set phone_e164 = '+5534999990005', identity_verified_at = now() where id = '5e000000-0000-0000-0000-000000000005';
 select tests.ok((select email_verified_at is null from profiles where id = 'c0000000-0000-0000-0000-00000000000c'), 'e-mail não verificado começa nulo');
 update auth.users set email_confirmed_at = now() where id = 'c0000000-0000-0000-0000-00000000000c';
 select tests.ok((select email_verified_at is not null from profiles where id = 'c0000000-0000-0000-0000-00000000000c'), 'confirmação de e-mail sincroniza no profile');
@@ -62,6 +62,8 @@ select tests.anon();
 select tests.ok((select count(*) = 0 from listings), 'rascunho não aparece para anônimo');
 select tests.ok((select count(*) = 0 from listing_images), 'fotos de rascunho não aparecem para anônimo');
 select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.throws($$select publish_listing('11111111-1111-1111-1111-111111111111', 7)$$, 'CHECKLIST_REQUIRED', 'publicar exige checklist de estado');
+select set_listing_condition_report('11111111-1111-1111-1111-111111111111', '{"works_ok":"yes","structure_ok":"yes","parts_ok":"untested"}');
 select tests.ok((select status = 'active' and ends_at > now() + interval '6 days 23 hours' from publish_listing('11111111-1111-1111-1111-111111111111', 7)), 'publicação ativa o leilão por 7 dias');
 select tests.ok(tests.affected($$update listings set title = 'hack' where id = '11111111-1111-1111-1111-111111111111'$$) = 0, 'vendedor não edita anúncio publicado');
 select tests.throws($$update listings set status = 'ended_with_winner' where id = '11111111-1111-1111-1111-111111111111'$$, 'permission denied', 'vendedor não muda status por UPDATE direto');
@@ -174,10 +176,12 @@ select tests.ok((select count(*) = 1 from orders where listing_id = '44444444-44
 select tests.ok((select count(*) = 1 from notifications where kind = 'won' and user_id = 'a0000000-0000-0000-0000-00000000000a'), 'vencedor é notificado');
 
 -- ══ cancelamento ══
-select tests.login('5e000000-0000-0000-0000-000000000005');
-select tests.throws($$select cancel_listing('22222222-2222-2222-2222-222222222222')$$, 'HAS_BIDS', 'não cancela leilão com lances');
 select tests.login('b0000000-0000-0000-0000-00000000000b');
 select tests.throws($$select cancel_listing('22222222-2222-2222-2222-222222222222')$$, 'FORBIDDEN', 'só o vendedor cancela');
+select tests.root();
+update listings set ends_at = now() + interval '2 hours' where id = '22222222-2222-2222-2222-222222222222';
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.throws($$select cancel_listing('22222222-2222-2222-2222-222222222222')$$, 'TOO_CLOSE_TO_END', 'não cancela leilão com lances perto do fim');
 
 -- ══ disputas, avaliações e evidências ══
 select tests.root();

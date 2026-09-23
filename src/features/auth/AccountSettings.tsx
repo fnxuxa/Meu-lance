@@ -66,7 +66,10 @@ function ProfileCard() {
                 const up = await supabase.storage.from('avatars').upload(path, compressed, { upsert: true });
                 if (up.error) throw up.error;
                 const url = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-                const { error } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+                const { error } = await supabase
+                  .from('profiles')
+                  .update({ avatar_url: url })
+                  .eq('id', user.id);
                 if (error) throw error;
                 setAvatarUrl(url);
                 await profile.refetch();

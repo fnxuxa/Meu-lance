@@ -1,11 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Gavel, Radio } from 'lucide-react';
 import { autoWatch, placeBid } from './api';
-import { formatBRL, parseBRLToCents } from '../../lib/money';
+import { feeCents, formatBRL, parseBRLToCents } from '../../lib/money';
 import { minimumBid, QUICK_BID_STEPS_CENTS } from '../../lib/auction';
 import { errorMessage } from '../../lib/errors';
+import { plural } from '../../lib/text';
 export function LiveBidStage({
   listingId,
   initialPrice,
@@ -13,6 +14,7 @@ export function LiveBidStage({
   startCents = initialPrice,
   minimumCents,
   disabled = false,
+  buyerFeeBps,
   onSuccess,
 }: {
   listingId: string;
@@ -21,6 +23,8 @@ export function LiveBidStage({
   startCents?: number;
   minimumCents?: number;
   disabled?: boolean;
+  /** taxa de proteção do comprador (basis points), só para exibir o total */
+  buyerFeeBps?: number;
   onSuccess?: () => void;
 }) {
   const [amount, setAmount] = useState(''),
@@ -30,7 +34,24 @@ export function LiveBidStage({
   const pending = useRef<{ amount: number; key: string } | null>(null),
     locked = useRef(false);
   const min = minimumCents ?? minimumBid(initialPrice, initialCount, startCents);
+  const typedCents = (() => {
+    try {
+      return amount ? parseBRLToCents(amount) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const buyerFee =
+    typedCents !== null && buyerFeeBps !== undefined ? feeCents(typedCents, buyerFeeBps) : null;
   const queryClient = useQueryClient();
+  // destaca o preço quando ele muda (lance próprio, de terceiros ou via realtime)
+  const [bump, setBump] = useState(0);
+  const lastPrice = useRef(initialPrice);
+  useEffect(() => {
+    if (initialPrice === lastPrice.current) return;
+    lastPrice.current = initialPrice;
+    setBump((n) => n + 1);
+  }, [initialPrice]);
   async function bid() {
     if (disabled || !confirmed || locked.current) return;
     locked.current = true;
@@ -62,12 +83,14 @@ export function LiveBidStage({
       </span>
       <div className="live-price">
         <small>Lance atual</small>
-        <strong>{formatBRL(initialPrice)}</strong>
+        <strong key={bump} className={bump ? 'price-bump' : undefined} aria-live="polite">
+          {formatBRL(initialPrice)}
+        </strong>
       </div>
       <div className="live-meta">
         <span>
           <Gavel />
-          {initialCount} lances
+          {plural(initialCount, 'lance', 'lances')}
         </span>
       </div>
       <p>Mínimo: {formatBRL(min)}</p>
@@ -98,6 +121,12 @@ export function LiveBidStage({
           }}
         />
       </label>
+      {typedCents !== null && buyerFee !== null && (
+        <p className="fee-line">
+          Se vencer: {formatBRL(typedCents)} + {formatBRL(buyerFee)} de taxa de proteção ={' '}
+          <b>{formatBRL(typedCents + buyerFee)}</b>
+        </p>
+      )}
       <label className="setting-row">
         <input
           type="checkbox"

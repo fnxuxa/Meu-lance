@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { CheckCircle2, PackageCheck, ShieldAlert, Star, Truck } from 'lucide-react';
+import { CheckCircle2, PackageCheck, PackageSearch, ShieldAlert, Star, Truck } from 'lucide-react';
 import { BackButton } from '../../components/BackButton';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
@@ -10,6 +10,9 @@ import { errorMessage } from '../../lib/errors';
 import { OrderChat } from '../messaging/OrderChat';
 import { DisputeCenter } from '../disputes/DisputeCenter';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { CONFIRMABLE_STATUSES, ConfirmReceiptButton } from './ConfirmReceiptButton';
+import { SecondChanceOffers } from './SecondChanceOffers';
+import { OrderImei } from './OrderImei';
 const labels: Record<string, string> = {
   pending_payment: 'Aguardando pagamento',
   paid: 'Pago',
@@ -22,8 +25,17 @@ const labels: Record<string, string> = {
   refunded: 'Reembolsado',
   cancelled: 'Cancelado',
 };
+type OrderRow = {
+  id: string;
+  amount_cents: number;
+  buyer_fee_cents: number | null;
+  status: string;
+  created_at: string;
+  listings: { title: string } | null;
+};
 export function OrdersPage({ sales = false }: { sales?: boolean }) {
   const { user, loading } = useSession();
+  const queryClient = useQueryClient();
   useDocumentMeta({ title: sales ? 'Minhas vendas' : 'Meus pedidos', noindex: true });
   const query = useQuery({
     queryKey: ['orders', user?.id, sales],
@@ -31,35 +43,67 @@ export function OrdersPage({ sales = false }: { sales?: boolean }) {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from('orders')
-        .select('id,amount_cents,status,created_at')
+        .select('id,amount_cents,buyer_fee_cents,status,created_at,listings(title)')
         .eq(sales ? 'seller_id' : 'buyer_id', user!.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data;
+      return data as unknown as OrderRow[];
     },
   });
+  const refresh = () => {
+    void query.refetch();
+    void queryClient.invalidateQueries({ queryKey: ['order'] });
+  };
   return (
     <main className="page simple">
       <BackButton />
       <h1>{sales ? 'Minhas vendas' : 'Meus pedidos'}</h1>
+      {!sales && user && <SecondChanceOffers userId={user.id} />}
       {loading || (user && query.isPending) ? (
         <p>Carregando…</p>
       ) : !user ? (
         <Link to="/entrar">Entre para continuar</Link>
       ) : query.error ? (
-        <p role="alert">{errorMessage(query.error)}</p>
+        <div className="empty-state">
+          <PackageSearch aria-hidden />
+          <h2>Não conseguimos carregar {sales ? 'suas vendas' : 'seus pedidos'} agora</h2>
+          <p>Tente novamente em instantes.</p>
+          <button type="button" className="btn secondary" onClick={() => void query.refetch()}>
+            Tentar novamente
+          </button>
+        </div>
       ) : query.data?.length ? (
         <div className="orders-list">
           {query.data.map((o) => (
-            <Link className="order-row" to={'/pedido/' + o.id} key={o.id}>
-              <span>Pedido {o.id.slice(0, 8)}</span>
-              <strong>{formatBRL(o.amount_cents)}</strong>
-              <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>
-            </Link>
+            <div className="order-row-wrap" key={o.id}>
+              <Link className="order-row" to={'/pedido/' + o.id}>
+                <span>{o.listings?.title ?? 'Pedido ' + o.id.slice(0, 8)}</span>
+                <strong>
+                  {formatBRL(sales ? o.amount_cents : o.amount_cents + (o.buyer_fee_cents ?? 0))}
+                </strong>
+                <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>
+              </Link>
+              {!sales && CONFIRMABLE_STATUSES.includes(o.status) && (
+                <ConfirmReceiptButton orderId={o.id} onSuccess={refresh} />
+              )}
+            </div>
           ))}
         </div>
       ) : (
-        <p>Nenhum pedido registrado.</p>
+        <div className="empty-state">
+          <PackageSearch aria-hidden />
+          <h2>{sales ? 'Nenhuma venda aqui ainda' : 'Nenhum pedido aqui ainda'}</h2>
+          <p>
+            {sales
+              ? 'Quando um leilão seu terminar com vencedor, a venda aparece aqui.'
+              : 'Quando você vencer um leilão, o pedido aparece aqui.'}
+          </p>
+          {!sales && (
+            <Link className="btn secondary" to="/buscar">
+              Ver leilões
+            </Link>
+          )}
+        </div>
       )}
       {sales && (
         <div className="hero-actions">
@@ -104,8 +148,8 @@ function ShipmentForm({ orderId, onSuccess }: { orderId: string; onSuccess: () =
         <Truck size={18} /> Marcar como enviado
       </h2>
       <p className="muted">
-        Controle interno do MeuLance — o comprador é avisado, mas isso não confirma pagamento ou entrega
-        junto ao Mercado Pago.
+        Controle interno do MeuLance — o comprador é avisado, mas isso não confirma pagamento ou entrega junto
+        ao Mercado Pago.
       </p>
       <div className="form-grid">
         <label>
@@ -129,39 +173,16 @@ function ShipmentForm({ orderId, onSuccess }: { orderId: string; onSuccess: () =
   );
 }
 function ConfirmDeliveryCard({ orderId, onSuccess }: { orderId: string; onSuccess: () => void }) {
-  const [busy, setBusy] = useState(false),
-    [message, setMessage] = useState('');
-  async function confirm() {
-    if (!supabase || busy) return;
-    setBusy(true);
-    setMessage('');
-    try {
-      const { error } = await supabase.rpc('confirm_delivery', { p_order: orderId });
-      if (error) throw error;
-      onSuccess();
-    } catch (err) {
-      setMessage(errorMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
     <div className="fulfillment-card highlight">
       <h2>
         <PackageCheck size={18} /> Recebeu o item?
       </h2>
       <p className="muted">
-        Confirme o recebimento para fechar o pedido e liberar sua avaliação. Não confirme se ainda não
-        recebeu ou se o item veio diferente do anunciado — abra uma disputa em vez disso.
+        Confirme aqui quando o item chegar ou quando você retirar em mãos e conferir. Isso encerra o pedido e
+        libera sua avaliação. Se o item veio diferente do anunciado, não confirme: abra uma disputa.
       </p>
-      <button className="btn primary" disabled={busy} onClick={() => void confirm()}>
-        {busy ? 'Confirmando…' : 'Confirmar recebimento'}
-      </button>
-      {message && (
-        <p role="status" className="auth-message error">
-          {message}
-        </p>
-      )}
+      <ConfirmReceiptButton orderId={orderId} onSuccess={onSuccess} />
     </div>
   );
 }
@@ -217,9 +238,13 @@ function ReviewCard({
     setBusy(true);
     setMessage('');
     try {
-      const { error } = await supabase
-        .from('reviews')
-        .insert({ order_id: orderId, author_id: authorId, subject_id: subjectId, rating, comment: comment.trim() || null });
+      const { error } = await supabase.from('reviews').insert({
+        order_id: orderId,
+        author_id: authorId,
+        subject_id: subjectId,
+        rating,
+        comment: comment.trim() || null,
+      });
       if (error) throw error;
       await query.refetch();
     } catch (err) {
@@ -277,12 +302,12 @@ export function OrderPage() {
       const { data, error } = await supabase!
         .from('orders')
         .select(
-          'id,buyer_id,seller_id,amount_cents,status,payment_due_at,tracking_code,carrier,shipped_at,confirmed_at',
+          'id,listing_id,buyer_id,seller_id,amount_cents,fee_cents,seller_net_cents,buyer_fee_cents,status,payment_due_at,tracking_code,carrier,shipped_at,confirmed_at,listings(title,slug,condition)',
         )
         .eq('id', id!)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as typeof data & { listings: { title: string; slug: string; condition: string } | null };
     },
   });
   function refresh() {
@@ -315,9 +340,38 @@ export function OrderPage() {
     <main className="page simple">
       <BackButton fallback="/conta/compras" />
       <h1>Pedido {o.id.slice(0, 8)}</h1>
+      {o.listings && (
+        <p>
+          <Link to={'/l/' + o.listings.slug}>{o.listings.title}</Link>
+        </p>
+      )}
       <p>
-        {formatBRL(o.amount_cents)} · <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>
+        <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>
       </p>
+      <dl className="order-amounts">
+        <dt>Valor arrematado</dt>
+        <dd>{formatBRL(o.amount_cents)}</dd>
+        {isBuyer && (
+          <>
+            <dt>Taxa de proteção do comprador</dt>
+            <dd>{formatBRL(o.buyer_fee_cents)}</dd>
+            <dt>Total a pagar</dt>
+            <dd>
+              <b>{formatBRL(o.amount_cents + o.buyer_fee_cents)}</b>
+            </dd>
+          </>
+        )}
+        {isSeller && (
+          <>
+            <dt>Comissão do MeuLance</dt>
+            <dd>− {formatBRL(o.fee_cents)}</dd>
+            <dt>Você recebe</dt>
+            <dd>
+              <b>{formatBRL(o.seller_net_cents)}</b>
+            </dd>
+          </>
+        )}
+      </dl>
       {o.status === 'pending_payment' && (
         <p>Pagamentos estão indisponíveis nesta versão. Não faça transferências por fora da plataforma.</p>
       )}
@@ -334,10 +388,11 @@ export function OrderPage() {
           {new Date(o.confirmed_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
         </p>
       )}
+      <OrderImei listingId={o.listing_id} isBuyer={isBuyer} />
       {isSeller && ['paid', 'awaiting_shipment'].includes(o.status) && (
         <ShipmentForm orderId={o.id} onSuccess={refresh} />
       )}
-      {isBuyer && ['shipped', 'delivered'].includes(o.status) && (
+      {isBuyer && CONFIRMABLE_STATUSES.includes(o.status) && (
         <ConfirmDeliveryCard orderId={o.id} onSuccess={refresh} />
       )}
       {isBuyer && o.status === 'completed' && (
@@ -354,7 +409,12 @@ export function OrderPage() {
       )}
       <OrderChat key={o.id + user.id} orderId={o.id} userId={user.id} />
       {isBuyer && ['paid', 'awaiting_shipment', 'shipped', 'delivered'].includes(o.status) && (
-        <DisputeCenter orderId={o.id} userId={user.id} onSuccess={refresh} />
+        <DisputeCenter
+          orderId={o.id}
+          userId={user.id}
+          asIs={o.listings?.condition === 'for_parts'}
+          onSuccess={refresh}
+        />
       )}
     </main>
   );

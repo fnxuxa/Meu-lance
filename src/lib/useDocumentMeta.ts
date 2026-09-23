@@ -5,10 +5,19 @@ type MetaInput = {
   description?: string;
   canonicalPath?: string;
   noindex?: boolean;
+  /** URL absoluta ou caminho do site; padrão é a arte de divulgação. */
+  image?: string;
+  type?: 'website' | 'product' | 'article';
 };
 
 const SITE = 'MeuLance';
-const ORIGIN = typeof window !== 'undefined' ? window.location.origin : 'https://meulance.app';
+const DEFAULT_DESCRIPTION =
+  'Compre e venda usados em leilões online no Brasil, com histórico de lances transparente.';
+export const ORIGIN = typeof window !== 'undefined' ? window.location.origin : 'https://meulance.app';
+const DEFAULT_IMAGE = '/landing.png';
+
+export const absoluteUrl = (pathOrUrl: string) =>
+  /^https?:\/\//.test(pathOrUrl) ? pathOrUrl : ORIGIN + (pathOrUrl.startsWith('/') ? '' : '/') + pathOrUrl;
 
 function setMeta(name: string, content: string, attr: 'name' | 'property' = 'name') {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${name}"]`);
@@ -30,21 +39,35 @@ function setLink(rel: string, href: string) {
   el.setAttribute('href', href);
 }
 
-export function useDocumentMeta({ title, description, canonicalPath, noindex }: MetaInput) {
+export function useDocumentMeta({
+  title,
+  description,
+  canonicalPath,
+  noindex,
+  image,
+  type = 'website',
+}: MetaInput) {
   useEffect(() => {
     const fullTitle = title === SITE ? title : `${title} · ${SITE}`;
-    document.title = fullTitle;
-    if (description) {
-      setMeta('description', description);
-      setMeta('og:description', description, 'property');
-    }
-    setMeta('og:title', fullTitle, 'property');
-    setMeta('og:type', 'website', 'property');
-    setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
+    const desc = description ?? DEFAULT_DESCRIPTION;
+    const img = absoluteUrl(image ?? DEFAULT_IMAGE);
     const canonical = ORIGIN + (canonicalPath ?? window.location.pathname);
-    setLink('canonical', canonical);
+    document.title = fullTitle;
+    setMeta('description', desc);
+    setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
+    setMeta('og:site_name', SITE, 'property');
+    setMeta('og:locale', 'pt_BR', 'property');
+    setMeta('og:title', fullTitle, 'property');
+    setMeta('og:description', desc, 'property');
+    setMeta('og:type', type, 'property');
+    setMeta('og:image', img, 'property');
     setMeta('og:url', canonical, 'property');
-  }, [title, description, canonicalPath, noindex]);
+    setMeta('twitter:card', 'summary_large_image');
+    setMeta('twitter:title', fullTitle);
+    setMeta('twitter:description', desc);
+    setMeta('twitter:image', img);
+    setLink('canonical', canonical);
+  }, [title, description, canonicalPath, noindex, image, type]);
 }
 
 export function setJsonLd(id: string, data: unknown) {
@@ -60,4 +83,13 @@ export function setJsonLd(id: string, data: unknown) {
 
 export function removeJsonLd(id: string) {
   document.getElementById(id)?.remove();
+}
+
+/** JSON-LD enquanto o componente estiver montado. `data` deve ser estável (useMemo) ou nulo. */
+export function useJsonLd(id: string, data: unknown) {
+  useEffect(() => {
+    if (!data) return;
+    setJsonLd(id, data);
+    return () => removeJsonLd(id);
+  }, [id, data]);
 }

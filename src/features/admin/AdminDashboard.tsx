@@ -31,7 +31,9 @@ function ReportQueue({ isStaff }: { isStaff: boolean }) {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from('reports')
-        .select('id,reason,details,created_at,listing_id,listings(title,slug),profiles!reports_reporter_id_fkey(display_name)')
+        .select(
+          'id,reason,details,created_at,listing_id,listings(title,slug),profiles!reports_reporter_id_fkey(display_name)',
+        )
         .eq('status', 'open')
         .order('created_at', { ascending: true });
       if (error) throw error;
@@ -101,14 +103,26 @@ function ReportQueue({ isStaff }: { isStaff: boolean }) {
             {r.details && <p style={{ margin: 0 }}>{r.details}</p>}
             <div className="verification-actions">
               {r.listing_id && (
-                <button className="btn ghost-danger" disabled={busyId === r.id} onClick={() => void removeListing(r)}>
+                <button
+                  className="btn ghost-danger"
+                  disabled={busyId === r.id}
+                  onClick={() => void removeListing(r)}
+                >
                   <Trash2 size={15} /> Remover anúncio
                 </button>
               )}
-              <button className="btn secondary" disabled={busyId === r.id} onClick={() => void resolve(r.id, 'resolved')}>
+              <button
+                className="btn secondary"
+                disabled={busyId === r.id}
+                onClick={() => void resolve(r.id, 'resolved')}
+              >
                 <CheckCircle2 size={15} /> Marcar resolvida
               </button>
-              <button className="btn secondary" disabled={busyId === r.id} onClick={() => void resolve(r.id, 'dismissed')}>
+              <button
+                className="btn secondary"
+                disabled={busyId === r.id}
+                onClick={() => void resolve(r.id, 'dismissed')}
+              >
                 <XCircle size={15} /> Descartar
               </button>
             </div>
@@ -159,7 +173,7 @@ function VerificationQueue({ isStaff }: { isStaff: boolean }) {
     if (!supabase || busyId) return;
     setBusyId(id);
     try {
-      const reason = approve ? null : window.prompt('Motivo da recusa (opcional):') ?? undefined;
+      const reason = approve ? null : (window.prompt('Motivo da recusa (opcional):') ?? undefined);
       const { error } = await supabase.rpc('review_identity_verification', {
         p_id: id,
         p_approve: approve,
@@ -272,9 +286,7 @@ export function AdminDashboard() {
           </div>
           <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
-          <p className="muted">
-            Disputas de pedidos ainda são resolvidas fora deste painel.
-          </p>
+          <p className="muted">Disputas de pedidos ainda são resolvidas fora deste painel.</p>
         </>
       )}
     </main>

@@ -26,8 +26,9 @@ select create_listing_draft('Violão de estudo','Violão usado em bom estado de 
 select tests.ok((select count(*)=1 from listings where title='Violão de estudo' and status='draft'),'cria rascunho real com acentos');
 select tests.throws($$select create_listing_draft(null,'Descrição suficiente para validação','good','',10000,'both','São Paulo','SP',(select id from categories limit 1))$$,'INVALID_TITLE','NULL não contorna validação');
 insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Violão de estudo';
-insert into listing_images(listing_id,storage_path,sort_order)
- select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Violão de estudo';
+insert into listing_images(listing_id,storage_path,sort_order,is_defect)
+ select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i,i=2 from listings cross join generate_series(0,2) i where title='Violão de estudo';
+select set_listing_condition_report((select id from listings where title='Violão de estudo'),'{"works_ok":"yes","structure_ok":"yes","parts_ok":"yes"}');
 select tests.throws($$select publish_listing((select id from listings where title='Violão de estudo'),7)$$,'DECLARATION_REQUIRED','aceite não é presumido');
 select tests.ok((select status='active' and declaration_accepted_at is not null from publish_listing((select id from listings where title='Violão de estudo'),7,true)),'publicação grava aceite no servidor');
 select tests.ok((select status='active' from publish_listing((select id from listings where title='Violão de estudo'),7,true)),'retry de publicação é seguro');

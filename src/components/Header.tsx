@@ -31,6 +31,20 @@ export function Header() {
     setMenuOpen(false);
     setAccountOpen(false);
   }, [location.pathname]);
+  // mantém o campo do cabeçalho igual ao termo da página de busca (inclusive ao voltar no histórico)
+  useEffect(() => {
+    if (location.pathname === '/buscar') setQ(new URLSearchParams(location.search).get('q') ?? '');
+  }, [location.pathname, location.search]);
+  useEffect(() => {
+    if (!menuOpen && !accountOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setMenuOpen(false);
+      setAccountOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen, accountOpen]);
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
@@ -102,6 +116,7 @@ export function Header() {
                     <Link to="/conta/compras">
                       <PackageSearch size={15} /> Meus pedidos
                     </Link>
+                    <Link to="/conta/buscas">Buscas salvas</Link>
                     <Link to="/conta/notificacoes">Notificações</Link>
                     {needsVerification && (
                       <Link to="/conta/verificacao" className="verify-link">
@@ -149,6 +164,7 @@ export function Header() {
           <nav className="mobile-menu-links">
             <Link to="/buscar">Explorar leilões</Link>
             <Link to="/como-funciona">Como funciona</Link>
+            <Link to="/ajuda">Ajuda</Link>
             <HammerLink className="sell-link" to="/vender/novo">
               <Gavel size={16} /> Vender
             </HammerLink>
@@ -159,6 +175,7 @@ export function Header() {
             <Link to="/conta/anuncios">Meus anúncios</Link>
             <Link to="/conta/vendas">Minhas vendas</Link>
             <Link to="/conta/compras">Meus pedidos</Link>
+            <Link to="/conta/buscas">Buscas salvas</Link>
             <Link to="/conta/notificacoes">Notificações</Link>
             <Link to="/conta/configuracoes">{user ? 'Minha conta' : 'Entrar'}</Link>
             {needsVerification && (
