@@ -80,7 +80,8 @@ function ReportQueue({ isStaff }: { isStaff: boolean }) {
   return (
     <section className="admin-verifications">
       <h2>Denúncias abertas</h2>
-      {!query.data?.length && <p className="muted">Nenhuma denúncia aberta.</p>}
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhuma denúncia aberta.</p>}
       <div className="verification-list">
         {query.data?.map((r) => (
           <article className="verification-card" key={r.id}>
@@ -166,7 +167,8 @@ function BuyerInterestQueue({ isStaff }: { isStaff: boolean }) {
         Fase de validação — sem pagamento ativo. Use o WhatsApp abaixo para combinar manualmente com quem
         confirmou.
       </p>
-      {!query.data?.length && <p className="muted">Ninguém confirmou interesse ainda.</p>}
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Ninguém confirmou interesse ainda.</p>}
       <div className="verification-list">
         {query.data?.map((o) => (
           <article className="verification-card" key={o.id}>
@@ -207,7 +209,9 @@ function VerificationQueue({ isStaff }: { isStaff: boolean }) {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from('identity_verifications')
-        .select('id,user_id,document_path,selfie_path,created_at,profiles(display_name)')
+        .select(
+          'id,user_id,document_path,selfie_path,created_at,profiles!identity_verifications_user_id_fkey(display_name)',
+        )
         .eq('status', 'pending')
         .order('created_at', { ascending: true });
       if (error) throw error;
@@ -247,7 +251,8 @@ function VerificationQueue({ isStaff }: { isStaff: boolean }) {
   return (
     <section className="admin-verifications">
       <h2>Verificações de identidade pendentes</h2>
-      {!query.data?.length && <p className="muted">Nenhuma verificação pendente.</p>}
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhuma verificação pendente.</p>}
       <div className="verification-list">
         {query.data?.map((v) => (
           <article className="verification-card" key={v.id} onMouseEnter={() => void reveal(v)}>

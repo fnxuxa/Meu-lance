@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gavel, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { errorMessage } from '../../lib/errors';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [email, setEmail] = useState(''),
@@ -33,7 +34,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           password,
           options: { data: { full_name: name, display_name: name.trim().slice(0, 40) } },
         });
-        if (error) throw new Error(error.message);
+        if (error) throw error;
         setStatus('success');
         setMessage('Cadastro criado. Confira seu e-mail para confirmar a conta.');
       } else {
@@ -43,7 +44,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       }
     } catch (err) {
       setStatus('error');
-      setMessage(err instanceof Error ? err.message : 'Não foi possível continuar.');
+      setMessage(errorMessage(err));
     } finally {
       setBusy(false);
     }
