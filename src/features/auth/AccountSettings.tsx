@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, LogOut, ShieldCheck, User } from 'lucide-react';
+import { Camera, LogOut, MapPin, ShieldCheck, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from './useSession';
 import { useProfile } from './useProfile';
@@ -187,6 +187,105 @@ function ProfileCard() {
     </div>
   );
 }
+function AddressCard() {
+  const { user } = useSession();
+  const profile = useProfile();
+  const [zip, setZip] = useState(''),
+    [street, setStreet] = useState(''),
+    [number, setNumber] = useState(''),
+    [complement, setComplement] = useState(''),
+    [neighborhood, setNeighborhood] = useState(''),
+    [busy, setBusy] = useState(false),
+    [message, setMessage] = useState(''),
+    [status, setStatus] = useState<'error' | 'success' | ''>('');
+  useEffect(() => {
+    if (!profile.data) return;
+    setZip(profile.data.address_zip ?? '');
+    setStreet(profile.data.address_street ?? '');
+    setNumber(profile.data.address_number ?? '');
+    setComplement(profile.data.address_complement ?? '');
+    setNeighborhood(profile.data.address_neighborhood ?? '');
+  }, [profile.data]);
+  if (!user || profile.isPending) return null;
+  return (
+    <div className="account-card">
+      <h2>
+        <MapPin size={17} style={{ verticalAlign: 'text-bottom' }} /> Endereço de entrega
+      </h2>
+      <p className="muted">
+        Ainda não temos envio ativo nesta fase de validação. Salve seu endereço agora para agilizar quando o
+        pagamento e o envio estiverem prontos.
+      </p>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!supabase || !user || busy) return;
+          setBusy(true);
+          setMessage('');
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .update({
+                address_zip: zip.trim() || null,
+                address_street: street.trim() || null,
+                address_number: number.trim() || null,
+                address_complement: complement.trim() || null,
+                address_neighborhood: neighborhood.trim() || null,
+              })
+              .eq('id', user.id);
+            if (error) throw error;
+            setStatus('success');
+            setMessage('Endereço salvo.');
+            await profile.refetch();
+          } catch (err) {
+            setStatus('error');
+            setMessage(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <div className="form-grid">
+          <label>
+            CEP
+            <input
+              maxLength={9}
+              placeholder="00000-000"
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+            />
+          </label>
+          <label>
+            Bairro
+            <input maxLength={80} value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} />
+          </label>
+        </div>
+        <label>
+          Rua
+          <input maxLength={120} value={street} onChange={(e) => setStreet(e.target.value)} />
+        </label>
+        <div className="form-grid">
+          <label>
+            Número
+            <input maxLength={20} value={number} onChange={(e) => setNumber(e.target.value)} />
+          </label>
+          <label>
+            Complemento
+            <input maxLength={60} value={complement} onChange={(e) => setComplement(e.target.value)} />
+          </label>
+        </div>
+        <button className="btn primary" disabled={busy}>
+          {busy ? 'Salvando…' : 'Salvar endereço'}
+        </button>
+        {message && (
+          <p className={`auth-message ${status}`} role="status">
+            {message}
+          </p>
+        )}
+      </form>
+    </div>
+  );
+}
 export function AccountSettings() {
   const { user, loading } = useSession();
   useDocumentMeta({ title: 'Minha conta', noindex: true });
@@ -217,6 +316,7 @@ export function AccountSettings() {
       <div className="account-settings-shell">
         <BackButton />
         <ProfileCard />
+        <AddressCard />
         <form
           className="account-card"
           onSubmit={async (e) => {

@@ -231,4 +231,34 @@ select tests.ok((select current_price_cents=12000 and bid_count=1 from place_bid
 select tests.anon();
 select tests.ok((select count(*)=1 from public_bids where listing_id='a5150000-0000-0000-0000-000000000004'),'lance da nova rodada aparece no histórico');
 select tests.root();
+
+-- ══ sinal de interesse do comprador (fase sem pagamento real) ══
+select tests.root();
+insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
+values('a5150000-0000-0000-0000-000000000006','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='pc-games'),'Console retro','Console retro funcionando','good',10000,10000,'pickup','São Paulo','SP','console-retro-interesse','active',now(),now()+interval '3 days');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select place_bid('a5150000-0000-0000-0000-000000000006',10000,'interest-bid-1');
+select tests.root();
+update listings set ends_at = now() - interval '1 second' where id='a5150000-0000-0000-0000-000000000006';
+select close_due_auctions();
+create temp table interest_order as select id from orders where listing_id='a5150000-0000-0000-0000-000000000006';
+grant select on interest_order to authenticated;
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select confirm_buyer_interest((select id from interest_order),'34999990000')$$,'FORBIDDEN','só o comprador confirma interesse');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.throws($$select confirm_buyer_interest((select id from interest_order),'34999990000')$$,'FORBIDDEN','vendedor não confirma interesse do comprador');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.throws($$select confirm_buyer_interest((select id from interest_order),'123')$$,'INVALID_WHATSAPP','whatsapp curto demais é recusado');
+select tests.ok((select buyer_confirmed_interest_at is not null and buyer_whatsapp='34999990000' from confirm_buyer_interest((select id from interest_order),'(34) 99999-0000')),'comprador confirma interesse com whatsapp normalizado');
+select tests.root();
+select tests.ok((select count(*)=1 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Comprador confirmou interesse'),'vendedor é avisado para ter paciência');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.ok((select buyer_confirmed_interest_at is not null from confirm_buyer_interest((select id from interest_order),'34988880000')),'confirmar de novo é idempotente e ignora novo whatsapp');
+select tests.root();
+select tests.ok((select count(*)=1 from audit_log where action='buyer_confirmed_interest'),'confirmação de interesse vai para auditoria');
+update orders set status='paid' where listing_id='a5150000-0000-0000-0000-000000000006';
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.throws($$select confirm_buyer_interest((select id from interest_order),'34999990000')$$,'INVALID_ORDER_STATE','só confirma interesse enquanto aguarda pagamento');
+select tests.root();
+
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;

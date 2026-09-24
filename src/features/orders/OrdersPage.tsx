@@ -5,6 +5,8 @@ import { CheckCircle2, PackageCheck, PackageSearch, ShieldAlert, Star, Truck } f
 import { BackButton } from '../../components/BackButton';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
+import { useProfile } from '../auth/useProfile';
+import { BuyerInterestCard } from './BuyerInterestCard';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { OrderChat } from '../messaging/OrderChat';
@@ -293,6 +295,7 @@ function ReviewCard({
 export function OrderPage() {
   const { id } = useParams();
   const { user, loading } = useSession();
+  const profileQuery = useProfile();
   const queryClient = useQueryClient();
   useDocumentMeta({ title: 'Pedido', noindex: true });
   const query = useQuery({
@@ -302,7 +305,7 @@ export function OrderPage() {
       const { data, error } = await supabase!
         .from('orders')
         .select(
-          'id,listing_id,buyer_id,seller_id,amount_cents,fee_cents,seller_net_cents,buyer_fee_cents,status,payment_due_at,tracking_code,carrier,shipped_at,confirmed_at,listings(title,slug,condition)',
+          'id,listing_id,buyer_id,seller_id,amount_cents,fee_cents,seller_net_cents,buyer_fee_cents,status,payment_due_at,tracking_code,carrier,shipped_at,confirmed_at,buyer_confirmed_interest_at,listings(title,slug,condition)',
         )
         .eq('id', id!)
         .maybeSingle();
@@ -372,8 +375,30 @@ export function OrderPage() {
           </>
         )}
       </dl>
-      {o.status === 'pending_payment' && (
-        <p>Pagamentos estão indisponíveis nesta versão. Não faça transferências por fora da plataforma.</p>
+      {isSeller && (
+        <p className="muted" style={{ margin: '-8px 0 12px' }}>
+          Esse valor ainda não desconta uma eventual taxa de saque do gateway de pagamento — será calculada
+          quando a integração (Pagar.me/Iugu) for definida.
+        </p>
+      )}
+      {o.status === 'pending_payment' && isBuyer && o.listings && (
+        <BuyerInterestCard
+          orderId={o.id}
+          buyerName={profileQuery.data?.display_name ?? 'comprador'}
+          itemTitle={o.listings.title}
+          confirmedAt={o.buyer_confirmed_interest_at}
+          onSuccess={refresh}
+        />
+      )}
+      {/* TODO(pagamento-live): depois que o pagamento existir de verdade, mostrar aqui pro vendedor
+          o endereço e a forma de envio do comprador (profiles.address_* / listings.delivery_mode)
+          só quando o pedido virar 'paid'. Na validação isso fica escondido de propósito. */}
+      {o.status === 'pending_payment' && isSeller && (
+        <p>
+          O comprador venceu o leilão. Ainda estamos validando a estrutura de pagamento (CNPJ + retenção)
+          antes de seguir com a cobrança — tenha paciência, você poderá enviar o item assim que tudo estiver
+          pronto. Não faça combinações fora da plataforma.
+        </p>
       )}
       {(o.tracking_code || o.carrier) && (
         <p className="tracking-line">

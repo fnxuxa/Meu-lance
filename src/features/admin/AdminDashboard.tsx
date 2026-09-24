@@ -5,6 +5,7 @@ import { CheckCircle2, Trash2, XCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
+import { formatBRL } from '../../lib/money';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 const REPORT_REASON_LABEL: Record<string, string> = {
   suspected_stolen: 'Suspeito de item roubado',
@@ -126,6 +127,61 @@ function ReportQueue({ isStaff }: { isStaff: boolean }) {
                 <XCircle size={15} /> Descartar
               </button>
             </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+type InterestSignal = {
+  id: string;
+  amount_cents: number;
+  buyer_whatsapp: string | null;
+  buyer_confirmed_interest_at: string;
+  listings: { title: string } | null;
+  profiles: { display_name: string } | null;
+};
+function BuyerInterestQueue({ isStaff }: { isStaff: boolean }) {
+  const query = useQuery({
+    queryKey: ['admin-buyer-interest'],
+    enabled: isStaff && !!supabase,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('orders')
+        .select(
+          'id,amount_cents,buyer_whatsapp,buyer_confirmed_interest_at,listings(title),profiles!orders_buyer_id_fkey(display_name)',
+        )
+        .not('buyer_confirmed_interest_at', 'is', null)
+        .order('buyer_confirmed_interest_at', { ascending: false });
+      if (error) throw error;
+      return data as unknown as InterestSignal[];
+    },
+  });
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Sinal de demanda: compradores que confirmaram interesse</h2>
+      <p className="muted">
+        Fase de validação — sem pagamento ativo. Use o WhatsApp abaixo para combinar manualmente com quem
+        confirmou.
+      </p>
+      {!query.data?.length && <p className="muted">Ninguém confirmou interesse ainda.</p>}
+      <div className="verification-list">
+        {query.data?.map((o) => (
+          <article className="verification-card" key={o.id}>
+            <div>
+              <b>{o.listings?.title ?? 'Item'}</b>
+              <span className="muted">
+                {new Date(o.buyer_confirmed_interest_at).toLocaleString('pt-BR', {
+                  timeZone: 'America/Sao_Paulo',
+                })}
+              </span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              {o.profiles?.display_name ?? 'comprador'} · {formatBRL(o.amount_cents)} · WhatsApp:{' '}
+              <b>{o.buyer_whatsapp ?? '—'}</b>
+            </p>
           </article>
         ))}
       </div>
@@ -284,6 +340,7 @@ export function AdminDashboard() {
               ),
             )}
           </div>
+          <BuyerInterestQueue isStaff={!!query.data} />
           <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
           <p className="muted">Disputas de pedidos ainda são resolvidas fora deste painel.</p>

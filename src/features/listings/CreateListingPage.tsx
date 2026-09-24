@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { compressListingImage } from '../../lib/images';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
-import { parseBRLToCents } from '../../lib/money';
+import { feeCents, formatBRL, parseBRLToCents } from '../../lib/money';
 import { BR_STATES, citiesForUf } from '../../lib/brazil';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 import { useProfile } from '../auth/useProfile';
@@ -94,7 +94,21 @@ export function CreateListingPage() {
     [uf, setUf] = useState(initialDraft.current.state ?? ''),
     [city, setCity] = useState(initialDraft.current.city ?? ''),
     [cityOptions, setCityOptions] = useState<string[]>([]),
+    [priceCents, setPriceCents] = useState<number | null>(() => {
+      try {
+        return parseBRLToCents(initialDraft.current.price ?? '');
+      } catch {
+        return null;
+      }
+    }),
     [draftRestored] = useState(() => DRAFT_FIELDS.some((k) => initialDraft.current[k]));
+  function updatePricePreview(text: string) {
+    try {
+      setPriceCents(parseBRLToCents(text));
+    } catch {
+      setPriceCents(null);
+    }
+  }
   const categorySlug = cats.find((c) => c.id === category)?.slug;
   const checklistItems = category ? checklistFor(checklists, categorySlug) : [];
   const needsImei = !!categorySlug && imeiCategories.includes(categorySlug);
@@ -528,7 +542,14 @@ export function CreateListingPage() {
                   inputMode="decimal"
                   placeholder="50,00"
                   defaultValue={initialDraft.current.price}
+                  onChange={(e) => updatePricePreview(e.target.value)}
                 />
+                {priceCents !== null && (
+                  <span className="muted" style={{ display: 'block', marginTop: 4 }}>
+                    Você recebe aprox. {formatBRL(priceCents - feeCents(priceCents, 500))} (após a comissão de
+                    5% do MeuLance, sem contar eventual taxa de saque do gateway, ainda a definir)
+                  </span>
+                )}
               </label>
               <label>
                 Duração
@@ -593,6 +614,7 @@ export function CreateListingPage() {
               title={title}
               onUse={(text) => {
                 if (priceRef.current) priceRef.current.value = text;
+                updatePricePreview(text);
                 scheduleDraftSave();
               }}
             />
