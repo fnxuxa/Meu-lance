@@ -1,8 +1,9 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gavel, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { errorMessage } from '../../lib/errors';
+import { useSession } from './useSession';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [email, setEmail] = useState(''),
@@ -12,11 +13,18 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
     [message, setMessage] = useState(''),
     [status, setStatus] = useState<'error' | 'success' | ''>('');
   const nav = useNavigate();
+  const { user } = useSession();
   useDocumentMeta({
     title: mode === 'login' ? 'Entrar' : 'Criar conta',
     noindex: true,
     canonicalPath: mode === 'login' ? '/entrar' : '/cadastrar',
   });
+  useEffect(() => {
+    // Já logado (ex.: voltou pelo histórico do navegador para /entrar): sai daqui sem
+    // empilhar uma nova entrada, senão o botão voltar cai de novo na tela de login.
+    if (user) nav('/conta/lances', { replace: true });
+  }, [user, nav]);
+  if (user) return null;
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!supabase) {
@@ -40,7 +48,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        nav('/conta/lances');
+        nav('/conta/lances', { replace: true });
       }
     } catch (err) {
       setStatus('error');
