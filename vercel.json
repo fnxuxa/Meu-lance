@@ -1,4 +1,5 @@
 {
+  "redirects": [{ "source": "/regras-de-leilao", "destination": "/regras-de-lance", "permanent": true }],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/robots.txt", "destination": "/api/robots" },

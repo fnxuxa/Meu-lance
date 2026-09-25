@@ -373,7 +373,7 @@ Lance superado, leilão terminando (1h, 10min), vencedor, pagamento pendente/exp
 /disputa/:id
 /u/:id                  perfil público e reputação
 /entrar  /cadastrar  /recuperar-senha
-/ajuda  /como-funciona  /termos  /privacidade  /regras-de-leilao  /itens-proibidos
+/ajuda  /como-funciona  /termos  /privacidade  /regras-de-lance  /itens-proibidos
 /admin/*                (apenas role admin/moderator)
 ```
 

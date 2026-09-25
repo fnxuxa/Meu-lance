@@ -84,7 +84,7 @@ function Footer() {
       <nav aria-label="Ajuda">
         <h2>Ajuda</h2>
         <Link to="/ajuda">Perguntas frequentes</Link>
-        <Link to="/regras-de-leilao">Regras da venda por lances</Link>
+        <Link to="/regras-de-lance">Regras da venda por lances</Link>
         <Link to="/itens-proibidos">Itens proibidos</Link>
       </nav>
       <nav aria-label="Legal">
@@ -131,7 +131,8 @@ export function App() {
             <Route path="/como-funciona" element={<HowItWorks />} />
             <Route path="/termos" element={<TermsPage />} />
             <Route path="/privacidade" element={<PrivacyPage />} />
-            <Route path="/regras-de-leilao" element={<AuctionRulesPage />} />
+            <Route path="/regras-de-lance" element={<AuctionRulesPage />} />
+            <Route path="/regras-de-leilao" element={<Navigate to="/regras-de-lance" replace />} />
             <Route path="/ajuda" element={<HelpPage />} />
             <Route path="/itens-proibidos" element={<ProhibitedItemsPage />} />
             <Route path="*" element={<NotFound />} />

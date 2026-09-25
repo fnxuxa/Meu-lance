@@ -10,7 +10,7 @@ export default async function handler(req: any, res: any) {
     '/como-funciona',
     '/termos',
     '/privacidade',
-    '/regras-de-leilao',
+    '/regras-de-lance',
     '/itens-proibidos',
     '/ajuda',
     // páginas de categoria (espelham src/lib/categories.ts)

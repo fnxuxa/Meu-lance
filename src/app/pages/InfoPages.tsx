@@ -455,7 +455,7 @@ export function AuctionRulesPage() {
     title: 'Regras da venda por lances',
     description:
       'Como funcionam os lances no MeuLance: lance mínimo, incrementos, lance automático, prorrogação anti-sniping e compromisso de compra.',
-    canonicalPath: '/regras-de-leilao',
+    canonicalPath: '/regras-de-lance',
   });
   return (
     <main className="page simple legal-page">
@@ -602,7 +602,7 @@ export function HelpPage() {
         ))}
       </div>
       <div className="hero-actions">
-        <Link className="btn secondary" to="/regras-de-leilao">
+        <Link className="btn secondary" to="/regras-de-lance">
           Regras da venda por lances
         </Link>
         <Link className="btn secondary" to="/como-funciona">

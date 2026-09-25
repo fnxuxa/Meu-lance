@@ -185,7 +185,7 @@ export default function ListingDetail() {
               <span>
                 Quem vence paga o lance + {(buyerFeeBps / 100).toLocaleString('pt-BR')}% de taxa de proteção.
                 {item.secondChance && ' Se o vencedor não pagar, o 2º colocado recebe uma oferta.'}
-                Veja as <Link to="/regras-de-leilao">regras da venda por lances</Link>.
+                Veja as <Link to="/regras-de-lance">regras da venda por lances</Link>.
               </span>
             </div>
           </div>
