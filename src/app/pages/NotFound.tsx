@@ -42,7 +42,7 @@ function BrokenTile() {
       <g className="nf-spark" transform="translate(108,52)">
         <path d="M0 -18 L0 -8 M-13 -9 L-6 -4 M13 -9 L6 -4 M-16 3 L-7 2 M16 3 L7 2" />
       </g>
-      <g transform="translate(130,-4)">
+      <g transform="translate(95,15)">
         <g className="nf-hammer">
           <Hammer size={60} strokeWidth={1.75} />
         </g>
