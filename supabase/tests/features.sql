@@ -278,4 +278,23 @@ select tests.ok((select count(*)=1 from notifications where user_id='b0000000-00
 select tests.ok((select count(*)=1 from audit_log where action='identity_verification_reviewed'),'revisão de identidade vai para auditoria');
 update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
 
+-- ══ limpeza apaga fotos do storage sem travar (regressão do bug em produção) ══
+select tests.root();
+insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
+values('a5150000-0000-0000-0000-000000000007','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='casa'),'Cadeira de teste','Cadeira para teste de limpeza','good',5000,5000,'pickup','São Paulo','SP','cadeira-limpeza-storage','draft',now()-interval '31 days',now()-interval '31 days');
+insert into storage.objects(bucket_id,name) values ('listing-images','5e000000-0000-0000-0000-000000000005/a5150000-0000-0000-0000-000000000007/0.webp');
+insert into listing_images(listing_id,storage_path,sort_order) values ('a5150000-0000-0000-0000-000000000007','5e000000-0000-0000-0000-000000000005/a5150000-0000-0000-0000-000000000007/0.webp',0);
+update listings set status='cancelled' where id='a5150000-0000-0000-0000-000000000007';
+select cleanup_expired_listings(3);
+select tests.ok((select count(*)=0 from listings where id='a5150000-0000-0000-0000-000000000007'),'limpeza apaga leilão cancelado com foto sem travar no storage');
+select tests.ok((select count(*)=0 from storage.objects where name like '%a5150000-0000-0000-0000-000000000007%'),'limpeza remove a foto do storage de verdade');
+
+-- ══ retenção configurável em app_config ══
+update app_config set value='5' where key='listing_retention_days';
+insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
+values('a5150000-0000-0000-0000-000000000008','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='casa'),'Mesa de teste','Mesa para teste de retenção','good',5000,5000,'pickup','São Paulo','SP','mesa-retencao-config','cancelled',now()-interval '6 days',now()-interval '6 days');
+select cleanup_expired_listings();
+select tests.ok((select count(*)=0 from listings where id='a5150000-0000-0000-0000-000000000008'),'sem argumento, usa app_config.listing_retention_days');
+update app_config set value='30' where key='listing_retention_days';
+
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;

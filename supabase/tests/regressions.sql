@@ -33,7 +33,7 @@ select tests.throws($$select publish_listing((select id from listings where titl
 select tests.ok((select status='active' and declaration_accepted_at is not null from publish_listing((select id from listings where title='Violão de estudo'),7,true)),'publicação grava aceite no servidor');
 select tests.ok((select status='active' from publish_listing((select id from listings where title='Violão de estudo'),7,true)),'retry de publicação é seguro');
 select tests.throws($$select _publish_listing_v7((select id from listings where title='Violão de estudo'),7)$$,'permission denied','publicação interna não é exposta');
-select tests.ok(tests.affected($$delete from storage.objects where name like '5e000000-0000-0000-0000-000000000005/%'$$)=0,'vendedor não apaga fotos publicadas');
+select tests.throws($$delete from storage.objects where name like '5e000000-0000-0000-0000-000000000005/%'$$,'Direct deletion|permission denied','vendedor não apaga fotos publicadas (bloqueado antes mesmo da RLS, igual ao Storage real)');
 select tests.throws($$insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/nova.webp' from listings where title='Violão de estudo'$$,'LISTING_LOCKED|row-level','não adiciona fotos ao leilão publicado');
 select tests.root();
 update notification_preferences set outbid=false where user_id='b0000000-0000-0000-0000-00000000000b';

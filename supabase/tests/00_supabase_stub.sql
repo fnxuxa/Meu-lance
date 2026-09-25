@@ -20,3 +20,14 @@ create function storage.foldername(name text) returns text[] language sql immuta
 $$ select (string_to_array(name, '/'))[1:greatest(array_length(string_to_array(name, '/'), 1) - 1, 0)] $$;
 grant usage on schema storage to anon, authenticated;
 grant select, insert, delete on storage.objects to anon, authenticated;
+-- Mesma trava do Supabase hospedado: DELETE direto em storage.objects só com a flag de sessão
+-- ligada. Sem isso, testes locais não pegam bugs como o de cleanup_expired_listings apagando
+-- arquivo direto sem essa liberação (passava local e falhava só em produção).
+create function storage.protect_delete() returns trigger language plpgsql as $$
+begin
+  if coalesce(current_setting('storage.allow_delete_query', true), 'false') != 'true' then
+    raise exception 'Direct deletion from storage tables is not allowed. Use the Storage API instead.' using errcode = '42501';
+  end if;
+  return null;
+end $$;
+create trigger protect_objects_delete before delete on storage.objects for each statement execute function storage.protect_delete();
