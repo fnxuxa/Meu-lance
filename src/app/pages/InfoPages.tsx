@@ -611,20 +611,14 @@ export function HelpPage() {
 
 export function PrivacyPage() {
   useDocumentMeta({
-    title: 'Política de Privacidade (rascunho)',
-    description:
-      'Rascunho da Política de Privacidade do MeuLance: dados coletados, finalidades e direitos do titular.',
+    title: 'Política de Privacidade',
+    description: 'Política de Privacidade do MeuLance: dados coletados, finalidades e direitos do titular.',
     canonicalPath: '/privacidade',
   });
   return (
     <main className="page simple legal-page">
       <span className="kicker">MEULANCE</span>
       <h1>Política de Privacidade</h1>
-      <DraftNotice />
-      <p>
-        Estrutura de trabalho para a política de privacidade, a ser validada por advogado antes do lançamento
-        (bases legais, retenção e encarregado ainda não definidos).
-      </p>
       <h2>1. Dados que tratamos</h2>
       <p>
         Dados de conta (nome, e-mail, telefone), dados de verificação do vendedor, cidade e estado dos

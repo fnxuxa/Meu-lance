@@ -120,7 +120,7 @@ export default function Home() {
         ) : (
           <div className="hero-panel hero-panel-static">
             <img
-              src="/landing.png"
+              src="/landing.jpg"
               alt="MeuLance — leilão na palma da mão"
               width={600}
               height={600}
