@@ -97,12 +97,12 @@ export function OrdersPage({ sales = false }: { sales?: boolean }) {
           <h2>{sales ? 'Nenhuma venda aqui ainda' : 'Nenhum pedido aqui ainda'}</h2>
           <p>
             {sales
-              ? 'Quando um leilão seu terminar com vencedor, a venda aparece aqui.'
-              : 'Quando você vencer um leilão, o pedido aparece aqui.'}
+              ? 'Quando um anúncio seu terminar com vencedor, a venda aparece aqui.'
+              : 'Quando seu lance for o maior, o pedido aparece aqui.'}
           </p>
           {!sales && (
             <Link className="btn secondary" to="/buscar">
-              Ver leilões
+              Ver anúncios
             </Link>
           )}
         </div>
@@ -352,7 +352,7 @@ export function OrderPage() {
         <span className={'order-status-pill ' + o.status}>{labels[o.status] ?? o.status}</span>
       </p>
       <dl className="order-amounts">
-        <dt>Valor arrematado</dt>
+        <dt>Valor da compra</dt>
         <dd>{formatBRL(o.amount_cents)}</dd>
         {isBuyer && (
           <>
@@ -395,7 +395,7 @@ export function OrderPage() {
           só quando o pedido virar 'paid'. Na validação isso fica escondido de propósito. */}
       {o.status === 'pending_payment' && isSeller && (
         <p>
-          O comprador venceu o leilão. Ainda estamos validando a estrutura de pagamento (CNPJ + retenção)
+          O comprador teve o maior lance. Ainda estamos validando a estrutura de pagamento (CNPJ + retenção)
           antes de seguir com a cobrança — tenha paciência, você poderá enviar o item assim que tudo estiver
           pronto. Não faça combinações fora da plataforma.
         </p>

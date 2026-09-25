@@ -71,12 +71,12 @@ function Footer() {
     <footer className="site-footer">
       <div className="footer-brand">
         <b>MeuLance</b>
-        <span>Leilões de usados entre pessoas.</span>
+        <span>Compre e venda usados por lances entre pessoas.</span>
         <small>© {new Date().getFullYear()} MeuLance · Brasil</small>
       </div>
       <nav aria-label="Comprar e vender">
-        <h2>Leilões</h2>
-        <Link to="/buscar">Explorar leilões</Link>
+        <h2>Anúncios</h2>
+        <Link to="/buscar">Explorar</Link>
         <Link to="/buscar?ordem=encerrando">Terminando em breve</Link>
         <Link to="/vender/novo">Anunciar um item</Link>
         <Link to="/como-funciona">Como funciona</Link>
@@ -84,7 +84,7 @@ function Footer() {
       <nav aria-label="Ajuda">
         <h2>Ajuda</h2>
         <Link to="/ajuda">Perguntas frequentes</Link>
-        <Link to="/regras-de-leilao">Regras de leilão</Link>
+        <Link to="/regras-de-leilao">Regras da venda por lances</Link>
         <Link to="/itens-proibidos">Itens proibidos</Link>
       </nav>
       <nav aria-label="Legal">

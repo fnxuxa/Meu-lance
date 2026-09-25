@@ -84,7 +84,7 @@ export function Header() {
           </HammerLink>
         </nav>
         <div className="icons">
-          <Link aria-label="Meus leilões" to="/conta/lances">
+          <Link aria-label="Meus lances" to="/conta/lances">
             <Star />
           </Link>
           <Link aria-label="Notificações" to="/conta/notificacoes">
@@ -105,7 +105,7 @@ export function Header() {
                   <>
                     <Link to="/conta/configuracoes">Minha conta</Link>
                     <Link to="/conta/lances">
-                      <Star size={15} /> Meus leilões
+                      <Star size={15} /> Meus lances
                     </Link>
                     <Link to="/conta/anuncios">
                       <Tags size={15} /> Meus anúncios
@@ -162,7 +162,7 @@ export function Header() {
             />
           </form>
           <nav className="mobile-menu-links">
-            <Link to="/buscar">Explorar leilões</Link>
+            <Link to="/buscar">Explorar</Link>
             <Link to="/como-funciona">Como funciona</Link>
             <Link to="/ajuda">Ajuda</Link>
             <HammerLink className="sell-link" to="/vender/novo">
@@ -171,7 +171,7 @@ export function Header() {
           </nav>
           <div className="mobile-menu-divider" />
           <nav className="mobile-menu-links">
-            <Link to="/conta/lances">Meus leilões</Link>
+            <Link to="/conta/lances">Meus lances</Link>
             <Link to="/conta/anuncios">Meus anúncios</Link>
             <Link to="/conta/vendas">Minhas vendas</Link>
             <Link to="/conta/compras">Meus pedidos</Link>

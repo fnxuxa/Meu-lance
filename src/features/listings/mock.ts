@@ -1,7 +1,7 @@
 import type { Listing } from '../../types/domain';
 const imgs = (base: string) => [base, `${base}&sat=-8`, `${base}&con=8`, `${base}&bri=4`, `${base}&q=72`];
 // endsAt é um getter: recalcula "agora + N horas" a cada leitura, então o
-// leilão de demonstração nunca fica com prazo expirado (antes era calculado
+// anúncio de demonstração nunca fica com prazo expirado (antes era calculado
 // uma única vez ao carregar o módulo e, passado o tempo, virava passado).
 function withRollingDeadline(hours: number, listing: Omit<Listing, 'endsAt'>): Listing {
   return Object.defineProperty({ ...listing }, 'endsAt', {

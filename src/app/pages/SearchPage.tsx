@@ -50,13 +50,13 @@ export default function SearchPage() {
       ? { title: 'Página não encontrada', noindex: true }
       : category
         ? {
-            title: `${category.name} usados em leilão`,
-            description: `Leilões de ${category.name.toLowerCase()} usados no Brasil: ${category.blurb} Dê seu lance e acompanhe a disputa ao vivo.`,
+            title: `${category.name} usados por lances`,
+            description: `Compre ${category.name.toLowerCase()} usados por lances no Brasil: ${category.blurb} Dê seu lance e acompanhe a disputa ao vivo.`,
             canonicalPath: `/c/${category.slug}`,
           }
         : {
-            title: q ? `${q} — resultados de leilão` : 'Leilões ativos de usados',
-            description: 'Busque leilões de usados por produto, categoria, cidade ou estado e dê seu lance.',
+            title: q ? `${q} — resultados de busca` : 'Anúncios ativos de usados',
+            description: 'Busque anúncios de usados por produto, categoria, cidade ou estado e dê seu lance.',
             canonicalPath: '/buscar',
             // páginas de resultado com termo livre não devem ser indexadas (conteúdo raso/duplicado)
             noindex: !!q,
@@ -96,14 +96,14 @@ export default function SearchPage() {
         <Breadcrumbs
           items={[
             { label: 'Início', to: '/' },
-            { label: 'Leilões', to: '/buscar' },
+            { label: 'Anúncios', to: '/buscar' },
             { label: category.name, to: `/c/${category.slug}` },
           ]}
         />
       )}
       <div className="browse-head">
-        <span className="kicker">{category ? 'CATEGORIA' : 'LEILÕES ATIVOS'}</span>
-        <h1>{category ? `${category.name} em leilão` : 'Encontre seu próximo achado'}</h1>
+        <span className="kicker">{category ? 'CATEGORIA' : 'ANÚNCIOS ATIVOS'}</span>
+        <h1>{category ? `${category.name} por lances` : 'Encontre seu próximo achado'}</h1>
         <p>{category ? category.blurb : 'Busque por produto, categoria ou região.'}</p>
       </div>
       <div className="filterbar">
@@ -111,7 +111,7 @@ export default function SearchPage() {
           <Search aria-hidden />
           <input
             type="search"
-            aria-label="Buscar leilões"
+            aria-label="Buscar anúncios"
             value={q}
             onChange={(e) => update('q', e.target.value)}
             placeholder="Produto, marca, cidade ou estado"
@@ -191,7 +191,9 @@ export default function SearchPage() {
         conditionText={condition}
       />
       <p className="results-count" role="status">
-        {loading ? 'Carregando leilões…' : plural(result.length, 'leilão encontrado', 'leilões encontrados')}
+        {loading
+          ? 'Carregando anúncios…'
+          : plural(result.length, 'anúncio encontrado', 'anúncios encontrados')}
       </p>
       {error && (
         <p className="auth-message" role="alert">
@@ -202,7 +204,7 @@ export default function SearchPage() {
       {!loading && !error && !result.length && (
         <div className="empty-state">
           <Search />
-          <h2>Nenhum leilão encontrado</h2>
+          <h2>Nenhum anúncio encontrado</h2>
           <p>Tente remover filtros ou buscar outro termo.</p>
           <Link className="btn secondary" to="/vender/novo">
             Tem um desses parado em casa? Anuncie

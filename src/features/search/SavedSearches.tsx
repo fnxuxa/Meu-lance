@@ -20,7 +20,7 @@ type SavedSearch = {
   categories: { name: string; slug: string } | null;
 };
 
-/** Salva os filtros atuais da busca; o servidor avisa quando um leilão compatível começar. */
+/** Salva os filtros atuais da busca; o servidor avisa quando um anúncio compatível começar. */
 export function SaveSearchButton({
   q,
   categorySlug,
@@ -43,7 +43,7 @@ export function SaveSearchButton({
       <div className="save-search">
         <BellRing className="save-search-icon" aria-hidden />
         <div>
-          <b>Receba um aviso quando aparecer um leilão assim</b>
+          <b>Receba um aviso quando aparecer um anúncio assim</b>
           <span>Entre na sua conta para ativar alertas de busca.</span>
         </div>
         <Link className="btn secondary" to="/entrar">
@@ -87,15 +87,15 @@ export function SaveSearchButton({
     <div className={'save-search' + (saved ? ' saved' : '')}>
       <BellRing className="save-search-icon" aria-hidden />
       <div>
-        <b>{saved ? 'Alerta ativado' : 'Receba um aviso quando aparecer um leilão assim'}</b>
+        <b>{saved ? 'Alerta ativado' : 'Receba um aviso quando aparecer um anúncio assim'}</b>
         <span>
           {saved ? (
             <>
-              Avisaremos quando um leilão compatível começar.{' '}
+              Avisaremos quando um anúncio compatível começar.{' '}
               <Link to="/conta/buscas">Gerenciar alertas</Link>
             </>
           ) : usable ? (
-            'Salvamos esta busca e você recebe uma notificação a cada novo leilão compatível.'
+            'Salvamos esta busca e você recebe uma notificação a cada novo anúncio compatível.'
           ) : (
             'Digite o que procura ou escolha uma categoria para criar um alerta.'
           )}
@@ -191,7 +191,7 @@ export function SavedSearchesPage() {
       <BackButton />
       <h1>Buscas salvas</h1>
       <p className="muted">
-        Você recebe uma notificação quando um leilão compatível começa. Limite de 10 buscas.
+        Você recebe uma notificação quando um anúncio compatível começa. Limite de 10 buscas.
       </p>
       {message && (
         <p role="alert" className="auth-message error">
@@ -206,7 +206,7 @@ export function SavedSearchesPage() {
           <h2>Nenhuma busca salva</h2>
           <p>Faça uma busca e toque em “Criar alerta”.</p>
           <Link className="btn secondary" to="/buscar">
-            <Search size={15} /> Buscar leilões
+            <Search size={15} /> Buscar anúncios
           </Link>
         </div>
       ) : (

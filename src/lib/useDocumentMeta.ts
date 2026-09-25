@@ -12,7 +12,7 @@ type MetaInput = {
 
 const SITE = 'MeuLance';
 const DEFAULT_DESCRIPTION =
-  'Compre e venda usados em leilões online no Brasil, com histórico de lances transparente.';
+  'Compre e venda usados por lances no Brasil, com histórico de lances transparente.';
 export const ORIGIN = typeof window !== 'undefined' ? window.location.origin : 'https://meulance.app';
 const DEFAULT_IMAGE = '/landing.jpg';
 

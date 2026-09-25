@@ -82,7 +82,7 @@ export function LiveBidStage({
         DISPUTA
       </span>
       <div className="live-price">
-        <small>Lance atual</small>
+        <small>Maior lance</small>
         <strong key={bump} className={bump ? 'price-bump' : undefined} aria-live="polite">
           {formatBRL(initialPrice)}
         </strong>

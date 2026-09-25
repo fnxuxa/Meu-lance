@@ -1,4 +1,4 @@
-// Vercel serverless function: gera o sitemap.xml dinamicamente a partir dos leilões ativos.
+// Vercel serverless function: gera o sitemap.xml dinamicamente a partir dos anúncios ativos.
 // Não faz parte do bundle Vite (fora de src/), roda em Node no servidor.
 export default async function handler(req: any, res: any) {
   const base = process.env.VITE_SUPABASE_URL;

@@ -40,7 +40,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
             await query.refetch();
             await client.invalidateQueries({ queryKey: ['my-auctions', user.id] });
             setMessage(
-              query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus leilões.',
+              query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus lances.',
             );
           } catch (e) {
             setMessage(errorMessage(e));
@@ -50,9 +50,9 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
         }}
       >
         <Star size={16} fill={query.data ? 'currentColor' : 'none'} />
-        {query.data ? 'Seguindo' : 'Seguir leilão'}
+        {query.data ? 'Seguindo' : 'Seguir anúncio'}
       </button>
-      {!user && <small>Entre para seguir este leilão com uma estrela.</small>}
+      {!user && <small>Entre para seguir este anúncio com uma estrela.</small>}
       {(message || query.error) && <p role="status">{message || errorMessage(query.error)}</p>}
     </div>
   );

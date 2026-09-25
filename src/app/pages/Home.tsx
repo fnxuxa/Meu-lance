@@ -29,7 +29,7 @@ const ORG_LD = {
   name: 'MeuLance',
   url: ORIGIN,
   logo: ORIGIN + '/logo.png',
-  description: 'Marketplace de leilões online de itens usados entre pessoas no Brasil.',
+  description: 'Marketplace de compra e venda de itens usados por lances entre pessoas no Brasil.',
 };
 const SITE_LD = {
   '@context': 'https://schema.org',
@@ -47,9 +47,9 @@ const SITE_LD = {
 export default function Home() {
   const { data: listings, loading, error, demo } = useListings();
   useDocumentMeta({
-    title: 'MeuLance — leilões online de usados com o melhor lance',
+    title: 'MeuLance — compre e venda usados por lances',
     description:
-      'Compre e venda usados em leilões online no Brasil. Anuncie de graça, deixe o preço subir com a disputa e feche negócio com histórico de lances transparente.',
+      'Compre e venda usados por lances no Brasil. Anuncie de graça, deixe o preço subir com a disputa e feche negócio com histórico de lances transparente.',
     canonicalPath: '/',
   });
   useJsonLd('ld-org', ORG_LD);
@@ -73,8 +73,8 @@ export default function Home() {
             Encontre seu próximo achado.
           </h1>
           <p className="hero-enter" style={{ animationDelay: '160ms' }}>
-            Leilões de usados entre pessoas, com histórico transparente e uma experiência feita para
-            acompanhar a disputa ao vivo.
+            Compre e venda usados por lances entre pessoas, com histórico transparente e uma experiência feita
+            para acompanhar a disputa ao vivo.
           </p>
           <div className="hero-actions hero-enter" style={{ animationDelay: '240ms' }}>
             <Link className="btn primary" to="/buscar">
@@ -105,7 +105,7 @@ export default function Home() {
           <div className="hero-panel">
             <div className="live">
               <span />
-              LEILÃO ATIVO
+              EM DISPUTA
             </div>
             <img src={featured.image} alt={featured.title} width={600} height={420} fetchPriority="high" />
             <div className="hero-auction">
@@ -121,7 +121,7 @@ export default function Home() {
           <div className="hero-panel hero-panel-static">
             <img
               src="/landing.jpg"
-              alt="MeuLance — leilão na palma da mão"
+              alt="MeuLance — oportunidades na palma da mão"
               width={600}
               height={600}
               fetchPriority="high"
@@ -149,7 +149,7 @@ export default function Home() {
           {!loading && !error && !listings.length ? (
             <div className="empty-state home-empty">
               <PackageOpen />
-              <h3>Nenhum leilão ativo agora</h3>
+              <h3>Nenhum anúncio ativo agora</h3>
               <p>Que tal inaugurar a vitrine? Anunciar é grátis e leva poucos minutos.</p>
               <HammerLink className="btn primary" to="/vender/novo">
                 <Gavel /> Anunciar o primeiro item
@@ -176,7 +176,7 @@ export default function Home() {
                 </span>
                 <b>{name}</b>
                 <small>
-                  {counts.get(slug) ? plural(counts.get(slug)!, 'leilão ativo', 'leilões ativos') : blurb}
+                  {counts.get(slug) ? plural(counts.get(slug)!, 'anúncio ativo', 'anúncios ativos') : blurb}
                 </small>
               </Link>
             ))}
@@ -200,7 +200,7 @@ export default function Home() {
               <b>01</b>
               <Gavel />
               <h3>Anuncie ou dê um lance</h3>
-              <p>Crie seu leilão ou dispute itens que você quer.</p>
+              <p>Anuncie seu produto ou dispute itens que você quer.</p>
             </article>
             <article>
               <b>02</b>
@@ -221,7 +221,7 @@ export default function Home() {
         <section className="section">
           <div className="section-head">
             <div>
-              <span className="kicker">POR QUE LEILÃO</span>
+              <span className="kicker">POR QUE VENDA POR LANCES</span>
               <h2>
                 Preço fixo trava seu anúncio num chute.
                 <br />O lance encontra o valor real.
@@ -240,7 +240,7 @@ export default function Home() {
               </ul>
             </div>
             <div className="compare-card highlight">
-              <span className="compare-tag">Leilão progressivo no MeuLance</span>
+              <span className="compare-tag">Venda por lances no MeuLance</span>
               <ul>
                 <li>
                   Vários interessados disputam ao mesmo tempo e o preço sobe até o valor justo de mercado.

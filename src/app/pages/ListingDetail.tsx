@@ -23,9 +23,9 @@ import { absoluteUrl, useDocumentMeta, useJsonLd } from '../../lib/useDocumentMe
 import NotFound from './NotFound';
 
 const STATUS_LABEL: Record<string, string> = {
-  ended_with_winner: 'Leilão encerrado com vencedor.',
-  ended_no_bids: 'Leilão encerrado sem lances.',
-  cancelled: 'Este leilão foi cancelado pelo vendedor.',
+  ended_with_winner: 'Prazo de lances encerrado — item vendido.',
+  ended_no_bids: 'Prazo de lances encerrado sem lances.',
+  cancelled: 'Este anúncio foi cancelado pelo vendedor.',
 };
 
 export default function ListingDetail() {
@@ -37,9 +37,13 @@ export default function ListingDetail() {
   const missing = !loading && !error && !item;
   // efeitos do pai rodam depois dos do filho: o <NotFound /> abaixo depende deste noindex
   useDocumentMeta({
-    title: item ? `${item.title} — ${item.city}/${item.state}` : missing ? 'Página não encontrada' : 'Leilão',
+    title: item
+      ? `${item.title} — ${item.city}/${item.state}`
+      : missing
+        ? 'Página não encontrada'
+        : 'Anúncio',
     description: item
-      ? `${item.title}: ${item.bidCount ? 'lance atual' : 'lance inicial'} ${formatBRL(item.currentPriceCents)}, estado ${item.condition}, em ${item.city}/${item.state}. Dê seu lance no MeuLance.`
+      ? `${item.title}: ${item.bidCount ? 'maior lance' : 'lance inicial'} ${formatBRL(item.currentPriceCents)}, estado ${item.condition}, em ${item.city}/${item.state}. Dê seu lance no MeuLance.`
       : undefined,
     canonicalPath,
     image: item?.image,
@@ -108,7 +112,7 @@ export default function ListingDetail() {
             { label: 'Início', to: '/' },
             item.categorySlug
               ? { label: item.category, to: `/c/${item.categorySlug}` }
-              : { label: 'Leilões', to: '/buscar' },
+              : { label: 'Anúncios', to: '/buscar' },
             { label: item.title },
           ]}
         />
@@ -133,7 +137,7 @@ export default function ListingDetail() {
                 {item.bidCount ? 'Valor final' : 'Lance inicial'}: {formatBRL(item.currentPriceCents)}
               </span>
               <Link to={item.categorySlug ? `/c/${item.categorySlug}` : '/buscar'}>
-                Ver leilões parecidos
+                Ver anúncios parecidos
               </Link>
             </div>
           ) : (
@@ -181,7 +185,7 @@ export default function ListingDetail() {
               <span>
                 Quem vence paga o lance + {(buyerFeeBps / 100).toLocaleString('pt-BR')}% de taxa de proteção.
                 {item.secondChance && ' Se o vencedor não pagar, o 2º colocado recebe uma oferta.'}
-                Veja as <Link to="/regras-de-leilao">regras de leilão</Link>.
+                Veja as <Link to="/regras-de-leilao">regras da venda por lances</Link>.
               </span>
             </div>
           </div>

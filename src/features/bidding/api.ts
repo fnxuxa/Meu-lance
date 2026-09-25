@@ -9,7 +9,7 @@ export async function placeBid(listingId: string, amountCents: number, idempoten
   if (error) throw error;
   return data;
 }
-// Segue automaticamente o leilão ao dar lance, para aparecer em "Favoritos" sem passo extra.
+// Segue automaticamente o anúncio ao dar lance, para aparecer em "Favoritos" sem passo extra.
 // Best-effort: um erro aqui não deve invalidar um lance já registrado.
 export async function autoWatch(listingId: string) {
   if (!supabase) return;

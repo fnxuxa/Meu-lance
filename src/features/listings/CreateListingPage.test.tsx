@@ -103,7 +103,7 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
   fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'São Paulo' } });
   fireEvent.change(screen.getByLabelText('Categoria'), { target: { value: 'cat' } });
   for (const cb of screen.getAllByRole('checkbox')) fireEvent.click(cb);
-  const form = screen.getByRole('button', { name: 'Publicar leilão' }).closest('form')!;
+  const form = screen.getByRole('button', { name: 'Publicar anúncio' }).closest('form')!;
   fireEvent.submit(form);
   await screen.findByText('Responda todas as perguntas do checklist de funcionamento.');
   fireEvent.click(
@@ -127,9 +127,9 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
   await screen.findByText('Informe um valor válido, como 1.234,50.');
   expect(mocks.rpc.mock.calls.filter(([name]) => name !== 'suggest_start_price')).toHaveLength(0);
   fireEvent.change(screen.getByLabelText('Valor inicial (R$)'), { target: { value: '150,00' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Publicar leilão' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Publicar anúncio' }));
   await screen.findByText(/Falha temporária/);
-  fireEvent.click(screen.getByRole('button', { name: 'Publicar leilão' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Publicar anúncio' }));
   await screen.findByText('Publicado com sucesso');
   expect(mocks.rpc.mock.calls.filter(([name]) => name === 'create_listing_draft')).toHaveLength(1);
   expect(mocks.upload).toHaveBeenCalledTimes(4);

@@ -82,7 +82,7 @@ export function RelistForm({
       </div>
       <button type="button" className="btn primary" disabled={busy || !price} onClick={() => void relist()}>
         <RotateCcw size={15} />
-        {busy ? 'Relançando…' : 'Relançar leilão'}
+        {busy ? 'Relançando…' : 'Relançar anúncio'}
       </button>
       {message && (
         <p role="alert" className="auth-message error">

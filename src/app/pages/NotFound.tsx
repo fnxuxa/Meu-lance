@@ -61,7 +61,7 @@ export default function NotFound() {
       <p>O endereço pode estar incorreto ou o anúncio não está mais disponível.</p>
       <div className="hero-actions">
         <Link className="btn primary" to="/buscar">
-          Ver leilões ativos
+          Ver anúncios ativos
         </Link>
         <Link className="btn secondary" to="/">
           Ir para o início

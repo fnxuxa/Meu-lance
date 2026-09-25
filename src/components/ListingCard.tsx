@@ -38,7 +38,7 @@ export function ListingCard({ item, demo = false }: { item: Listing; demo?: bool
           {item.category} · {item.condition}
         </div>
         <h3>{item.title}</h3>
-        <div className="price-label">{item.bidCount ? 'Lance atual' : 'Lance inicial'}</div>
+        <div className="price-label">{item.bidCount ? 'Maior lance' : 'Lance inicial'}</div>
         <div className="price">{formatBRL(item.currentPriceCents)}</div>
         <div className="meta">
           <span>

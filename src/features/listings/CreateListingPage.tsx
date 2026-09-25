@@ -65,7 +65,7 @@ export function CreateListingPage() {
   const { user, loading } = useSession();
   const profile = useProfile();
   const { checklists, imeiCategories } = useAppConfig();
-  useDocumentMeta({ title: 'Anunciar um leilão', noindex: true });
+  useDocumentMeta({ title: 'Anunciar produto', noindex: true });
   const nav = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
   const priceRef = useRef<HTMLInputElement>(null);
@@ -261,7 +261,7 @@ export function CreateListingPage() {
         if (row && row.code !== '23505') throw row;
         uploadedCount.current = i + 1;
       }
-      setMessage('Publicando leilão…');
+      setMessage('Publicando anúncio…');
       const duration = Number(fd.get('duration') ?? 7);
       const { data: published, error: pub } = await supabase.rpc('publish_listing', {
         p_listing: id,
@@ -289,7 +289,7 @@ export function CreateListingPage() {
     return (
       <main className="page simple">
         <h1>Entre para vender</h1>
-        <p>Você precisa de uma conta para criar um leilão.</p>
+        <p>Você precisa de uma conta para anunciar um produto.</p>
         <button className="btn primary" onClick={() => nav('/entrar')}>
           Entrar
         </button>
@@ -302,7 +302,7 @@ export function CreateListingPage() {
         <h1>Verifique sua identidade para vender</h1>
         <p>
           Para evitar fraude e venda de itens roubados, pedimos documento com foto e uma selfie antes de
-          liberar a publicação de leilões.
+          liberar a publicação de anúncios.
         </p>
         <Link className="btn primary" to="/conta/verificacao">
           Verificar identidade
@@ -333,7 +333,7 @@ export function CreateListingPage() {
     <main className="page sell-page">
       <BackButton />
       <div className="form-intro">
-        <span className="kicker">NOVO LEILÃO</span>
+        <span className="kicker">NOVO ANÚNCIO</span>
         <h1>O que você quer vender?</h1>
         <p>Mostre o estado real do item. Fotos e descrição transparentes reduzem disputas.</p>
       </div>
@@ -531,7 +531,7 @@ export function CreateListingPage() {
             {photoGrid(defectPhotos, 'Foto do defeito')}
           </section>
           <section>
-            <h2>Configure o leilão</h2>
+            <h2>Configure os lances</h2>
             <div className="form-grid">
               <label>
                 Valor inicial (R$)
@@ -659,7 +659,7 @@ export function CreateListingPage() {
             </span>
           </label>
           <button className="btn primary wide" disabled={busy || photos.length < 3}>
-            Publicar leilão <ArrowRight />
+            Publicar anúncio <ArrowRight />
           </button>
           {message && (
             <p className="auth-message" role="status">

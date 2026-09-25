@@ -95,8 +95,8 @@ select tests.throws($$select * from saved_searches$$,'permission denied','anôni
 select tests.root();
 insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
 values('a5150000-0000-0000-0000-000000000002','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='instrumentos'),'Violão Giannini acústico','Violão de estudo em ótimo estado','good',30000,30000,'both','São Paulo','SP','violao-relist','active',now(),now()+interval '3 days');
-select tests.ok((select count(*)=1 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Novo leilão na sua busca salva'),'publicação avisa busca salva (sem acento casa com acento)');
-select tests.ok((select count(*)=0 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Novo leilão na sua busca salva'),'vendedor não recebe alerta do próprio item');
+select tests.ok((select count(*)=1 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Novo anúncio na sua busca salva'),'publicação avisa busca salva (sem acento casa com acento)');
+select tests.ok((select count(*)=0 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Novo anúncio na sua busca salva'),'vendedor não recebe alerta do próprio item');
 update listings set ends_at = now() - interval '1 second' where id='a5150000-0000-0000-0000-000000000002';
 select close_due_auctions();
 select tests.ok((select status='ended_no_bids' from listings where id='a5150000-0000-0000-0000-000000000002'),'leilão sem lances encerra');
@@ -109,7 +109,7 @@ select tests.ok((select status='active' and start_price_cents=20000 and current_
 select tests.throws($$select relist_listing('a5150000-0000-0000-0000-000000000002',20000,7)$$,'NOT_RELISTABLE','não relança leilão ativo');
 select tests.throws($$select relist_listing('a5150000-0000-0000-0000-000000000001',5000,7)$$,'NOT_RELISTABLE','não relança leilão vendido');
 select tests.root();
-select tests.ok((select count(*)=2 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Novo leilão na sua busca salva'),'relançamento avisa busca salva de novo');
+select tests.ok((select count(*)=2 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Novo anúncio na sua busca salva'),'relançamento avisa busca salva de novo');
 select tests.ok((select count(*)=1 from audit_log where action='listing_relisted'),'relançamento vai para auditoria');
 
 -- ══ IMEI: privacidade ══

@@ -84,9 +84,9 @@ export function NotificationSettings() {
       <p>Escolha os avisos que deseja receber na plataforma.</p>
       {(
         [
-          ['auction_ending', 'Leilão terminando'],
+          ['auction_ending', 'Anúncio terminando'],
           ['outbid', 'Fui superado'],
-          ['won', 'Ganhei um leilão'],
+          ['won', 'Meu lance foi o maior'],
           ['order_updates', 'Atualizações do pedido'],
         ] as [keyof Pref, string][]
       ).map(([k, label]) => (

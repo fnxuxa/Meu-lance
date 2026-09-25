@@ -28,7 +28,7 @@ const STATUS_LABEL: Record<string, string> = {
 export function MyAuctions() {
   const { user, loading } = useSession();
   const [filter, setFilter] = useState('all');
-  useDocumentMeta({ title: 'Meus leilões', noindex: true });
+  useDocumentMeta({ title: 'Meus lances', noindex: true });
   const query = useQuery({
     queryKey: ['my-auctions', user?.id],
     enabled: !!supabase && !!user,
@@ -66,13 +66,13 @@ export function MyAuctions() {
   if (loading || (user && query.isPending))
     return (
       <main className="account-shell">
-        <p>Carregando seus leilões…</p>
+        <p>Carregando seus lances…</p>
       </main>
     );
   if (!user)
     return (
       <main className="account-shell">
-        <h1>Meus leilões</h1>
+        <h1>Meus lances</h1>
         <Link className="btn primary" to="/entrar">
           Entrar para acompanhar
         </Link>
@@ -82,7 +82,7 @@ export function MyAuctions() {
   return (
     <main className="account-shell">
       <BackButton />
-      <h1>Meus leilões</h1>
+      <h1>Meus lances</h1>
       <nav className="auction-tabs">
         {[
           ['all', 'Todos'],
@@ -96,7 +96,7 @@ export function MyAuctions() {
         ))}
       </nav>
       {query.error && <p role="alert">{errorMessage(query.error)}</p>}
-      {!query.error && !items.length && <p>Nenhum leilão neste filtro.</p>}
+      {!query.error && !items.length && <p>Nenhum item neste filtro.</p>}
       <div className="auction-watch-grid">
         {items.map((x) => {
           const label =
@@ -107,7 +107,7 @@ export function MyAuctions() {
                   ? 'Você foi superado'
                   : 'Acompanhando'
               : x.status === 'ended_with_winner' && x.state === 'winning'
-                ? 'Você venceu'
+                ? 'Seu lance foi o maior'
                 : (STATUS_LABEL[x.status] ?? 'Encerrado');
           const Icon = x.state === 'winning' ? Trophy : x.state === 'outbid' ? TrendingDown : Gavel;
           return (
@@ -135,7 +135,7 @@ export function MyAuctions() {
                   </span>
                 </div>
               </div>
-              <span className="btn secondary watch-cta">Ver leilão</span>
+              <span className="btn secondary watch-cta">Ver anúncio</span>
             </Link>
           );
         })}

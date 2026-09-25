@@ -619,7 +619,7 @@ export function AdminDashboard() {
       ) : (
         <>
           <div className="admin-stats">
-            {['Usuários', 'Leilões ativos', 'Pedidos', 'Denúncias abertas', 'Disputas em andamento'].map(
+            {['Usuários', 'Anúncios ativos', 'Pedidos', 'Denúncias abertas', 'Disputas em andamento'].map(
               (label, i) => (
                 <article key={label}>
                   <span>{label}</span>

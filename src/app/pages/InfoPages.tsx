@@ -25,9 +25,9 @@ import { Reveal } from '../../components/Reveal';
 import { useDocumentMeta, useJsonLd } from '../../lib/useDocumentMeta';
 export function HowItWorks() {
   useDocumentMeta({
-    title: 'Como funciona — venda por leilão progressivo',
+    title: 'Como funciona — venda por lances',
     description:
-      'Entenda como funciona vender e comprar usados em leilão no MeuLance: anuncie grátis, receba lances progressivos e feche pelo valor real de mercado.',
+      'Entenda como funciona vender e comprar usados por lances no MeuLance: anuncie grátis, receba lances progressivos e feche pelo valor real de mercado.',
     canonicalPath: '/como-funciona',
   });
   useJsonLd('ld-faq', HOW_FAQ_LD);
@@ -38,7 +38,7 @@ export function HowItWorks() {
         <h1>Seu preço não é um chute. É o que o mercado paga.</h1>
         <p>
           Anúncio de preço fixo trava seu item num número — alto demais e ninguém compra, baixo demais e você
-          perde dinheiro. No leilão progressivo do MeuLance, quem decide o preço são as pessoas que realmente
+          perde dinheiro. Na venda por lances do MeuLance, quem decide o preço são as pessoas que realmente
           querem seu item, disputando lance a lance até o valor justo.
         </p>
       </div>
@@ -56,7 +56,7 @@ export function HowItWorks() {
               <Gavel />
               <h3>Anuncie de graça</h3>
               <p>
-                Fotos, descrição e um preço inicial baixo — leilões com lance inicial atrativo atraem mais
+                Fotos, descrição e um preço inicial baixo — anúncios com lance inicial atrativo atraem mais
                 disputa e terminam em valores mais altos.
               </p>
             </article>
@@ -83,7 +83,7 @@ export function HowItWorks() {
           <div className="section-head">
             <div>
               <span className="kicker">A DIFERENÇA NA PRÁTICA</span>
-              <h2>Leilão progressivo vs. anúncio de preço fixo</h2>
+              <h2>Venda por lances vs. anúncio de preço fixo</h2>
             </div>
           </div>
           <div className="compare-grid">
@@ -96,10 +96,12 @@ export function HowItWorks() {
               </ul>
             </div>
             <div className="compare-card highlight">
-              <span className="compare-tag">Leilão MeuLance</span>
+              <span className="compare-tag">Venda por lances no MeuLance</span>
               <ul>
                 <li>O preço sobe conforme o interesse real — quem mais quer, mais paga.</li>
-                <li>Prazo com contagem regressiva pública cria urgência genuína no fim do leilão.</li>
+                <li>
+                  Prazo com contagem regressiva pública cria urgência genuína no fim do prazo de lances.
+                </li>
                 <li>Histórico de lances transparente aumenta a confiança de quem está comprando.</li>
               </ul>
             </div>
@@ -249,17 +251,19 @@ export function TermsPage() {
       <h1>Termos de Uso</h1>
       <h2>1. O que é o MeuLance</h2>
       <p>
-        O MeuLance é uma plataforma de leilões online entre pessoas físicas para venda de itens usados. Ao
-        criar uma conta, você concorda com estes Termos.
+        O MeuLance é uma plataforma de compra e venda de itens usados entre pessoas físicas, por meio de
+        lances. O vendedor anuncia voluntariamente o próprio produto, mantém a posse dele até a conclusão da
+        venda e recebe lances de compradores através da infraestrutura tecnológica do MeuLance. Ao criar uma
+        conta, você concorda com estes Termos.
       </p>
       <h2>2. Lances são compromisso de compra</h2>
       <p>
-        Ao confirmar um lance, você assume o compromisso de pagar aquele valor caso vença o leilão. Lances não
-        podem ser cancelados após confirmados.
+        Ao confirmar um lance, você assume o compromisso de pagar aquele valor caso ele seja o maior ao final
+        do prazo de lances. Lances não podem ser cancelados após confirmados.
       </p>
       <h2>3. Verificação de identidade do vendedor</h2>
       <p>
-        Para publicar leilões, o vendedor precisa verificar a identidade com documento oficial e selfie. Isso
+        Para publicar anúncios, o vendedor precisa verificar a identidade com documento oficial e selfie. Isso
         reduz o risco de fraude e de venda de itens de origem ilícita, mas não elimina esse risco por completo
         — o MeuLance intermedia o encontro entre comprador e vendedor, não garante a procedência do item.
       </p>
@@ -302,7 +306,7 @@ export function TermsPage() {
         <Link to="/itens-proibidos">Itens proibidos</Link>. Anúncios nessas categorias são removidos e a conta
         pode ser suspensa.
       </p>
-      <h2>7. Cancelamento de leilão pelo vendedor</h2>
+      <h2>7. Cancelamento de anúncio pelo vendedor</h2>
       <p>
         O vendedor pode cancelar um anúncio livremente enquanto não houver lances. Após o primeiro lance, o
         cancelamento só é permitido se faltar mais de 1 dia para o encerramento.
@@ -329,8 +333,8 @@ export function TermsPage() {
       </ul>
       <p>
         O estado, o checklist, a descrição e os defeitos declarados formam a declaração do vendedor e ficam
-        registrados de forma imutável no fim do leilão. Em uma disputa, o que conta é a comparação entre o que
-        foi declarado e o que o comprador recebeu:
+        registrados de forma imutável no fim do prazo de lances. Em uma disputa, o que conta é a comparação
+        entre o que foi declarado e o que o comprador recebeu:
       </p>
       <ul>
         <li>
@@ -377,11 +381,11 @@ export function TermsPage() {
       </p>
       <h2 id="taxas">11. Taxas</h2>
       <p>
-        Anunciar é grátis. Quando o item é vendido, o vendedor paga uma comissão de 5% sobre o valor
-        arrematado, e o comprador paga uma <b>taxa de proteção de 3%</b> sobre o mesmo valor, somada ao total
-        do pedido. A taxa de proteção cobre a intermediação do pagamento e o processo de disputa. Os
-        percentuais vigentes aparecem antes do lance e no pedido. Pagar ou combinar pagamento fora da
-        plataforma para evitar as taxas é proibido e retira a proteção do pedido.
+        Anunciar é grátis. Quando o item é vendido, o vendedor paga uma comissão de 5% sobre o valor da venda,
+        e o comprador paga uma <b>taxa de proteção de 3%</b> sobre o mesmo valor, somada ao total do pedido. A
+        taxa de proteção cobre a intermediação do pagamento e o processo de disputa. Os percentuais vigentes
+        aparecem antes do lance e no pedido. Pagar ou combinar pagamento fora da plataforma para evitar as
+        taxas é proibido e retira a proteção do pedido.
       </p>
       <h2 id="segundo-colocado">12. Oferta ao 2º colocado</h2>
       <p>
@@ -389,8 +393,8 @@ export function TermsPage() {
         ligada, se o vencedor não pagar no prazo, o pedido dele é cancelado e o participante com o 2º maior
         lance recebe uma oferta pelo valor do próprio maior lance, mais a taxa de proteção. Ele tem 24 horas
         para aceitar e não é obrigado a comprar: a oferta só vira pedido se ele aceitar. Existe no máximo uma
-        oferta por leilão. O vencedor que não paga recebe uma advertência na conta. Sem essa opção, ou se o 2º
-        colocado recusar ou não responder, o vendedor pode relançar o anúncio: começa uma nova disputa e os
+        oferta por anúncio. O vencedor que não paga recebe uma advertência na conta. Sem essa opção, ou se o
+        2º colocado recusar ou não responder, o vendedor pode relançar o anúncio: começa uma nova disputa e os
         lances anteriores deixam de valer.
       </p>
       <h2 id="imei">13. IMEI de celulares</h2>
@@ -421,11 +425,11 @@ const HOW_FAQ_LD = faqLd([
     a: 'Anunciar é grátis. O MeuLance cobra uma pequena comissão apenas sobre vendas concluídas.',
   },
   {
-    q: 'Por que vender em leilão em vez de preço fixo?',
-    a: 'Em um leilão, vários compradores disputam o mesmo item ao mesmo tempo, o que tende a levar o preço final até o valor real de mercado — em vez de você chutar um preço fixo e torcer.',
+    q: 'Por que vender por lances em vez de preço fixo?',
+    a: 'Na venda por lances, vários compradores disputam o mesmo item ao mesmo tempo, o que tende a levar o preço final até o valor real de mercado — em vez de você chutar um preço fixo e torcer.',
   },
   {
-    q: 'O que acontece quando o leilão termina?',
+    q: 'O que acontece quando o prazo de lances termina?',
     a: 'O maior lance vence, um pedido é criado automaticamente e comprador e vendedor combinam pagamento e entrega pelo chat do pedido.',
   },
 ]);
@@ -448,7 +452,7 @@ const INCREMENTS = [
 
 export function AuctionRulesPage() {
   useDocumentMeta({
-    title: 'Regras de leilão',
+    title: 'Regras da venda por lances',
     description:
       'Como funcionam os lances no MeuLance: lance mínimo, incrementos, lance automático, prorrogação anti-sniping e compromisso de compra.',
     canonicalPath: '/regras-de-leilao',
@@ -456,7 +460,7 @@ export function AuctionRulesPage() {
   return (
     <main className="page simple legal-page">
       <span className="kicker">MEULANCE</span>
-      <h1>Regras de leilão</h1>
+      <h1>Regras da venda por lances</h1>
       <DraftNotice />
       <h2>1. Lance é compromisso de compra</h2>
       <p>
@@ -503,7 +507,7 @@ export function AuctionRulesPage() {
         proibido usar outras contas para isso. Use apenas uma conta: lances combinados para inflar preço levam
         a suspensão.
       </p>
-      <h2>6. Fim do leilão</h2>
+      <h2>6. Fim do prazo de lances</h2>
       <p>
         No horário de encerramento (o do servidor, não o do seu aparelho), o maior lance válido vence e um
         pedido é criado. Sem lances, o anúncio encerra sem vencedor e o vendedor pode relançá-lo com 1 clique,
@@ -547,7 +551,7 @@ const HELP_FAQ: Faq[] = [
     a: 'Não. Todo lance confirmado é compromisso de compra. Confira o valor com atenção antes de confirmar.',
   },
   {
-    q: 'Por que o leilão foi prorrogado?',
+    q: 'Por que o prazo de lances foi prorrogado?',
     a: 'Lances nos últimos 2 minutos estendem o encerramento em 2 minutos, até 5 vezes, para que todos possam responder.',
   },
   {
@@ -563,8 +567,8 @@ const HELP_FAQ: Faq[] = [
     a: 'O item é vendido como está e pode não funcionar. Antes de dar lance, você aceita essas condições. Só cabe disputa se o item não chegar, for diferente do anunciado ou tiver defeito omitido pelo vendedor.',
   },
   {
-    q: 'Como acompanho um leilão?',
-    a: 'Toque em “Seguir leilão” na página do anúncio. Leilões em que você deu lance são seguidos automaticamente e aparecem em “Meus leilões”.',
+    q: 'Como acompanho um anúncio?',
+    a: 'Toque em “Seguir anúncio” na página do anúncio. Anúncios em que você deu lance são seguidos automaticamente e aparecem em “Meus lances”.',
   },
   {
     q: 'O pagamento já funciona?',
@@ -588,7 +592,7 @@ export function HelpPage() {
     <main className="page simple legal-page">
       <span className="kicker">CENTRAL DE AJUDA</span>
       <h1>Perguntas frequentes</h1>
-      <p>Não achou o que procurava? Leia as regras completas de leilão ou os termos de uso.</p>
+      <p>Não achou o que procurava? Leia as regras completas da venda por lances ou os termos de uso.</p>
       <div className="faq-list">
         {HELP_FAQ.map(({ q, a }) => (
           <details key={q} className="faq-item">
@@ -599,7 +603,7 @@ export function HelpPage() {
       </div>
       <div className="hero-actions">
         <Link className="btn secondary" to="/regras-de-leilao">
-          Regras de leilão
+          Regras da venda por lances
         </Link>
         <Link className="btn secondary" to="/como-funciona">
           Como funciona
@@ -627,7 +631,7 @@ export function PrivacyPage() {
       </p>
       <h2>2. Para que usamos</h2>
       <p>
-        Operar os leilões e pedidos, prevenir fraude e contas múltiplas, cumprir obrigações legais, atender
+        Operar os anúncios e pedidos, prevenir fraude e contas múltiplas, cumprir obrigações legais, atender
         disputas e enviar as notificações que você escolher.
       </p>
       <h2>3. O que é público</h2>

@@ -58,7 +58,7 @@ export function PriceSuggestion({
         </b>
         <span>
           Metade das vendas ficou entre {formatBRL(s.low_cents)} e {formatBRL(s.high_cents)} ({s.sample}{' '}
-          vendas). Começar mais baixo atrai os primeiros lances; o leilão sobe até o preço de mercado.
+          vendas). Começar mais baixo atrai os primeiros lances; o preço sobe até o valor de mercado.
         </span>
         <button
           type="button"

@@ -55,7 +55,7 @@ export function IdentityVerification() {
         <h1>Verificação de identidade</h1>
         <div className="notice">
           <CheckCircle2 size={16} />
-          Sua identidade já foi verificada. Você pode publicar leilões normalmente.
+          Sua identidade já foi verificada. Você pode publicar anúncios normalmente.
         </div>
       </main>
     );

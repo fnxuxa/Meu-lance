@@ -66,7 +66,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         <h1>{mode === 'login' ? 'Entre no MeuLance' : 'Comece a comprar e vender'}</h1>
         <p className="muted">
           {mode === 'login'
-            ? 'Acompanhe seus lances e leilões favoritos.'
+            ? 'Acompanhe seus lances e anúncios favoritos.'
             : 'Crie sua conta gratuita em menos de um minuto.'}
         </p>
         <div className="auth-tabs">

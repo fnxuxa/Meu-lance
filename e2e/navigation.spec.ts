@@ -28,9 +28,9 @@ test('busca acompanha a URL, ignora acentos e aplica filtros', async ({ page }) 
   const input = page.getByPlaceholder('Produto, marca, cidade ou estado');
   await input.fill('sao paulo');
   await expect(page.locator('.grid .card')).toHaveCount(1);
-  await expect(page.getByText('1 leilão encontrado')).toBeVisible();
+  await expect(page.getByText('1 anúncio encontrado')).toBeVisible();
   await input.fill('produto inexistente');
-  await expect(page.getByRole('heading', { name: 'Nenhum leilão encontrado' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nenhum anúncio encontrado' })).toBeVisible();
   await input.fill('');
   await page.getByLabel('Categoria').selectOption('pc-games');
   await expect(page).toHaveURL(/cat=pc-games/);
@@ -41,14 +41,14 @@ test('busca acompanha a URL, ignora acentos e aplica filtros', async ({ page }) 
 
 test('categorias, páginas institucionais e 404', async ({ page }) => {
   await page.goto('/c/celulares');
-  await expect(page.getByRole('heading', { name: 'Celulares em leilão' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Celulares por lances' })).toBeVisible();
   await expect(page.locator('.grid .card')).toHaveCount(1);
   expect(await noHorizontalScroll(page)).toBe(true);
   await page.goto('/c/nao-existe');
   await expect(page.getByRole('heading', { name: 'Página não encontrada' })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   await page.goto('/regras-de-leilao');
-  await expect(page.getByRole('heading', { name: 'Regras de leilão' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Regras da venda por lances' })).toBeVisible();
   await expect(page.getByText('ainda não revisado por advogado')).toBeVisible();
   await page.goto('/ajuda');
   await page.getByText('O que é o lance automático?').click();

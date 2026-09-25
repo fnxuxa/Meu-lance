@@ -78,7 +78,7 @@ async function listingMeta(slug: string, origin: string): Promise<Meta | null> {
   return {
     title: `${row.title} — ${row.city}/${row.state} · MeuLance`,
     description: clip(
-      `${row.title}: ${row.bid_count ? 'lance atual' : 'lance inicial'} ${brl(row.current_price_cents)}, estado ${condition}, em ${row.city}/${row.state}. Dê seu lance no MeuLance.`,
+      `${row.title}: ${row.bid_count ? 'maior lance' : 'lance inicial'} ${brl(row.current_price_cents)}, estado ${condition}, em ${row.city}/${row.state}. Dê seu lance no MeuLance.`,
       300,
     ),
     canonical,
@@ -111,8 +111,8 @@ function categoryMeta(slug: string, origin: string): Meta | null {
   const c = CATEGORIES[slug];
   if (!c) return null;
   return {
-    title: `${c.name} usados em leilão · MeuLance`,
-    description: `Leilões de ${c.name.toLowerCase()} usados no Brasil: ${c.blurb} Dê seu lance e acompanhe a disputa ao vivo.`,
+    title: `${c.name} usados por lances · MeuLance`,
+    description: `Compre ${c.name.toLowerCase()} usados por lances no Brasil: ${c.blurb} Dê seu lance e acompanhe a disputa ao vivo.`,
     canonical: `${origin}/c/${slug}`,
     type: 'website',
   };

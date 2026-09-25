@@ -56,7 +56,7 @@ export function BidHistoryChart({
       <h3>
         <TrendingUp size={16} /> Histórico de lances
       </h3>
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="Gráfico da evolução do preço do leilão">
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="Gráfico da evolução do preço do anúncio">
         <defs>
           <linearGradient id={`bh-grad-${listingId}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#07864f" stopOpacity="0.28" />
