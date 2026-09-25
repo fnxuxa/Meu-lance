@@ -3956,3 +3956,29 @@ footer.site-footer {
     padding-right: 0;
   }
 }
+
+.btn.google {
+  background: #fff;
+  color: #1f2937;
+  border: 1px solid #d5ded8;
+  gap: 10px;
+  justify-content: center;
+}
+.btn.google:hover:not(:disabled) {
+  background: #f6f9f7;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 4px;
+  color: #6b7a72;
+  font-size: 13px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e1eae4;
+}

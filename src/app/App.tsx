@@ -27,6 +27,9 @@ const RecoveryCard = lazy(() =>
   import('../features/auth/RecoveryCard').then((m) => ({ default: m.RecoveryCard })),
 );
 const AuthPage = lazy(() => import('../features/auth/AuthPage').then((m) => ({ default: m.AuthPage })));
+const AuthCallback = lazy(() =>
+  import('../features/auth/AuthCallback').then((m) => ({ default: m.AuthCallback })),
+);
 const AccountSettings = lazy(() =>
   import('../features/auth/AccountSettings').then((m) => ({ default: m.AccountSettings })),
 );
@@ -116,6 +119,7 @@ export function App() {
             <Route path="/u/:id" element={<SellerProfile />} />
             <Route path="/recuperar-senha" element={<RecoveryCard />} />
             <Route path="/entrar" element={<AuthPage mode="login" />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/cadastrar" element={<AuthPage mode="signup" />} />
             <Route path="/conta/lances" element={<MyAuctions />} />
             <Route path="/conta/notificacoes" element={<NotificationSettings />} />

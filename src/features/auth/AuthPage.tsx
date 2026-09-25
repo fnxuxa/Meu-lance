@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { errorMessage } from '../../lib/errors';
 import { useSession } from './useSession';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
+import { GoogleButton } from './GoogleButton';
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
@@ -76,6 +77,17 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           <Link to="/cadastrar" className={mode === 'signup' ? 'active' : ''}>
             Criar conta
           </Link>
+        </div>
+        <GoogleButton
+          label={mode === 'login' ? 'Entrar com Google' : 'Criar conta com Google'}
+          disabled={busy}
+          onError={(m) => {
+            setStatus('error');
+            setMessage(m);
+          }}
+        />
+        <div className="auth-divider">
+          <span>ou use seu e-mail</span>
         </div>
         {mode === 'signup' && (
           <label>
