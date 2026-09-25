@@ -315,6 +315,61 @@ function DisputeQueue({ isStaff }: { isStaff: boolean }) {
     </section>
   );
 }
+const FRAUD_SIGNAL_LABEL: Record<string, string> = {
+  same_ip_bids_on_seller: 'Mesmo IP deu lance em anúncios do mesmo vendedor (contas diferentes)',
+};
+type FraudSignal = {
+  id: string;
+  kind: string;
+  score: number;
+  data: { seller_id?: string; other_bidder?: string; listing_id?: string };
+  created_at: string;
+  profiles: { display_name: string } | null;
+};
+function FraudSignalsQueue({ isStaff }: { isStaff: boolean }) {
+  const query = useQuery({
+    queryKey: ['admin-fraud-signals'],
+    enabled: isStaff && !!supabase,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('fraud_signals')
+        .select('id,kind,score,data,created_at,profiles(display_name)')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data as unknown as FraudSignal[];
+    },
+  });
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Sinais de possível fraude</h2>
+      <p className="muted">
+        Heurísticas automáticas — não são prova de nada sozinhas, servem para revisão manual.
+      </p>
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhum sinal registrado.</p>}
+      <div className="verification-list">
+        {query.data?.map((s) => (
+          <article className="verification-card" key={s.id}>
+            <div>
+              <b>{s.profiles?.display_name ?? 'usuário'}</b>
+              <span className="muted">
+                {new Date(s.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              {FRAUD_SIGNAL_LABEL[s.kind] ?? s.kind} · pontuação {s.score}
+              {s.data.other_bidder && <> · outra conta: {s.data.other_bidder.slice(0, 8)}</>}
+              {s.data.seller_id && <> · vendedor: {s.data.seller_id.slice(0, 8)}</>}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 function VerificationQueue({ isStaff }: { isStaff: boolean }) {
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -466,6 +521,7 @@ export function AdminDashboard() {
           <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
           <DisputeQueue isStaff={!!query.data} />
+          <FraudSignalsQueue isStaff={!!query.data} />
         </>
       )}
     </main>

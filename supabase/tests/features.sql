@@ -331,4 +331,38 @@ select tests.ok((select status='refunded' from orders where listing_id='a5150000
 select tests.root();
 update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
 
+-- ══ IP do lance e sinal de possível lance falso (shill bidding) ══
+select tests.root();
+insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
+values('a515000a-0000-0000-0000-000000000001','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='casa'),'Cadeira antifraude','Cadeira para teste de sinal de fraude','good',5000,5000,'pickup','São Paulo','SP','cadeira-antifraude','active',now(),now()+interval '3 days');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select set_config('request.headers','{"x-forwarded-for":"203.0.113.9"}',false);
+select place_bid('a515000a-0000-0000-0000-000000000001',5200,'fraud-ip-bid-a');
+select tests.ok((select ip_hash is not null from bids where listing_id='a515000a-0000-0000-0000-000000000001' and bidder_id='a0000000-0000-0000-0000-00000000000a'),'lance grava o hash do IP');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select set_config('request.headers','{"x-forwarded-for":"203.0.113.9"}',false);
+select place_bid('a515000a-0000-0000-0000-000000000001',5700,'fraud-ip-bid-b');
+select tests.root();
+select tests.ok((select count(*)=1 from fraud_signals where kind='same_ip_bids_on_seller' and user_id='b0000000-0000-0000-0000-00000000000b'),'IP repetido no mesmo vendedor gera sinal de fraude');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select count(*)=0 from fraud_signals),'sinal de fraude não é visível a usuário comum');
+select tests.root();
+update profiles set role='admin' where id='a0000000-0000-0000-0000-00000000000a';
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.ok((select count(*)>=1 from fraud_signals),'staff vê os sinais de fraude');
+select tests.root();
+update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
+select set_config('request.headers','',false);
+
+-- ══ rate limit: denúncia (10/hora) e chat do pedido (30/min) ══
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+do $$ begin for i in 1..10 loop insert into reports(reporter_id,reason,details) values ('b0000000-0000-0000-0000-00000000000b','other','teste '||i); end loop; end $$;
+select tests.throws($$insert into reports(reporter_id,reason,details) values ('b0000000-0000-0000-0000-00000000000b','other','uma denúncia a mais')$$,'RATE_LIMITED','limite de 10 denúncias por hora');
+do $$ declare oid uuid; begin
+  select id into oid from orders where listing_id='a5150000-0000-0000-0000-000000000009';
+  for i in 1..30 loop insert into order_messages(order_id,sender_id,body) values (oid,'b0000000-0000-0000-0000-00000000000b','mensagem '||i); end loop;
+end $$;
+select tests.throws($$insert into order_messages(order_id,sender_id,body) select id,'b0000000-0000-0000-0000-00000000000b','mensagem a mais' from orders where listing_id='a5150000-0000-0000-0000-000000000009'$$,'RATE_LIMITED','limite de 30 mensagens por minuto no chat');
+select tests.root();
+
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;
