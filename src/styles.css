@@ -3266,11 +3266,173 @@ html {
   display: grid;
   justify-items: center;
 }
-.not-found-icon {
-  width: 54px;
-  height: 54px;
-  color: var(--green);
-  margin-bottom: 8px;
+.not-found-art {
+  margin-bottom: 4px;
+  overflow: visible;
+}
+.nf-tile path {
+  fill: var(--mint);
+  stroke: var(--green);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.nf-tile-left {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+  animation: nf-tile-shake-left 1.3s ease-out both;
+}
+.nf-tile-right {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: nf-tile-shake-right 1.3s ease-out both;
+}
+.nf-crack path {
+  fill: none;
+  stroke: #fbfcfa;
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: nf-crack-in 1.3s ease-out both;
+}
+.nf-spark path {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: nf-spark-burst 1.3s ease-out both;
+}
+.nf-chip path {
+  fill: var(--green);
+  opacity: 0;
+  animation: nf-chip-fly 1.3s ease-out both;
+}
+.nf-chip-2 {
+  animation-delay: 0.03s;
+}
+.nf-chip-3 {
+  animation-delay: 0.06s;
+}
+.nf-hammer {
+  color: var(--deep);
+  transform-box: fill-box;
+  transform-origin: 78% 18%;
+  animation: nf-hammer-swing 1.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes nf-hammer-swing {
+  0% {
+    transform: rotate(-52deg);
+  }
+  42% {
+    transform: rotate(-52deg);
+  }
+  58% {
+    transform: rotate(-6deg);
+  }
+  72% {
+    transform: rotate(-14deg);
+  }
+  100% {
+    transform: rotate(-10deg);
+  }
+}
+@keyframes nf-tile-shake-left {
+  0%,
+  56% {
+    transform: translateX(0) rotate(0);
+  }
+  62% {
+    transform: translateX(-5px) rotate(-4deg);
+  }
+  75% {
+    transform: translateX(-7px) rotate(-6deg);
+  }
+  100% {
+    transform: translateX(-6px) rotate(-5deg);
+  }
+}
+@keyframes nf-tile-shake-right {
+  0%,
+  56% {
+    transform: translateX(0) rotate(0);
+  }
+  62% {
+    transform: translateX(5px) rotate(4deg);
+  }
+  75% {
+    transform: translateX(7px) rotate(6deg);
+  }
+  100% {
+    transform: translateX(6px) rotate(5deg);
+  }
+}
+@keyframes nf-crack-in {
+  0%,
+  56% {
+    opacity: 0;
+  }
+  64% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes nf-spark-burst {
+  0%,
+  56% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  64% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@keyframes nf-chip-fly {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  66% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, 26px) rotate(140deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nf-tile-left,
+  .nf-tile-right,
+  .nf-crack path,
+  .nf-spark path,
+  .nf-chip path,
+  .nf-hammer {
+    animation: none !important;
+  }
+  .nf-tile-left {
+    transform: translateX(-4px) rotate(-3deg);
+  }
+  .nf-tile-right {
+    transform: translateX(4px) rotate(3deg);
+  }
+  .nf-crack path {
+    opacity: 1;
+  }
+  .nf-hammer {
+    transform: rotate(-10deg);
+  }
+  .nf-chip path,
+  .nf-spark path {
+    opacity: 0;
+  }
 }
 .simple h1 {
   text-transform: none;
