@@ -120,7 +120,9 @@ export default function Home() {
         ) : (
           <div className="hero-panel hero-panel-static">
             <img
-              src="/landing.jpg"
+              src="/landing.webp"
+              srcSet="/landing-600.webp 600w, /landing.webp 900w"
+              sizes="(max-width: 850px) 100vw, 600px"
               alt="MeuLance — oportunidades na palma da mão"
               width={600}
               height={600}
