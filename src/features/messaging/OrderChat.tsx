@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Send } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { errorMessage } from '../../lib/errors';
 export function OrderChat({ orderId, userId }: { orderId: string; userId: string }) {
@@ -38,58 +39,78 @@ export function OrderChat({ orderId, userId }: { orderId: string; userId: string
       void sb.removeChannel(c);
     };
   }, [orderId, refetch]);
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [query.data]);
   return (
     <section className="chat">
-      <h2>Chat do pedido</h2>
-      {query.isPending ? (
-        <p>Carregando mensagens…</p>
-      ) : query.error ? (
-        <p role="alert">{errorMessage(query.error)}</p>
-      ) : (
-        <div className="messages">
-          {query.data?.length ? (
-            query.data.map((x) => (
-              <div className={x.sender_id === userId ? 'message mine' : 'message'} key={x.id}>
-                <p>{x.body}</p>
-                <small>
-                  {new Date(x.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
-                </small>
-              </div>
-            ))
-          ) : (
-            <p>Ainda não há mensagens.</p>
-          )}
-        </div>
+      <div className="chat-header">
+        <h2>Chat do pedido</h2>
+        <span className="chat-live">
+          <i /> Tempo real
+        </span>
+      </div>
+      <div className="messages" ref={listRef}>
+        {query.isPending ? (
+          <p className="chat-empty">Carregando mensagens…</p>
+        ) : query.error ? (
+          <p className="chat-empty" role="alert">
+            {errorMessage(query.error)}
+          </p>
+        ) : query.data?.length ? (
+          query.data.map((x) => (
+            <div className={x.sender_id === userId ? 'message mine' : 'message'} key={x.id}>
+              <p>{x.body}</p>
+              <small>
+                {new Date(x.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </small>
+            </div>
+          ))
+        ) : (
+          <p className="chat-empty">Ainda não há mensagens. Diga oi!</p>
+        )}
+      </div>
+      <div className="chat-footer">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!supabase || !body.trim() || busy) return;
+            setBusy(true);
+            try {
+              const { error } = await supabase
+                .from('order_messages')
+                .insert({ order_id: orderId, sender_id: userId, body: body.trim() });
+              if (error) throw error;
+              setBody('');
+              setMessage('');
+              await refetch();
+            } catch (err) {
+              setMessage(errorMessage(err));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <input
+            maxLength={2000}
+            required
+            aria-label="Mensagem"
+            placeholder="Escreva uma mensagem…"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+          />
+          <button className="send" type="submit" disabled={busy || !body.trim()} aria-label="Enviar mensagem">
+            <Send size={17} />
+          </button>
+        </form>
+      </div>
+      {message && (
+        <p role="status" className="chat-error">
+          {message}
+        </p>
       )}
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!supabase || !body.trim() || busy) return;
-          setBusy(true);
-          try {
-            const { error } = await supabase
-              .from('order_messages')
-              .insert({ order_id: orderId, sender_id: userId, body: body.trim() });
-            if (error) throw error;
-            setBody('');
-            setMessage('');
-            await refetch();
-          } catch (err) {
-            setMessage(errorMessage(err));
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <label>
-          Mensagem
-          <input maxLength={2000} required value={body} onChange={(e) => setBody(e.target.value)} />
-        </label>
-        <button className="btn primary" disabled={busy || !body.trim()}>
-          Enviar
-        </button>
-      </form>
-      {message && <p role="status">{message}</p>}
     </section>
   );
 }

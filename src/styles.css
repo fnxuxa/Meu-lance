@@ -1467,13 +1467,24 @@ footer b {
   box-shadow: 0 20px 60px rgba(12, 45, 34, 0.07);
   overflow: hidden;
 }
-.chat header {
+.chat-header {
   padding: 20px 22px;
   border-bottom: 1px solid #e8efeb;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
-.chat header i {
+.chat-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.chat-live {
+  display: flex;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #4d6b5c;
+}
+.chat-header i {
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -1513,28 +1524,48 @@ footer b {
   color: #718078;
   padding: 110px 10px;
 }
-.chat footer {
+.chat-footer {
   display: flex;
   gap: 8px;
   padding: 14px;
+  border-top: 1px solid #e8efeb;
 }
-.chat footer input {
+.chat-footer form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.chat-footer input {
   flex: 1;
   border: 0;
   background: #f2f6f4;
   border-radius: 14px;
   padding: 12px;
   outline: none;
+  font: inherit;
 }
-.chat footer button {
+.chat-footer button {
   border: 0;
   background: transparent;
   padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
-.chat footer .send {
+.chat-footer .send {
   background: #0c6b4d;
   color: white;
   border-radius: 12px;
+}
+.chat-footer .send:disabled {
+  background: #a9c4b9;
+  cursor: default;
+}
+.chat-error {
+  margin: 0 22px 14px;
+  color: #b3261e;
+  font-size: 0.9rem;
 }
 .dispute-card {
   padding: 30px;
