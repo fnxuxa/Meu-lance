@@ -15,7 +15,7 @@ create or replace function public._client_ip() returns text language sql stable 
   select nullif(split_part(
     coalesce(current_setting('request.headers', true)::json->>'x-forwarded-for', ''), ',', 1), '')
 $$;
-create or replace function public._ip_hash() returns text language sql stable as $$
+create or replace function public._ip_hash() returns text language sql stable set search_path = public, extensions as $$
   select case when public._client_ip() is null then null
     else encode(digest(public._client_ip() || '|meulance-rate-limit-salt', 'sha256'), 'hex') end
 $$;
