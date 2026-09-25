@@ -40,7 +40,13 @@ function ProfileCard() {
       active = false;
     };
   }, [uf]);
-  if (!user || profile.isPending) return null;
+  if (!user) return null;
+  if (profile.isPending)
+    return (
+      <div className="account-card">
+        <p className="muted">Carregando perfil…</p>
+      </div>
+    );
   const verified = !!profile.data?.identity_verified_at;
   return (
     <div className="account-card">
@@ -206,7 +212,13 @@ function AddressCard() {
     setComplement(profile.data.address_complement ?? '');
     setNeighborhood(profile.data.address_neighborhood ?? '');
   }, [profile.data]);
-  if (!user || profile.isPending) return null;
+  if (!user) return null;
+  if (profile.isPending)
+    return (
+      <div className="account-card">
+        <p className="muted">Carregando endereço…</p>
+      </div>
+    );
   return (
     <div className="account-card">
       <h2>

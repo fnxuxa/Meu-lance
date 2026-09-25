@@ -261,4 +261,21 @@ select tests.login('a0000000-0000-0000-0000-00000000000a');
 select tests.throws($$select confirm_buyer_interest((select id from interest_order),'34999990000')$$,'INVALID_ORDER_STATE','só confirma interesse enquanto aguarda pagamento');
 select tests.root();
 
+-- ══ verificação de identidade: aprovação grava profiles e é auditável ══
+select tests.root();
+update profiles set role='admin' where id='a0000000-0000-0000-0000-00000000000a';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+insert into identity_verifications(user_id,document_path,selfie_path) values ('b0000000-0000-0000-0000-00000000000b','b/doc.webp','b/selfie.webp');
+select tests.throws($$insert into identity_verifications(user_id,document_path,selfie_path) values ('b0000000-0000-0000-0000-00000000000b','b/doc2.webp','b/selfie2.webp')$$,'row-level security|permission denied','não reenvia enquanto está pendente');
+select tests.throws($$select review_identity_verification((select id from identity_verifications where user_id='b0000000-0000-0000-0000-00000000000b'),true)$$,'FORBIDDEN','quem não é staff não revisa verificação');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select review_identity_verification((select id from identity_verifications where user_id='b0000000-0000-0000-0000-00000000000b'),true);
+select tests.ok((select identity_verified_at is not null and seller_status='verified' from profiles where id='b0000000-0000-0000-0000-00000000000b'),'aprovação marca identidade verificada e seller_status');
+select tests.ok((select status='approved' from identity_verifications where user_id='b0000000-0000-0000-0000-00000000000b'),'registro de verificação fica approved');
+select tests.throws($$select review_identity_verification((select id from identity_verifications where user_id='b0000000-0000-0000-0000-00000000000b'),true)$$,'ALREADY_REVIEWED','não revisa a mesma verificação duas vezes');
+select tests.root();
+select tests.ok((select count(*)=1 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Identidade verificada'),'usuário é avisado da aprovação');
+select tests.ok((select count(*)=1 from audit_log where action='identity_verification_reviewed'),'revisão de identidade vai para auditoria');
+update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
+
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;
