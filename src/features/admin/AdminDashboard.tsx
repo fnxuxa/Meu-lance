@@ -19,6 +19,117 @@ const DISPUTE_REASON_LABEL: Record<string, string> = {
   damaged: 'Produto danificado',
   other: 'Outro motivo',
 };
+const LISTING_STATUS_LABEL: Record<string, string> = {
+  draft: 'Rascunho',
+  active: 'Em andamento',
+  ended_with_winner: 'Encerrado (vendido)',
+  ended_no_bids: 'Encerrado sem lances',
+  cancelled: 'Cancelado',
+  removed: 'Removido',
+};
+type AdminListing = {
+  id: string;
+  title: string;
+  slug: string;
+  status: string;
+  current_price_cents: number;
+  created_at: string;
+  profiles: { display_name: string } | null;
+};
+function ListingBrowser({ isStaff }: { isStaff: boolean }) {
+  const queryClient = useQueryClient();
+  const [term, setTerm] = useState('');
+  const [status, setStatus] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: ['admin-listings', term, status],
+    enabled: isStaff && !!supabase,
+    queryFn: async () => {
+      let q = supabase!
+        .from('listings')
+        .select('id,title,slug,status,current_price_cents,created_at,profiles(display_name)')
+        .order('created_at', { ascending: false })
+        .limit(30);
+      if (term.trim()) q = q.ilike('title', `%${term.trim()}%`);
+      if (status) q = q.eq('status', status);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data as unknown as AdminListing[];
+    },
+  });
+  async function remove(l: AdminListing) {
+    if (!supabase || busyId) return;
+    const reason = window.prompt(`Remover "${l.title}"? Motivo (avisa o vendedor):`);
+    if (!reason || reason.trim().length < 3) return;
+    setBusyId(l.id);
+    try {
+      const { error } = await supabase.rpc('staff_remove_listing', {
+        p_listing: l.id,
+        p_reason: reason.trim(),
+      });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+    } catch (e) {
+      window.alert(errorMessage(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Buscar anúncios</h2>
+      <div className="form-grid">
+        <label>
+          Título
+          <input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Buscar por título…" />
+        </label>
+        <label>
+          Status
+          <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">Todos</option>
+            {Object.entries(LISTING_STATUS_LABEL).map(([k, v]) => (
+              <option value={k} key={k}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhum anúncio encontrado.</p>}
+      <div className="verification-list">
+        {query.data?.map((l) => (
+          <article className="verification-card" key={l.id}>
+            <div>
+              <b>{l.title}</b>
+              <span className="muted">{new Date(l.created_at).toLocaleDateString('pt-BR')}</span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              <Link to={`/l/${l.slug}`} target="_blank" rel="noopener">
+                Ver anúncio
+              </Link>
+              {' · '}
+              {LISTING_STATUS_LABEL[l.status] ?? l.status} · {formatBRL(l.current_price_cents)} · vendedor{' '}
+              {l.profiles?.display_name ?? '—'}
+            </p>
+            {['draft', 'active'].includes(l.status) && (
+              <div className="verification-actions">
+                <button
+                  className="btn ghost-danger"
+                  disabled={busyId === l.id}
+                  onClick={() => void remove(l)}
+                >
+                  <Trash2 size={15} /> Remover anúncio
+                </button>
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 type Report = {
   id: string;
   reason: string;
@@ -517,6 +628,7 @@ export function AdminDashboard() {
               ),
             )}
           </div>
+          <ListingBrowser isStaff={!!query.data} />
           <BuyerInterestQueue isStaff={!!query.data} />
           <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
