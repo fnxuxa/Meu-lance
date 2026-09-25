@@ -13,6 +13,12 @@ const REPORT_REASON_LABEL: Record<string, string> = {
   misleading: 'Anúncio enganoso',
   other: 'Outro motivo',
 };
+const DISPUTE_REASON_LABEL: Record<string, string> = {
+  not_shipped: 'Não recebi / não foi enviado',
+  not_as_described: 'Item diferente do anúncio',
+  damaged: 'Produto danificado',
+  other: 'Outro motivo',
+};
 type Report = {
   id: string;
   reason: string;
@@ -198,6 +204,117 @@ type Verification = {
   created_at: string;
   profiles: { display_name: string } | null;
 };
+type Dispute = {
+  id: string;
+  reason: string;
+  description: string;
+  status: string;
+  snapshot: { title?: string; defects_declared?: string; amount_cents?: number } | null;
+  created_at: string;
+  orders: {
+    id: string;
+    amount_cents: number;
+    listings: { title: string; slug: string } | null;
+    buyer: { display_name: string } | null;
+    seller: { display_name: string } | null;
+  } | null;
+};
+function DisputeQueue({ isStaff }: { isStaff: boolean }) {
+  const queryClient = useQueryClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: ['admin-disputes'],
+    enabled: isStaff && !!supabase,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from('disputes')
+        .select(
+          'id,reason,description,status,snapshot,created_at,' +
+            'orders(id,amount_cents,listings(title,slug),' +
+            'buyer:profiles!orders_buyer_id_fkey(display_name),seller:profiles!orders_seller_id_fkey(display_name))',
+        )
+        .in('status', ['open', 'seller_response', 'under_review'])
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data as unknown as Dispute[];
+    },
+  });
+  async function resolve(d: Dispute, resolution: 'buyer' | 'seller') {
+    if (!supabase || busyId) return;
+    const who = resolution === 'buyer' ? 'o comprador (reembolso)' : 'o vendedor (libera o valor)';
+    const note = window.prompt(`Justificativa da decisão a favor de ${who} (mín. 10 caracteres):`);
+    if (!note || note.trim().length < 10) return;
+    setBusyId(d.id);
+    try {
+      const { error } = await supabase.rpc('resolve_dispute', {
+        p_dispute: d.id,
+        p_resolution: resolution,
+        p_note: note.trim(),
+      });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['admin-disputes'] });
+    } catch (e) {
+      window.alert(errorMessage(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Disputas abertas</h2>
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhuma disputa aberta.</p>}
+      <div className="verification-list">
+        {query.data?.map((d) => (
+          <article className="verification-card" key={d.id}>
+            <div>
+              <b>{DISPUTE_REASON_LABEL[d.reason] ?? d.reason}</b>
+              <span className="muted">
+                {new Date(d.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              {d.orders?.listings && (
+                <>
+                  <Link to={`/l/${d.orders.listings.slug}`} target="_blank" rel="noopener">
+                    {d.orders.listings.title}
+                  </Link>
+                  {' · '}
+                </>
+              )}
+              {d.orders && formatBRL(d.orders.amount_cents)} · comprador{' '}
+              {d.orders?.buyer?.display_name ?? '—'} · vendedor {d.orders?.seller?.display_name ?? '—'}
+            </p>
+            <p style={{ margin: 0 }}>{d.description}</p>
+            {d.snapshot?.defects_declared && (
+              <p className="muted" style={{ margin: 0 }}>
+                Defeito declarado no anúncio: {d.snapshot.defects_declared}
+              </p>
+            )}
+            <div className="verification-actions">
+              <button
+                className="btn primary"
+                disabled={busyId === d.id}
+                onClick={() => void resolve(d, 'buyer')}
+              >
+                A favor do comprador
+              </button>
+              <button
+                className="btn secondary"
+                disabled={busyId === d.id}
+                onClick={() => void resolve(d, 'seller')}
+              >
+                A favor do vendedor
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 function VerificationQueue({ isStaff }: { isStaff: boolean }) {
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -348,7 +465,7 @@ export function AdminDashboard() {
           <BuyerInterestQueue isStaff={!!query.data} />
           <ReportQueue isStaff={!!query.data} />
           <VerificationQueue isStaff={!!query.data} />
-          <p className="muted">Disputas de pedidos ainda são resolvidas fora deste painel.</p>
+          <DisputeQueue isStaff={!!query.data} />
         </>
       )}
     </main>

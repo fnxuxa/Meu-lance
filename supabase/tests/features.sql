@@ -297,4 +297,38 @@ select cleanup_expired_listings();
 select tests.ok((select count(*)=0 from listings where id='a5150000-0000-0000-0000-000000000008'),'sem argumento, usa app_config.listing_retention_days');
 update app_config set value='30' where key='listing_retention_days';
 
+-- ══ resolução de disputa pela staff (antes disso, não existia nenhum jeito de resolver) ══
+select tests.root();
+update profiles set role='admin' where id='a0000000-0000-0000-0000-00000000000a';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000001'),'seller','Vendedor demonstrou boa-fé, item vendido no estado como anunciado')$$,'FORBIDDEN','quem não é staff não resolve disputa');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.throws($$select resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000001'),'other','nota qualquer com texto grande o bastante')$$,'INVALID_RESOLUTION','resolução só pode ser buyer ou seller');
+select tests.throws($$select resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000001'),'seller','curta')$$,'NOTE_TOO_SHORT','justificativa precisa ter pelo menos 10 caracteres');
+select tests.throws($$select resolve_dispute('00000000-0000-0000-0000-000000000000','seller','Justificativa com texto suficiente para passar na validação')$$,'NOT_FOUND','disputa inexistente');
+select tests.ok((select status='resolved_seller' from resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000001'),'seller','Item vendido no estado, anúncio deixava claro o defeito, comprador aceitou as condições')),'staff resolve a favor do vendedor');
+select tests.ok((select status='completed' from orders where listing_id='a5150000-0000-0000-0000-000000000001'),'pedido libera para o vendedor (completed)');
+select tests.throws($$select resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000001'),'buyer','Nova tentativa de resolução depois de já resolvida')$$,'ALREADY_RESOLVED','não resolve disputa duas vezes');
+select tests.root();
+select tests.ok((select count(*)=1 from audit_log where action='dispute_resolved'),'resolução vai para auditoria');
+select tests.ok((select count(*)=1 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Disputa resolvida a seu favor'),'vendedor é avisado');
+select tests.ok((select count(*)=1 from notifications where user_id='a0000000-0000-0000-0000-00000000000a' and title='Disputa resolvida a favor do vendedor'),'comprador é avisado');
+
+-- resolução a favor do comprador (reembolso)
+insert into listings(id,seller_id,category_id,title,description,condition,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
+values('a5150000-0000-0000-0000-000000000009','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='casa'),'Liquidificador com defeito','Liquidificador usado, funcionando bem','good',8000,8000,'pickup','São Paulo','SP','liquidificador-disputa','active',now(),now()+interval '3 days');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select place_bid('a5150000-0000-0000-0000-000000000009',8000,'dispute-buyer-bid-1');
+select tests.root();
+update listings set ends_at = now() - interval '1 second' where id='a5150000-0000-0000-0000-000000000009';
+select close_due_auctions();
+update orders set status='paid' where listing_id='a5150000-0000-0000-0000-000000000009';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+insert into disputes(order_id,opened_by,reason,description) select id,'b0000000-0000-0000-0000-00000000000b','not_as_described','Motor não liga, diferente do anunciado como funcionando' from orders where listing_id='a5150000-0000-0000-0000-000000000009';
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.ok((select status='resolved_buyer' from resolve_dispute((select d.id from disputes d join orders o on o.id=d.order_id where o.listing_id='a5150000-0000-0000-0000-000000000009'),'buyer','Vendedor não conseguiu comprovar funcionamento, reembolso ao comprador')),'staff resolve a favor do comprador');
+select tests.ok((select status='refunded' from orders where listing_id='a5150000-0000-0000-0000-000000000009'),'pedido vai para reembolsado');
+select tests.root();
+update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
+
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;
