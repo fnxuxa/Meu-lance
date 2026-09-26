@@ -481,6 +481,67 @@ function FraudSignalsQueue({ isStaff }: { isStaff: boolean }) {
     </section>
   );
 }
+type ChatFlag = {
+  id: string;
+  created_at: string;
+  user_name: string;
+  listing_title: string | null;
+  listing_slug: string | null;
+  pattern: string;
+  body: string;
+};
+const CHAT_PATTERN_LABEL: Record<string, string> = {
+  phone: 'telefone',
+  email: 'e-mail',
+  link: 'link',
+  app: 'app de contato',
+};
+function ChatFlagsQueue({ isStaff }: { isStaff: boolean }) {
+  const query = useQuery({
+    queryKey: ['admin-chat-flags'],
+    enabled: isStaff && !!supabase,
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data, error } = await supabase!.rpc('staff_list_chat_flags', { p_limit: 100 });
+      if (error) throw error;
+      return data as ChatFlag[];
+    },
+  });
+  if (!isStaff) return null;
+  return (
+    <section className="admin-verifications">
+      <h2>Tentativas de troca de contato no chat</h2>
+      <p className="muted">
+        Mensagens bloqueadas antes do pagamento, mais recentes primeiro. Nenhuma punição é aplicada
+        automaticamente.
+      </p>
+      {query.error && <p className="auth-message error">{errorMessage(query.error)}</p>}
+      {!query.error && !query.data?.length && <p className="muted">Nenhuma tentativa registrada.</p>}
+      <div className="verification-list">
+        {query.data?.map((f) => (
+          <article className="verification-card" key={f.id}>
+            <div>
+              <b>{f.user_name}</b>
+              <span className="muted">
+                {new Date(f.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+              </span>
+            </div>
+            <p className="muted" style={{ margin: 0 }}>
+              {CHAT_PATTERN_LABEL[f.pattern] ?? f.pattern}
+              {f.listing_slug && (
+                <>
+                  {' · '}
+                  <Link to={'/l/' + f.listing_slug}>{f.listing_title ?? 'anúncio'}</Link>
+                </>
+              )}
+            </p>
+            <p style={{ margin: 0, overflowWrap: 'anywhere' }}>{f.body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 function VerificationQueue({ isStaff }: { isStaff: boolean }) {
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -634,6 +695,7 @@ export function AdminDashboard() {
           <VerificationQueue isStaff={!!query.data} />
           <DisputeQueue isStaff={!!query.data} />
           <FraudSignalsQueue isStaff={!!query.data} />
+          <ChatFlagsQueue isStaff={!!query.data} />
         </>
       )}
     </main>

@@ -79,10 +79,21 @@ export function OrderChat({ orderId, userId }: { orderId: string; userId: string
             if (!supabase || !body.trim() || busy) return;
             setBusy(true);
             try {
-              const { error } = await supabase
-                .from('order_messages')
-                .insert({ order_id: orderId, sender_id: userId, body: body.trim() });
+              // Validação e registro de tentativas no servidor (RPC); o insert direto é bloqueado no banco.
+              const { data, error } = await supabase.rpc('send_order_message', {
+                p_order_id: orderId,
+                p_body: body.trim(),
+              });
               if (error) throw error;
+              const result = data as { ok: boolean; code?: string } | null;
+              if (!result?.ok) {
+                setMessage(
+                  result?.code === 'CONTACT_SHARING_BLOCKED'
+                    ? 'Por segurança, trocas de contato pessoal não são permitidas antes da compra ser concluída. Toda comunicação deve ocorrer por aqui.'
+                    : 'Não foi possível enviar a mensagem.',
+                );
+                return;
+              }
               setBody('');
               setMessage('');
               await refetch();

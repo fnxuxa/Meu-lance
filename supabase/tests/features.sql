@@ -360,9 +360,57 @@ do $$ begin for i in 1..10 loop insert into reports(reporter_id,reason,details) 
 select tests.throws($$insert into reports(reporter_id,reason,details) values ('b0000000-0000-0000-0000-00000000000b','other','uma denúncia a mais')$$,'RATE_LIMITED','limite de 10 denúncias por hora');
 do $$ declare oid uuid; begin
   select id into oid from orders where listing_id='a5150000-0000-0000-0000-000000000009';
-  for i in 1..30 loop insert into order_messages(order_id,sender_id,body) values (oid,'b0000000-0000-0000-0000-00000000000b','mensagem '||i); end loop;
+  for i in 1..30 loop perform send_order_message(oid,'mensagem '||i); end loop;
 end $$;
-select tests.throws($$insert into order_messages(order_id,sender_id,body) select id,'b0000000-0000-0000-0000-00000000000b','mensagem a mais' from orders where listing_id='a5150000-0000-0000-0000-000000000009'$$,'RATE_LIMITED','limite de 30 mensagens por minuto no chat');
+select tests.throws($$select send_order_message(id,'mensagem a mais') from orders where listing_id='a5150000-0000-0000-0000-000000000009'$$,'RATE_LIMITED','limite de 30 mensagens por minuto no chat');
 select tests.root();
+
+-- ══ filtro de contato no chat (nível 1), registro e liberação após o pagamento ══
+select tests.root();
+delete from order_messages;
+select tests.root();
+select tests.ok(contact_pattern('34999998888')='phone','detecta telefone sem formatação');
+select tests.ok(contact_pattern('(34) 99999-8888')='phone','detecta telefone com DDD e traço');
+select tests.ok(contact_pattern('34 9 9999-8888')='phone','detecta telefone com espaços');
+select tests.ok(contact_pattern('+55 34 99999999')='phone','detecta telefone com +55');
+select tests.ok(contact_pattern('34988438834')='phone','detecta 11 dígitos seguidos');
+select tests.ok(contact_pattern('349999O9888')='phone','detecta letra O no lugar do zero');
+select tests.ok(contact_pattern('meu email é fulano@gmail.com')='email','detecta e-mail');
+select tests.ok(contact_pattern('w h a t s a p p')='app','detecta whatsapp espaçado');
+select tests.ok(contact_pattern('me chama no zap.zap')='app','detecta zap.zap');
+select tests.ok(contact_pattern('chama no Zap')='app','detecta zap');
+select tests.ok(contact_pattern('me chama no t3l3gram')='app','detecta telegram com número no lugar de letra');
+select tests.ok(contact_pattern('o celular liga normal? qual o número de série?') is null,'não bloqueia celular/número em conversa normal');
+select tests.ok(contact_pattern('faço por R$ 1.500,00 na entrega dia 25/09/2026') is null,'não bloqueia preço nem data');
+select tests.ok(contact_pattern('a instalação do jogo é rápida') is null,'não bloqueia "instalação"');
+select tests.ok(contact_pattern('IMEI 356938035643809') is null,'não bloqueia IMEI de 15 dígitos');
+
+update orders set status='pending_payment' where listing_id='a5150000-0000-0000-0000-000000000009';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select (send_order_message(id,'me passa seu zap 34999998888')->>'code')='CONTACT_SHARING_BLOCKED' from orders where listing_id='a5150000-0000-0000-0000-000000000009'),'RPC bloqueia contato antes do pagamento sem lançar exceção');
+select tests.ok((select (send_order_message(id,'oi, o liquidificador liga?')->>'ok')='true' from orders where listing_id='a5150000-0000-0000-0000-000000000009'),'RPC aceita mensagem normal antes do pagamento');
+select tests.throws($$insert into order_messages(order_id,sender_id,body) select id,'b0000000-0000-0000-0000-00000000000b','oi' from orders where listing_id='a5150000-0000-0000-0000-000000000009'$$,'permission denied','cliente não insere mensagem direto');
+select tests.ok((select count(*)=0 from chat_flagged_attempts),'usuário comum não vê tentativas registradas');
+select tests.ok(((select get_order_counterparty(id) from orders where listing_id='a5150000-0000-0000-0000-000000000009')->>'released')='false','contraparte oculta antes do pagamento');
+select tests.root();
+select tests.ok((select count(*)=1 and min(pattern)='phone' from chat_flagged_attempts),'tentativa bloqueada foi registrada com o padrão');
+select tests.ok((select count(*)=0 from order_messages where body like '%34999998888%'),'mensagem bloqueada não foi salva');
+update profiles set role='admin' where id='a0000000-0000-0000-0000-00000000000a';
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.ok((select count(*)=1 from staff_list_chat_flags()),'equipe lista as tentativas');
+select tests.root();
+update profiles set role='user' where id='a0000000-0000-0000-0000-00000000000a';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select * from staff_list_chat_flags()$$,'FORBIDDEN','usuário comum não usa a lista da equipe');
+select tests.root();
+update orders set status='paid' where listing_id='a5150000-0000-0000-0000-000000000009';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select (send_order_message(id,'meu zap é 34999998888')->>'ok')='true' from orders where listing_id='a5150000-0000-0000-0000-000000000009'),'após o pagamento o chat é livre');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.ok(((select get_order_counterparty(id) from orders where listing_id='a5150000-0000-0000-0000-000000000009')->>'released')='true','contraparte liberada após o pagamento');
+select tests.ok(not ((select get_order_counterparty(id) from orders where listing_id='a5150000-0000-0000-0000-000000000009')::text ~* 'phone|email|cpf'),'contraparte não expõe telefone, e-mail ou CPF');
+select tests.root();
+select tests.ok(short_display_name('Maria da Silva Santos')='Maria S.','apelido público abrevia o sobrenome');
+select tests.ok(short_display_name('Maria')='Maria','apelido de uma palavra não muda');
 
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;

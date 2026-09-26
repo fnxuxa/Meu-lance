@@ -9,6 +9,7 @@ import { useProfile } from '../auth/useProfile';
 import { BuyerInterestCard } from './BuyerInterestCard';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
+import { OrderCounterparty } from './OrderCounterparty';
 import { OrderChat } from '../messaging/OrderChat';
 import { DisputeCenter } from '../disputes/DisputeCenter';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
@@ -390,9 +391,7 @@ export function OrderPage() {
           onSuccess={refresh}
         />
       )}
-      {/* TODO(pagamento-live): depois que o pagamento existir de verdade, mostrar aqui pro vendedor
-          o endereço e a forma de envio do comprador (profiles.address_* / listings.delivery_mode)
-          só quando o pedido virar 'paid'. Na validação isso fica escondido de propósito. */}
+      <OrderCounterparty orderId={o.id} status={o.status} isSeller={isSeller} />
       {o.status === 'pending_payment' && isSeller && (
         <p>
           O comprador teve o maior lance. Ainda estamos validando a estrutura de pagamento (CNPJ + retenção)
