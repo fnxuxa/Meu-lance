@@ -208,7 +208,7 @@ export default function Home() {
               <b>02</b>
               <WalletCards />
               <h3>Pague pelo provedor</h3>
-              <p>Pagamentos reais ficam desativados até homologação do Mercado Pago.</p>
+              <p>Pagamento protegido, liberado em breve.</p>
             </article>
             <article>
               <b>03</b>

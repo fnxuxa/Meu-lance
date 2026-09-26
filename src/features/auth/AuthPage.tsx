@@ -131,7 +131,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         )}
         <div className="auth-trust">
           <ShieldCheck />
-          Sua senha é processada com segurança pelo Supabase Auth.
+          Suas informações são protegidas com criptografia.
         </div>
       </form>
     </main>
