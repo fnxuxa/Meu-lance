@@ -6,6 +6,25 @@ import { createClient } from '@supabase/supabase-js';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tipos do runtime Node da Vercel não estão instalados
 export default async function handler(req: any, res: any) {
   const secret = process.env.CRON_SECRET;
+  if (req.query?.check === '1') {
+    // Diagnóstico sem segredo: só booleanos, nenhum valor de variável é exposto.
+    const u = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+    const k = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    let queueReachable = false;
+    if (u && k) {
+      const probe = createClient(u, k, { auth: { persistSession: false } });
+      const { error: probeError } = await probe
+        .from('storage_purge_queue')
+        .select('id', { count: 'exact', head: true });
+      queueReachable = !probeError;
+    }
+    return res.status(200).json({
+      cron_secret_set: !!secret,
+      supabase_url_set: !!u,
+      service_key_set: !!k,
+      queue_reachable: queueReachable,
+    });
+  }
   if (!secret || req.headers.authorization !== `Bearer ${secret}`)
     return res.status(401).json({ error: 'unauthorized' });
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
