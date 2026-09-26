@@ -8,3 +8,7 @@ AGENTS.md
 .test-db/
 test-results/
 playwright-report/
+
+# Arquivos de verificação de domínio (texto puro; não podem ser reformatados)
+google*.html
+public/google*.html
