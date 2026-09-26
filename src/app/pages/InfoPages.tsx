@@ -625,26 +625,59 @@ export function PrivacyPage() {
       <h1>Política de Privacidade</h1>
       <h2>1. Dados que tratamos</h2>
       <p>
-        Dados de conta (nome, e-mail, telefone), dados de verificação do vendedor, cidade e estado dos
-        anúncios, lances, perguntas, mensagens de pedidos e registros técnicos de segurança (como
-        identificador de dispositivo e IP em forma de hash).
+        <b>Conta:</b> nome, apelido de exibição, e-mail, telefone e cidade/estado. Se você entrar com o
+        Google, recebemos nome, e-mail e foto do seu perfil Google.
+      </p>
+      <p>
+        <b>Vendedores e compradores:</b> CPF, endereço, documento de identidade e foto de verificação
+        (selfie), quando exigidos para vender ou comprar; IMEI de celulares anunciados.
+      </p>
+      <p>
+        <b>Uso da plataforma:</b> anúncios e fotos, lances, perguntas, mensagens de pedidos (inclusive
+        mensagens bloqueadas por conterem dados de contato, que ficam registradas para análise de segurança),
+        avaliações e denúncias.
+      </p>
+      <p>
+        <b>Segurança:</b> identificador de dispositivo e IP em forma de hash, e sinais usados para detectar
+        fraude e contas múltiplas.
       </p>
       <h2>2. Para que usamos</h2>
       <p>
-        Operar os anúncios e pedidos, prevenir fraude e contas múltiplas, cumprir obrigações legais, atender
-        disputas e enviar as notificações que você escolher.
+        Operar os anúncios e pedidos, verificar identidade, prevenir fraude, contas múltiplas e negociação
+        fora da plataforma, cumprir obrigações legais, atender disputas e enviar as notificações que você
+        escolher.
       </p>
       <h2>3. O que é público</h2>
       <p>
-        Nome de exibição do vendedor, reputação, anúncios e histórico de lances com identidade mascarada.
-        Nunca exibimos CPF, telefone ou endereço exato. A localização dos anúncios é aproximada (cidade/UF).
+        Apelido de exibição (nome e inicial do sobrenome), foto de perfil, cidade/UF, reputação, anúncios e
+        histórico de lances com identidade mascarada. Nunca exibimos CPF, telefone, e-mail ou endereço exato.
+        A localização dos anúncios é aproximada (cidade/UF).
       </p>
-      <h2>4. Compartilhamento</h2>
+      <h2>4. O que a outra parte vê</h2>
       <p>
-        Com o provedor de pagamento (quando ativado), serviços de infraestrutura e autoridades quando exigido
-        por lei. Dados de cartão nunca passam pelos nossos servidores.
+        Antes do pagamento de um pedido, comprador e vendedor se veem apenas pelo apelido. Depois que o
+        pagamento é processado, o vendedor recebe o nome completo e o endereço do comprador para o envio, e o
+        comprador recebe o nome do vendedor (e o endereço dele, se o item for de retirada). Telefone, e-mail e
+        CPF não são compartilhados entre as partes.
       </p>
-      <h2>5. Seus direitos</h2>
+      <h2>5. Documentos e fotos de verificação</h2>
+      <p>
+        Documento de identidade e selfie ficam em armazenamento privado, acessíveis somente por você e pela
+        equipe do MeuLance para a análise de verificação. Não são exibidos a outros usuários.
+      </p>
+      <h2>6. Compartilhamento</h2>
+      <p>
+        Com prestadores de infraestrutura e autenticação (hospedagem, banco de dados, login com Google), com o
+        provedor de pagamento quando ativado e com autoridades quando exigido por lei. Dados de cartão nunca
+        passam pelos nossos servidores.
+      </p>
+      <h2>7. Retenção</h2>
+      <p>
+        Guardamos os dados pelo tempo necessário para operar o serviço, prevenir fraude e cumprir obrigações
+        legais. O IMEI é apagado 20 dias após a conclusão do pedido. Dados de anúncios encerrados são
+        removidos periodicamente.
+      </p>
+      <h2>8. Seus direitos</h2>
       <p>
         Você pode solicitar acesso, correção, portabilidade e exclusão dos seus dados, além de revogar
         consentimentos, conforme a LGPD. Canal do titular e encarregado: a definir.
