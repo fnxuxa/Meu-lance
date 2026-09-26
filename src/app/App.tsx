@@ -12,6 +12,7 @@ const HowItWorks = lazy(() => info().then((m) => ({ default: m.HowItWorks })));
 const TermsPage = lazy(() => info().then((m) => ({ default: m.TermsPage })));
 const ProhibitedItemsPage = lazy(() => info().then((m) => ({ default: m.ProhibitedItemsPage })));
 const AuctionRulesPage = lazy(() => info().then((m) => ({ default: m.AuctionRulesPage })));
+const SupportPage = lazy(() => info().then((m) => ({ default: m.SupportPage })));
 const HelpPage = lazy(() => info().then((m) => ({ default: m.HelpPage })));
 const PrivacyPage = lazy(() => info().then((m) => ({ default: m.PrivacyPage })));
 const CreateListingPage = lazy(() =>
@@ -87,6 +88,7 @@ function Footer() {
       <nav aria-label="Ajuda">
         <h2>Ajuda</h2>
         <Link to="/ajuda">Perguntas frequentes</Link>
+        <Link to="/suporte">Falar com o suporte</Link>
         <Link to="/regras-de-lance">Regras da venda por lances</Link>
         <Link to="/itens-proibidos">Itens proibidos</Link>
       </nav>
@@ -138,6 +140,7 @@ export function App() {
             <Route path="/regras-de-lance" element={<AuctionRulesPage />} />
             <Route path="/regras-de-leilao" element={<Navigate to="/regras-de-lance" replace />} />
             <Route path="/ajuda" element={<HelpPage />} />
+            <Route path="/suporte" element={<SupportPage />} />
             <Route path="/itens-proibidos" element={<ProhibitedItemsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

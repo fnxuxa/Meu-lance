@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Reveal } from '../../components/Reveal';
 import { useDocumentMeta, useJsonLd } from '../../lib/useDocumentMeta';
+import { SUPPORT_HOURS, SUPPORT_WHATSAPP_LABEL, supportWhatsAppUrl } from '../../lib/support';
 export function HowItWorks() {
   useDocumentMeta({
     title: 'Como funciona — venda por lances',
@@ -608,7 +609,43 @@ export function HelpPage() {
         <Link className="btn secondary" to="/como-funciona">
           Como funciona
         </Link>
+        <Link className="btn" to="/suporte">
+          Falar com o suporte
+        </Link>
       </div>
+    </main>
+  );
+}
+
+export function SupportPage() {
+  useDocumentMeta({
+    title: 'Suporte',
+    description: 'Fale com o suporte do MeuLance pelo WhatsApp e tire suas dúvidas.',
+    canonicalPath: '/suporte',
+  });
+  return (
+    <main className="page simple legal-page">
+      <span className="kicker">SUPORTE</span>
+      <h1>Fale com a gente</h1>
+      <p>Ficou com dúvida sobre um leilão, um pedido ou sua conta? Chame o suporte pelo WhatsApp.</p>
+      <div className="hero-actions">
+        <a
+          className="btn"
+          href={supportWhatsAppUrl('Olá! Preciso de ajuda com o MeuLance.')}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Chamar no WhatsApp · {SUPPORT_WHATSAPP_LABEL}
+        </a>
+        <Link className="btn secondary" to="/ajuda">
+          Ver perguntas frequentes
+        </Link>
+      </div>
+      <p>{SUPPORT_HOURS}</p>
+      <p>
+        Dica: informe o link do anúncio ou o número do pedido para agilizar. Nunca envie senhas, códigos de
+        verificação ou dados de cartão. O suporte não pede esses dados.
+      </p>
     </main>
   );
 }

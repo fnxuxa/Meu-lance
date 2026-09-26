@@ -165,6 +165,7 @@ export function Header() {
             <Link to="/buscar">Explorar</Link>
             <Link to="/como-funciona">Como funciona</Link>
             <Link to="/ajuda">Ajuda</Link>
+            <Link to="/suporte">Suporte</Link>
             <HammerLink className="sell-link" to="/vender/novo">
               <Gavel size={16} /> Vender
             </HammerLink>
