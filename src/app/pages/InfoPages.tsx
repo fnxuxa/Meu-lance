@@ -572,7 +572,7 @@ const HELP_FAQ: Faq[] = [
   },
   {
     q: 'O pagamento já funciona?',
-    a: 'Ainda não. Pagamentos reais ficam desativados até a homologação com o provedor de pagamento. Nenhum valor é cobrado enquanto isso.',
+    a: 'Ainda não. O pagamento protegido será liberado em breve. Nenhum valor é cobrado enquanto isso.',
   },
   {
     q: 'Encontrei um anúncio suspeito. O que faço?',
