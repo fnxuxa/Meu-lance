@@ -289,7 +289,7 @@ insert into listing_images(listing_id,storage_path,sort_order) values ('a5150000
 update listings set status='cancelled' where id='a5150000-0000-0000-0000-000000000007';
 select cleanup_expired_listings(3);
 select tests.ok((select count(*)=0 from listings where id='a5150000-0000-0000-0000-000000000007'),'limpeza apaga leilão cancelado com foto sem travar no storage');
-select tests.ok((select count(*)=0 from storage.objects where name like '%a5150000-0000-0000-0000-000000000007%'),'limpeza remove a foto do storage de verdade');
+select tests.ok((select count(*)=1 from storage_purge_queue where bucket='listing-images' and path like '%a5150000-0000-0000-0000-000000000007%'),'limpeza enfileira a foto para remoção pela API do Storage');
 
 -- ══ retenção configurável em app_config ══
 update app_config set value='5' where key='listing_retention_days';
