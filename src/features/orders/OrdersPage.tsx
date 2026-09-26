@@ -10,6 +10,7 @@ import { BuyerInterestCard } from './BuyerInterestCard';
 import { formatBRL } from '../../lib/money';
 import { errorMessage } from '../../lib/errors';
 import { OrderCounterparty } from './OrderCounterparty';
+import { DisputeThread } from '../disputes/DisputeThread';
 import { OrderChat } from '../messaging/OrderChat';
 import { DisputeCenter } from '../disputes/DisputeCenter';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
@@ -431,6 +432,7 @@ export function OrderPage() {
       {o.status === 'completed' && isSeller && (
         <ReviewCard orderId={o.id} authorId={user.id} subjectId={o.buyer_id} subjectLabel="o comprador" />
       )}
+      <DisputeThread orderId={o.id} userId={user.id} />
       <OrderChat key={o.id + user.id} orderId={o.id} userId={user.id} />
       {isBuyer && ['paid', 'awaiting_shipment', 'shipped', 'delivered'].includes(o.status) && (
         <DisputeCenter

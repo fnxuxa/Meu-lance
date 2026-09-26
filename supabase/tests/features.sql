@@ -35,6 +35,8 @@ select tests.ok((select count(*)=1 from listing_images i join listings l on l.id
 select tests.root();
 insert into listings(id,seller_id,category_id,title,description,condition,defects_declared,start_price_cents,current_price_cents,delivery_mode,city,state,slug,status,starts_at,ends_at)
 values('a5150000-0000-0000-0000-000000000001','5e000000-0000-0000-0000-000000000005',(select id from categories where slug='pc-games'),'PS4 que não liga','Console para retirada de peças','for_parts','Não liga',10000,10000,'both','São Paulo','SP','ps4-no-estado','active',now(),now()+interval '3 days');
+select tests.root();
+select set_config('t.did', (select d.id::text from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), false);
 select tests.login('a0000000-0000-0000-0000-00000000000a');
 select tests.throws($$select place_bid('a5150000-0000-0000-0000-000000000001',10000,'as-is-bid-0001')$$,'AS_IS_ACK_REQUIRED','lance manual exige aceite do "no estado"');
 select tests.throws($$select set_proxy_bid('a5150000-0000-0000-0000-000000000001',20000,'as-is-proxy-01')$$,'AS_IS_ACK_REQUIRED','lance automático exige aceite do "no estado"');
@@ -412,5 +414,39 @@ select tests.ok(not ((select get_order_counterparty(id) from orders where listin
 select tests.root();
 select tests.ok(short_display_name('Maria da Silva Santos')='Maria S.','apelido público abrevia o sobrenome');
 select tests.ok(short_display_name('Maria')='Maria','apelido de uma palavra não muda');
+
+-- ══ disputa: provas, conversa a três e apagamento após 30 dias ══
+select tests.root();
+update orders set status = 'disputed' where listing_id = 'a5150000-0000-0000-0000-000000000009';
+update disputes set status = 'open', resolved_at = null, resolved_by = null, resolution_note = null
+  where order_id = (select id from orders where listing_id = 'a5150000-0000-0000-0000-000000000009');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select get_dispute_thread(o.id) is not null from orders o where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'comprador vê a disputa do pedido');
+select tests.ok((select send_dispute_message(d.id, 'Segue foto do defeito') is true from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'comprador escreve na conversa da disputa');
+select tests.throws($$insert into dispute_evidence(dispute_id, author_id, kind, storage_path) select d.id, 'b0000000-0000-0000-0000-00000000000b', 'image', 'outra-pasta/x.webp' from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'$$, 'INVALID_EVIDENCE_PATH', 'foto de prova só na própria pasta da disputa');
+insert into dispute_evidence(dispute_id, author_id, kind, storage_path)
+  select d.id, 'b0000000-0000-0000-0000-00000000000b', 'image', 'b0000000-0000-0000-0000-00000000000b/' || d.id || '/prova.webp'
+  from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009';
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.ok((select send_dispute_message(d.id, 'Enviei conforme anunciado') is true from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'vendedor responde na conversa da disputa');
+select tests.root();
+select set_config('t.did', (select d.id::text from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), false);
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.throws($$select send_dispute_message(current_setting('t.did')::uuid, 'sou de fora')$$, 'FORBIDDEN', 'quem não é parte nem equipe não escreve na disputa');
+select tests.root();
+update profiles set role = 'admin' where id = 'a0000000-0000-0000-0000-00000000000a';
+select tests.login('a0000000-0000-0000-0000-00000000000a');
+select tests.ok((select send_dispute_message(d.id, 'Equipe analisando') is true from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'equipe entra na conversa da disputa');
+select tests.ok((select jsonb_array_length(get_dispute_thread(o.id)->'messages') = 3 and jsonb_array_length(get_dispute_thread(o.id)->'evidence') = 1 from orders o where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'equipe vê 3 mensagens e 1 prova');
+select tests.ok((select (resolve_dispute(d.id, 'seller', 'Item conforme anunciado, prova do vendedor')).status = 'resolved_seller' from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'), 'equipe decide a disputa');
+select tests.throws($$select send_dispute_message(d.id, 'depois de encerrar') from disputes d join orders o on o.id = d.order_id where o.listing_id = 'a5150000-0000-0000-0000-000000000009'$$, 'DISPUTE_CLOSED', 'disputa encerrada não recebe mensagens');
+select tests.root();
+update profiles set role = 'user' where id = 'a0000000-0000-0000-0000-00000000000a';
+select tests.ok(purge_resolved_disputes() = 0, 'disputa recém-decidida ainda não é apagada');
+update disputes set resolved_at = now() - interval '31 days' where order_id = (select id from orders where listing_id = 'a5150000-0000-0000-0000-000000000009');
+select tests.ok(purge_resolved_disputes() = 1, 'disputa decidida há mais de 30 dias é apagada');
+select tests.ok((select count(*) = 0 from dispute_messages where dispute_id = current_setting('t.did')::uuid) and (select count(*) = 0 from dispute_evidence where dispute_id = current_setting('t.did')::uuid), 'mensagens e provas foram apagadas');
+select tests.ok((select count(*) = 1 from storage_purge_queue where bucket = 'dispute-evidence'), 'arquivo da prova entrou na fila de remoção do Storage');
+select tests.ok(purge_resolved_disputes() = 0, 'apagamento é idempotente');
 
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;

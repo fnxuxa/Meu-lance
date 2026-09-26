@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Trash2, XCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
+import { DisputeThread } from '../disputes/DisputeThread';
 import { errorMessage } from '../../lib/errors';
 import { formatBRL } from '../../lib/money';
 import { useDocumentMeta } from '../../lib/useDocumentMeta';
@@ -332,6 +333,7 @@ type Dispute = {
 };
 function DisputeQueue({ isStaff }: { isStaff: boolean }) {
   const queryClient = useQueryClient();
+  const staffId = useSession().user?.id;
   const [busyId, setBusyId] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ['admin-disputes'],
@@ -404,6 +406,7 @@ function DisputeQueue({ isStaff }: { isStaff: boolean }) {
                 Defeito declarado no anúncio: {d.snapshot.defects_declared}
               </p>
             )}
+            {d.orders && staffId && <DisputeThread orderId={d.orders.id} userId={staffId} staff />}
             <div className="verification-actions">
               <button
                 className="btn primary"

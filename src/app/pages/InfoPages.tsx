@@ -674,8 +674,8 @@ export function PrivacyPage() {
       <h2>7. Retenção</h2>
       <p>
         Guardamos os dados pelo tempo necessário para operar o serviço, prevenir fraude e cumprir obrigações
-        legais. O IMEI é apagado 20 dias após a conclusão do pedido. Dados de anúncios encerrados são
-        removidos periodicamente.
+        legais. O IMEI é apagado 20 dias após a conclusão do pedido. Fotos e mensagens de disputas são
+        apagadas 30 dias após a decisão. Dados de anúncios encerrados são removidos periodicamente.
       </p>
       <h2>8. Seus direitos</h2>
       <p>
