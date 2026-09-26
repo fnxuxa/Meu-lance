@@ -3982,3 +3982,27 @@ footer.site-footer {
   height: 1px;
   background: #e1eae4;
 }
+
+.whatsapp-btn {
+  background: #1fa855;
+  color: #fff;
+  font-size: 17px;
+  padding: 16px 28px;
+  box-shadow: 0 8px 24px rgba(31, 168, 85, 0.3);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+.whatsapp-btn:hover {
+  background: #178f47;
+  transform: translateY(-1px);
+}
+.whatsapp-btn:focus-visible {
+  outline: 3px solid #063d2a;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .whatsapp-btn {
+    width: 100%;
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
+  MessageCircle,
   Ban,
   Banknote,
   Bomb,
@@ -23,7 +24,7 @@ import {
 } from 'lucide-react';
 import { Reveal } from '../../components/Reveal';
 import { useDocumentMeta, useJsonLd } from '../../lib/useDocumentMeta';
-import { SUPPORT_HOURS, SUPPORT_WHATSAPP_LABEL, supportWhatsAppUrl } from '../../lib/support';
+import { SUPPORT_HOURS, openSupportWhatsApp } from '../../lib/support';
 export function HowItWorks() {
   useDocumentMeta({
     title: 'Como funciona — venda por lances',
@@ -629,14 +630,13 @@ export function SupportPage() {
       <h1>Fale com a gente</h1>
       <p>Ficou com dúvida sobre um leilão, um pedido ou sua conta? Chame o suporte pelo WhatsApp.</p>
       <div className="hero-actions">
-        <a
-          className="btn"
-          href={supportWhatsAppUrl('Olá! Preciso de ajuda com o MeuLance.')}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          className="btn whatsapp-btn"
+          onClick={() => openSupportWhatsApp('Olá! Preciso de ajuda com o MeuLance.')}
         >
-          Chamar no WhatsApp · {SUPPORT_WHATSAPP_LABEL}
-        </a>
+          <MessageCircle size={20} aria-hidden="true" /> Chamar no WhatsApp
+        </button>
         <Link className="btn secondary" to="/ajuda">
           Ver perguntas frequentes
         </Link>
