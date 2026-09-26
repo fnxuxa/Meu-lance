@@ -38,7 +38,7 @@ export function GoogleButton({
   const [busy, setBusy] = useState(false);
   async function start() {
     if (!supabase) {
-      onError('Configure o Supabase para usar autenticação.');
+      onError('Não foi possível entrar agora. Tente novamente em instantes.');
       return;
     }
     setBusy(true);

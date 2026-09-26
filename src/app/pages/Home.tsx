@@ -207,7 +207,7 @@ export default function Home() {
             <article>
               <b>02</b>
               <WalletCards />
-              <h3>Pague pelo provedor</h3>
+              <h3>Pague com segurança</h3>
               <p>Pagamento protegido, liberado em breve.</p>
             </article>
             <article>

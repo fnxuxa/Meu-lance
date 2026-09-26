@@ -192,7 +192,7 @@ export function CreateListingPage() {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!supabase || !user) {
-      setMessage('Entre na sua conta e configure o Supabase para publicar.');
+      setMessage('Entre na sua conta para publicar.');
       return;
     }
     if (photos.length < 3) {

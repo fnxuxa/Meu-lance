@@ -26,7 +26,10 @@ export function AuthCallback() {
     return () => window.clearTimeout(t);
   }, [user, failed]);
 
-  if (!supabase) return <main className="page auth-page">Configure o Supabase para usar autenticação.</main>;
+  if (!supabase)
+    return (
+      <main className="page auth-page">Não foi possível entrar agora. Tente novamente em instantes.</main>
+    );
   return (
     <main className="page auth-page">
       <div className="auth-card" role="status">

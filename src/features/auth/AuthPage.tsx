@@ -30,7 +30,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
     e.preventDefault();
     if (!supabase) {
       setStatus('error');
-      setMessage('Configure o Supabase para usar autenticação.');
+      setMessage('Não foi possível entrar agora. Tente novamente em instantes.');
       return;
     }
     setBusy(true);
