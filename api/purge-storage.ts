@@ -8,7 +8,7 @@ export default async function handler(req: any, res: any) {
   const secret = process.env.CRON_SECRET;
   if (req.query?.check === '1') {
     // Diagnóstico sem segredo: só booleanos, nenhum valor de variável é exposto.
-    const u = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+    const u = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
     const k = process.env.SUPABASE_SERVICE_ROLE_KEY;
     let queueReachable = false;
     if (u && k) {
@@ -27,7 +27,7 @@ export default async function handler(req: any, res: any) {
   }
   if (!secret || req.headers.authorization !== `Bearer ${secret}`)
     return res.status(401).json({ error: 'unauthorized' });
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return res.status(500).json({ error: 'not_configured' });
 
