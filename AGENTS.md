@@ -427,7 +427,9 @@ Lance superado, leilão terminando (1h, 10min), vencedor, pagamento pendente/exp
 - [ ] Regras para vendedor pessoa física (habitualidade, tributação) e itens proibidos.
 - [ ] LGPD: bases legais, política de privacidade, encarregado.
 
-**Pagamento (perguntar ao Mercado Pago e registrar em `docs/payments.md`):**
+**Provedor de pagamento em aberto (decisão do dono do produto, 25/09/2026):** o Mercado Pago NÃO será usado por não oferecer escrow. Nenhum provedor foi escolhido. Onde este arquivo cita Mercado Pago, leia "provedor a definir"; as perguntas abaixo valem para o provedor que for escolhido.
+
+**Pagamento (perguntar ao provedor escolhido e registrar em `docs/payments.md`):**
 - [ ] Existe produto que **retenha a parte do vendedor** até a confirmação de entrega? Por quantos dias no máximo?
 - [ ] Como funciona o reembolso se o vendedor já sacou?
 - [ ] Taxas por meio (Pix, cartão, parcelado) e **quem paga** (a comissão de 5% pode ficar pequena depois das taxas).
@@ -539,3 +541,5 @@ Leia docs/REVISAO.md para o estado real; o roadmap acima não significa implemen
 
 - Disputa (26/09/2026): comprador, vendedor e equipe conversam em dispute_messages (só via RPC send_dispute_message; leitura por get_dispute_thread, que calcula papéis no servidor) e o comprador e o vendedor enviam até 10 fotos cada para o bucket privado dispute-evidence, no caminho <user_id>/<dispute_id>/<arquivo> (validado por trigger). 30 dias após a decisão (app_config.dispute_retention_days) purge_resolved_disputes apaga provas e mensagens e enfileira os arquivos em storage_purge_queue; a rota /api/purge-storage (Vercel Cron, exige CRON_SECRET e SUPABASE_SERVICE_ROLE_KEY) apaga os arquivos pela API do Storage. NUNCA apagar arquivo com DELETE em storage.objects: só remove a linha e deixa o arquivo órfão.
 - Limpeza de anúncios (26/09/2026): cleanup_expired_listings também enfileira as fotos em storage_purge_queue (não apaga mais storage.objects por SQL); o arquivo some pela rota /api/purge-storage.
+
+- Provedor de pagamento (25/09/2026): em aberto; Mercado Pago descartado (sem escrow). Textos de interface não citam provedor nem "homologação"; usar "pagamento protegido" / "provedor de pagamento". A interface `PaymentProvider` continua valendo.

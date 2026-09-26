@@ -153,7 +153,7 @@ function ShipmentForm({ orderId, onSuccess }: { orderId: string; onSuccess: () =
       </h2>
       <p className="muted">
         Controle interno do MeuLance — o comprador é avisado, mas isso não confirma pagamento ou entrega junto
-        ao Mercado Pago.
+        ao provedor de pagamento.
       </p>
       <div className="form-grid">
         <label>
@@ -422,8 +422,8 @@ export function OrderPage() {
       )}
       {isBuyer && o.status === 'completed' && (
         <div className="notice">
-          <ShieldAlert size={16} />O pagamento ao vendedor segue as regras do Mercado Pago para esse pedido.
-          Isso ainda não está automatizado nesta versão.
+          <ShieldAlert size={16} />O pagamento ao vendedor segue as regras do provedor de pagamento para esse
+          pedido. Isso ainda não está automatizado nesta versão.
         </div>
       )}
       {o.status === 'completed' && isBuyer && (
