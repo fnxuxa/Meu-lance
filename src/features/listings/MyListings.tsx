@@ -95,6 +95,7 @@ export function MyListings() {
           'id,slug,title,status,current_price_cents,start_price_cents,sale_type,paused_at,stock_qty,stock_sold,view_count,bid_count,ends_at,listing_images(storage_path,sort_order),orders(status),second_chance_offers(status)',
         )
         .eq('seller_id', user!.id)
+        .neq('status', 'cancelled')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map((l) => {

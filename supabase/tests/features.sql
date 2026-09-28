@@ -536,6 +536,15 @@ select tests.ok((select status='cancelled' from price_offers where listing_id=(s
 select tests.login('b0000000-0000-0000-0000-00000000000b');
 select tests.ok((select count(*)>0 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Anúncio removido pelo vendedor'),'comprador é avisado que o anúncio foi removido');
 
+-- retenção de 30 dias conta da exclusão, não da criação (preço fixo não tem ends_at)
+select tests.root();
+update listings set created_at = now() - interval '25 days' where title='Mouse pad gamer XL';
+select cleanup_expired_listings(10);
+select tests.ok((select count(*)=1 from listings where title='Mouse pad gamer XL'),'anúncio de preço fixo criado há muito tempo, mas excluído agora, não é limpo antes da hora');
+update listings set status_changed_at = now() - interval '11 days' where title='Mouse pad gamer XL';
+select cleanup_expired_listings(10);
+select tests.ok((select count(*)=0 from listings where title='Mouse pad gamer XL'),'anúncio de preço fixo excluído há mais de 10 dias é limpo (fotos na fila de exclusão)');
+
 -- loja: endereço público
 select tests.login('b0000000-0000-0000-0000-00000000000b');
 select tests.ok((select char_length(ensure_store_slug()) > 0),'ensure_store_slug gera um endereço automático quando o vendedor não escolheu um');
