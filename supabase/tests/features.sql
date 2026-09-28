@@ -520,6 +520,22 @@ select mark_listing_sold((select id from listings where title='Cadeira gamer rec
 select tests.ok((select status='ended_with_winner' from listings where title='Cadeira gamer reclinável'),'marcar como vendido encerra o anúncio');
 select tests.throws($$select pause_listing((select id from listings where title='Cadeira gamer reclinável'), true)$$,'INVALID_ORDER_STATE','não pausa anúncio já encerrado');
 
+-- excluir anúncio de preço fixo (com oferta pendente cancelada junto, comprador avisado)
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select create_listing_draft_v2('Mouse pad gamer XL','Mouse pad gamer XL em bom estado, sem manchas','good','',6000,'both','Uberlândia','MG',(select id from categories where slug='pc-games'),'fixed_price_offers',null,null,null,null);
+select set_listing_condition_report((select id from listings where title='Mouse pad gamer XL'),'{"powers_on":"yes","stable":"yes","ports_ok":"yes","accessories_ok":"yes","never_mined":"yes","never_repaired":"yes"}');
+insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Mouse pad gamer XL';
+insert into listing_images(listing_id,storage_path,sort_order) select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Mouse pad gamer XL';
+select publish_listing((select id from listings where title='Mouse pad gamer XL'),null,true);
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select make_price_offer((select id from listings where title='Mouse pad gamer XL'),2500);
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select cancel_listing((select id from listings where title='Mouse pad gamer XL'));
+select tests.ok((select status='cancelled' from listings where title='Mouse pad gamer XL'),'excluir anúncio de preço fixo funciona (cancel_listing)');
+select tests.ok((select status='cancelled' from price_offers where listing_id=(select id from listings where title='Mouse pad gamer XL') and buyer_id='b0000000-0000-0000-0000-00000000000b'),'oferta pendente é cancelada junto quando o anúncio é excluído');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select count(*)>0 from notifications where user_id='b0000000-0000-0000-0000-00000000000b' and title='Anúncio removido pelo vendedor'),'comprador é avisado que o anúncio foi removido');
+
 -- loja: endereço público
 select tests.login('b0000000-0000-0000-0000-00000000000b');
 select tests.ok((select char_length(ensure_store_slug()) > 0),'ensure_store_slug gera um endereço automático quando o vendedor não escolheu um');

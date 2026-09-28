@@ -2199,7 +2199,13 @@ footer b {
   padding: 6px 12px;
   font-size: 12.5px;
 }
-.watch-cta.locked {
+.watch-cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.watch-cta-group .locked {
   font-size: 12px;
   color: var(--muted);
   text-align: right;
@@ -2254,9 +2260,15 @@ a.watch-thumb {
     width: 60px;
     height: 60px;
   }
-  .watch-card > .btn {
+  .watch-card > .btn,
+  .watch-card > .watch-cta {
     grid-column: 1/-1;
     margin-top: 4px;
+  }
+  .watch-cta-group {
+    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 }
 

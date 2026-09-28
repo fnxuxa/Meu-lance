@@ -316,41 +316,49 @@ export function MyListings() {
                   )}
                 </div>
               </div>
-              {fixedPrice && l.status === 'active' && (
-                <div className="watch-cta" style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    className="btn secondary"
-                    disabled={busyId === l.id}
-                    onClick={() => void togglePause(l.id, !paused)}
-                  >
-                    {paused ? <PlayCircle size={15} /> : <PauseCircle size={15} />}
-                    {paused ? 'Retomar' : 'Pausar'}
-                  </button>
-                  <button
-                    className="btn secondary"
-                    disabled={busyId === l.id}
-                    onClick={() => void markSold(l.id)}
-                  >
-                    <ShoppingBag size={15} /> Marcar vendido
-                  </button>
+              {['draft', 'active'].includes(l.status) && (
+                <div className="watch-cta watch-cta-group">
+                  {fixedPrice && l.status === 'active' && (
+                    <>
+                      <button
+                        className="btn secondary"
+                        disabled={busyId === l.id}
+                        onClick={() => void togglePause(l.id, !paused)}
+                      >
+                        {paused ? <PlayCircle size={15} /> : <PauseCircle size={15} />}
+                        {paused ? 'Retomar' : 'Pausar'}
+                      </button>
+                      <button
+                        className="btn secondary"
+                        disabled={busyId === l.id}
+                        onClick={() => void markSold(l.id)}
+                      >
+                        <ShoppingBag size={15} /> Marcar vendido
+                      </button>
+                    </>
+                  )}
+                  {canCancel ? (
+                    <button
+                      className="btn secondary"
+                      disabled={busyId === l.id}
+                      onClick={() => void cancel(l.id)}
+                    >
+                      <Trash2 size={15} />
+                      {busyId === l.id
+                        ? fixedPrice
+                          ? 'Excluindo…'
+                          : 'Cancelando…'
+                        : fixedPrice
+                          ? 'Excluir anúncio'
+                          : 'Cancelar'}
+                    </button>
+                  ) : (
+                    <span className="locked" title={reason}>
+                      {fixedPrice ? 'Não é mais possível excluir' : 'Não é mais possível cancelar'}
+                    </span>
+                  )}
                 </div>
               )}
-              {!fixedPrice &&
-                ['draft', 'active'].includes(l.status) &&
-                (canCancel ? (
-                  <button
-                    className="btn secondary watch-cta"
-                    disabled={busyId === l.id}
-                    onClick={() => void cancel(l.id)}
-                  >
-                    <Trash2 size={15} />
-                    {busyId === l.id ? 'Cancelando…' : 'Cancelar'}
-                  </button>
-                ) : (
-                  <span className="watch-cta locked" title={reason}>
-                    Não é mais possível cancelar
-                  </span>
-                ))}
               {relistReason(l) && (
                 <RelistForm
                   listingId={l.id}
