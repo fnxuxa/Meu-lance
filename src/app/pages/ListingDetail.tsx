@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Flag, MapPin, ShieldCheck } from 'lucide-react';
+import { FixedPriceBuyBox } from '../../features/listings/FixedPriceBuyBox';
+import { PromoPrice } from '../../components/PromoPrice';
 import { useListing } from '../../features/listings/useListings';
 import { FavoriteButton } from '../../features/listings/FavoriteButton';
 import { LiveBidStage } from '../../features/bidding/LiveBidStage';
@@ -16,6 +18,7 @@ import { TrustBadges } from '../../components/TrustBadges';
 import { BackButton } from '../../components/BackButton';
 import { Gallery } from '../../components/Gallery';
 import { ShareButton } from '../../components/ShareButton';
+import { ShareImageButton } from '../../components/ShareImageButton';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { formatBRL } from '../../lib/money';
 import { useIsPast } from '../../lib/time';
@@ -101,8 +104,11 @@ export default function ListingDetail() {
       </main>
     );
   if (!item) return <NotFound />;
-  const ended = item.status !== 'active' || pastEnd;
+  const isAuction = item.saleType === 'auction';
+  const notStarted = item.status === 'scheduled';
+  const ended = isAuction && !notStarted && (item.status !== 'active' || pastEnd);
   const endedLabel = STATUS_LABEL[item.status ?? ''] ?? 'Prazo encerrado. Aguardando apuração do vencedor.';
+  const soldOut = !isAuction && item.status !== 'active';
   return (
     <main className="page detail">
       <div className="detail-top">
@@ -130,7 +136,9 @@ export default function ListingDetail() {
             {item.city}, {item.state} · {item.delivery}
           </p>
           <TrustBadges seller={item.seller} />
-          {ended ? (
+          {!isAuction ? (
+            <PromoPrice startCents={item.startPriceCents} promoCents={item.promoPriceCents} />
+          ) : ended ? (
             <div className="ended-banner" role="status">
               <b>{endedLabel}</b>
               <span>
@@ -141,54 +149,89 @@ export default function ListingDetail() {
               </Link>
             </div>
           ) : (
-            <AuctionCountdown endsAt={item.endsAt} />
+            <AuctionCountdown startsAt={item.startsAt} endsAt={item.endsAt} />
           )}
           <div className="detail-actions">
             <FavoriteButton key={'fav-' + item.id} listingId={item.id} />
             <ShareButton title={item.title} url={absoluteUrl(`/l/${item.slug}`)} />
+            <ShareImageButton
+              title={item.title}
+              imageUrl={item.image}
+              priceCents={item.currentPriceCents}
+              url={absoluteUrl(`/l/${item.slug}`)}
+            />
           </div>
-          <AsIsGate
-            key={'as-is-' + item.id}
-            listingId={item.id}
-            active={item.conditionCode === 'for_parts' && !ended && !demo}
-          >
-            {(blocked) => (
-              <>
-                <LiveBidStage
-                  listingId={item.id}
-                  initialPrice={item.currentPriceCents}
-                  initialCount={item.bidCount}
-                  key={'live-' + item.id}
-                  startCents={item.startPriceCents}
-                  minimumCents={item.minimumBidCents}
-                  disabled={demo || ended || blocked}
-                  buyerFeeBps={buyerFeeBps}
-                  onSuccess={refresh}
-                />
-                {!ended && (
-                  <ProxyBidPanel
-                    key={'proxy-' + item.id}
+          {!isAuction ? (
+            <FixedPriceBuyBox
+              key={'buy-' + item.id}
+              listingId={item.id}
+              offersEnabled={item.saleType === 'fixed_price_offers'}
+              startPriceCents={item.startPriceCents}
+              soldOut={soldOut}
+              stockQty={item.stockQty}
+              stockSold={item.stockSold}
+              demo={demo}
+            />
+          ) : (
+            <AsIsGate
+              key={'as-is-' + item.id}
+              listingId={item.id}
+              active={item.conditionCode === 'for_parts' && !ended && !notStarted && !demo}
+            >
+              {(blocked) => (
+                <>
+                  <LiveBidStage
                     listingId={item.id}
-                    currentCents={item.currentPriceCents}
+                    initialPrice={item.currentPriceCents}
+                    initialCount={item.bidCount}
+                    key={'live-' + item.id}
+                    startCents={item.startPriceCents}
                     minimumCents={item.minimumBidCents}
-                    disabled={demo || blocked}
+                    disabled={demo || ended || notStarted || blocked}
+                    buyerFeeBps={buyerFeeBps}
                     onSuccess={refresh}
                   />
-                )}
-              </>
-            )}
-          </AsIsGate>
-          <div className="protected">
-            <ShieldCheck aria-hidden />
-            <div>
-              <b>Lance é compromisso de compra.</b>
-              <span>
-                Quem vence paga o lance + {(buyerFeeBps / 100).toLocaleString('pt-BR')}% de taxa de proteção.
-                {item.secondChance && ' Se o vencedor não pagar, o 2º colocado recebe uma oferta.'}
-                Veja as <Link to="/regras-de-lance">regras da venda por lances</Link>.
-              </span>
+                  {!ended && !notStarted && (
+                    <ProxyBidPanel
+                      key={'proxy-' + item.id}
+                      listingId={item.id}
+                      currentCents={item.currentPriceCents}
+                      minimumCents={item.minimumBidCents}
+                      disabled={demo || blocked}
+                      onSuccess={refresh}
+                    />
+                  )}
+                </>
+              )}
+            </AsIsGate>
+          )}
+          {isAuction ? (
+            <div className="protected">
+              <ShieldCheck aria-hidden />
+              <div>
+                <b>Lance é compromisso de compra.</b>
+                <span>
+                  Quem vence combina o pagamento diretamente com {item.seller?.display_name ?? 'o vendedor'}{' '}
+                  assim que confirmar interesse — ainda não há pagamento protegido pela plataforma.
+                  {item.secondChance && ' Se o vencedor não pagar, o 2º colocado recebe uma oferta.'}
+                  {item.auctionMode === 'live' && ' Lance nos últimos 30s estende o fim em +30s.'} Veja as{' '}
+                  <Link to="/regras-de-lance">regras da venda por lances</Link>.
+                </span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="protected">
+              <ShieldCheck aria-hidden />
+              <div>
+                <b>Pagamento combinado direto com o vendedor.</b>
+                <span>
+                  Estamos numa fase de validação, ainda sem CNPJ nem pagamento protegido pela plataforma:
+                  combine a entrega e o pagamento (Pix, dinheiro etc.) direto pelo WhatsApp. Só entregue
+                  depois de ver o valor cair na conta — comprovante em print não garante nada.
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <BidHistoryChart listingId={item.id} startPriceCents={item.startPriceCents} />

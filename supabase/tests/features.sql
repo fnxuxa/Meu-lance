@@ -252,8 +252,12 @@ select tests.throws($$select confirm_buyer_interest((select id from interest_ord
 select tests.login('a0000000-0000-0000-0000-00000000000a');
 select tests.throws($$select confirm_buyer_interest((select id from interest_order),'123')$$,'INVALID_WHATSAPP','whatsapp curto demais é recusado');
 select tests.ok((select buyer_confirmed_interest_at is not null and buyer_whatsapp='34999990000' from confirm_buyer_interest((select id from interest_order),'(34) 99999-0000')),'comprador confirma interesse com whatsapp normalizado');
+select tests.ok(((select get_order_counterparty(id) from interest_order)->>'released')='true','contato libera assim que o comprador confirma interesse, mesmo pedido ainda pending_payment (pagamento combinado direto)');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.ok(((select get_order_counterparty(id) from interest_order)->>'whatsapp')='34999990000','vendedor vê o whatsapp do comprador para combinar o pagamento');
+select tests.login('a0000000-0000-0000-0000-00000000000a');
 select tests.root();
-select tests.ok((select count(*)=1 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Comprador confirmou interesse'),'vendedor é avisado para ter paciência');
+select tests.ok((select count(*)=1 from notifications where user_id='5e000000-0000-0000-0000-000000000005' and title='Comprador confirmou interesse'),'vendedor é avisado para combinar o pagamento direto com o comprador');
 select tests.login('a0000000-0000-0000-0000-00000000000a');
 select tests.ok((select buyer_confirmed_interest_at is not null from confirm_buyer_interest((select id from interest_order),'34988880000')),'confirmar de novo é idempotente e ignora novo whatsapp');
 select tests.root();
@@ -449,4 +453,114 @@ select tests.ok((select count(*) = 0 from dispute_messages where dispute_id = cu
 select tests.ok((select count(*) = 1 from storage_purge_queue where bucket = 'dispute-evidence'), 'arquivo da prova entrou na fila de remoção do Storage');
 select tests.ok(purge_resolved_disputes() = 0, 'apagamento é idempotente');
 
+-- ══ tipo de venda: preço fixo, oferta, promoção, estoque, pausa/vendido ══
+select tests.root();
+-- teste anterior deixou request.headers='' (simulando ausência de IP); '' não é JSON válido.
+select set_config('request.headers','{}',false);
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select create_listing_draft_v2('Monitor 24 polegadas Full HD','Monitor usado, funcionando perfeitamente, sem manchas','good','',30000,'both','Uberlândia','MG',(select id from categories where slug='pc-games'),'fixed_price',25000,3,null,null);
+select tests.throws($$select create_listing_draft_v2('Monitor 24 polegadas Full HD 2','Monitor usado, funcionando perfeitamente','good','',30000,'both','Uberlândia','MG',(select id from categories where slug='pc-games'),'fixed_price',30000,3,null,null)$$,'INVALID_PROMO_PRICE','promo igual ao preço normal é recusada');
+select set_listing_condition_report((select id from listings where title='Monitor 24 polegadas Full HD'),'{"powers_on":"yes","stable":"yes","ports_ok":"yes","accessories_ok":"yes","never_mined":"yes","never_repaired":"yes"}');
+insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Monitor 24 polegadas Full HD';
+insert into listing_images(listing_id,storage_path,sort_order) select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Monitor 24 polegadas Full HD';
+select tests.ok((select status='active' and ends_at is null and sale_type='fixed_price' from publish_listing((select id from listings where title='Monitor 24 polegadas Full HD'),null,true)),'preço fixo publica sem prazo de leilão');
+update profiles set whatsapp_e164 = '5534999998888' where id = '5e000000-0000-0000-0000-000000000005';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select (get_seller_contact((select id from listings where title='Monitor 24 polegadas Full HD')))->>'whatsapp' = '5534999998888'),'comprador vê whatsapp do vendedor em preço fixo');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.throws($$select get_seller_contact((select id from listings where title='Monitor 24 polegadas Full HD'))$$,'FORBIDDEN','vendedor não revela o próprio contato');
+select tests.ok((select stock_qty=3 and stock_sold=0 from listings where title='Monitor 24 polegadas Full HD'),'estoque inicial de 3 unidades');
+select decrement_listing_stock((select id from listings where title='Monitor 24 polegadas Full HD'));
+select decrement_listing_stock((select id from listings where title='Monitor 24 polegadas Full HD'));
+select tests.ok((select stock_sold=2 and status='active' from listings where title='Monitor 24 polegadas Full HD'),'estoque desce a cada venda registrada, sem esgotar');
+select decrement_listing_stock((select id from listings where title='Monitor 24 polegadas Full HD'));
+select tests.ok((select stock_sold=3 and status='ended_with_winner' from listings where title='Monitor 24 polegadas Full HD'),'estoque esgotado encerra o anúncio sozinho');
+select tests.throws($$select decrement_listing_stock((select id from listings where title='Monitor 24 polegadas Full HD'))$$,'INVALID_ORDER_STATE','não vende além do estoque');
+
+select tests.root();
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select create_listing_draft_v2('Cadeira gamer reclinável','Cadeira gamer em ótimo estado, poucas marcas de uso','good','',80000,'pickup','Uberlândia','MG',(select id from categories where slug='pc-games'),'fixed_price_offers',null,null,null,null);
+select set_listing_condition_report((select id from listings where title='Cadeira gamer reclinável'),'{"powers_on":"yes","stable":"yes","ports_ok":"yes","accessories_ok":"yes","never_mined":"yes","never_repaired":"yes"}');
+insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Cadeira gamer reclinável';
+insert into listing_images(listing_id,storage_path,sort_order) select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Cadeira gamer reclinável';
+select publish_listing((select id from listings where title='Cadeira gamer reclinável'),null,true);
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select make_price_offer((select id from listings where title='Cadeira gamer reclinável'),80000)$$,'INVALID_MONEY','oferta não pode igualar ou passar o preço pedido');
+select make_price_offer((select id from listings where title='Cadeira gamer reclinável'),60000);
+select tests.ok((select status='pending' and amount_cents=60000 from price_offers where buyer_id='b0000000-0000-0000-0000-00000000000b'),'oferta pendente registrada');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select respond_price_offer((select id from price_offers where buyer_id='b0000000-0000-0000-0000-00000000000b' and listing_id=(select id from listings where title='Cadeira gamer reclinável')),true);
+select tests.ok(((get_offer_counterparty((select id from price_offers where buyer_id='b0000000-0000-0000-0000-00000000000b')))->>'released')::boolean,'get_offer_counterparty libera após aceite (vendedor)');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok(((get_offer_counterparty((select id from price_offers where buyer_id='b0000000-0000-0000-0000-00000000000b')))->>'whatsapp')='5534999998888','comprador vê whatsapp do vendedor após oferta aceita');
+
+-- visualizações e favoritos (contagem pública, sem expor quem favoritou)
+select tests.anon();
+select register_listing_view((select id from listings where title='Cadeira gamer reclinável'));
+select register_listing_view((select id from listings where title='Cadeira gamer reclinável'));
+select tests.root();
+select tests.ok((select view_count=2 from listings where title='Cadeira gamer reclinável'),'register_listing_view soma visualizações públicas');
+select tests.ok((select get_listing_favorite_count((select id from listings where title='Cadeira gamer reclinável'))=0),'sem favoritos ainda');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+insert into watchlist(user_id,listing_id) values ('b0000000-0000-0000-0000-00000000000b',(select id from listings where title='Cadeira gamer reclinável'));
+select tests.anon();
+select tests.ok((select get_listing_favorite_count((select id from listings where title='Cadeira gamer reclinável'))=1),'favorito contado publicamente sem expor quem favoritou');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.ok((select cnt from get_favorite_counts(array[(select id from listings where title='Cadeira gamer reclinável')]))=1,'get_favorite_counts (em lote) usado pelo painel do vendedor bate com a contagem individual');
+
+-- pausar/retomar/marcar vendido (loja)
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select pause_listing((select id from listings where title='Cadeira gamer reclinável'), true);
+select tests.login('c0000000-0000-0000-0000-00000000000c');
+select tests.ok((select count(*)=0 from listings where title='Cadeira gamer reclinável'),'anúncio pausado some da busca pública');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select tests.ok((select count(*)=1 from listings where title='Cadeira gamer reclinável'),'vendedor sempre vê o próprio anúncio pausado');
+select pause_listing((select id from listings where title='Cadeira gamer reclinável'), false);
+select mark_listing_sold((select id from listings where title='Cadeira gamer reclinável'));
+select tests.ok((select status='ended_with_winner' from listings where title='Cadeira gamer reclinável'),'marcar como vendido encerra o anúncio');
+select tests.throws($$select pause_listing((select id from listings where title='Cadeira gamer reclinável'), true)$$,'INVALID_ORDER_STATE','não pausa anúncio já encerrado');
+
+-- loja: endereço público
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select char_length(ensure_store_slug()) > 0),'ensure_store_slug gera um endereço automático quando o vendedor não escolheu um');
+select tests.ok((select ensure_store_slug() = store_slug from profiles where id='b0000000-0000-0000-0000-00000000000b'),'endereço automático é salvo e estável em chamadas seguintes');
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select set_store_slug('bazar-da-sara');
+select tests.throws($$select set_store_slug('Loja Inválida!')$$,'INVALID_STORE_SLUG','slug com espaço/maiúscula é recusado');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select set_store_slug('bazar-da-sara')$$,'STORE_SLUG_TAKEN','slug já usado por outro vendedor é recusado');
+select tests.anon();
+select tests.ok((select store_slug='bazar-da-sara' from public_profiles where id='5e000000-0000-0000-0000-000000000005'),'loja pública mostra o endereço configurado');
+
+-- ══ leilão ao vivo: agendamento, ativação preguiçosa e anti-sniping de 30s ══
+select tests.root();
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select create_listing_draft_v2('Teclado mecânico RGB','Teclado mecânico em ótimo estado, switches originais','good','',10000,'both','Uberlândia','MG',(select id from categories where slug='pc-games'),'auction',null,null,now()+interval '1 hour',3);
+select set_listing_condition_report((select id from listings where title='Teclado mecânico RGB'),'{"powers_on":"yes","stable":"yes","ports_ok":"yes","accessories_ok":"yes","never_mined":"yes","never_repaired":"yes"}');
+insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Teclado mecânico RGB';
+insert into listing_images(listing_id,storage_path,sort_order) select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Teclado mecânico RGB';
+select tests.ok((select status='scheduled' and auction_mode='live' and ends_at = starts_at + interval '3 minutes' from publish_listing((select id from listings where title='Teclado mecânico RGB'),null,true)),'leilão ao vivo agendado publica como "scheduled"');
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.throws($$select place_bid((select id from listings where title='Teclado mecânico RGB'),10500,'live-early-1')$$,'AUCTION_ENDED','não dá lance antes do horário agendado começar');
+select tests.root();
+update listings set starts_at = now() - interval '1 second', ends_at = now() + interval '20 seconds' where title='Teclado mecânico RGB';
+select tests.login('b0000000-0000-0000-0000-00000000000b');
+select tests.ok((select ends_at > now() + interval '25 seconds' and extensions_count = 1 from place_bid((select id from listings where title='Teclado mecânico RGB'),10500,'live-snipe-1')),'lance nos últimos 30s de leilão ao vivo estende +30s');
+select tests.ok((select status='active' from listings where title='Teclado mecânico RGB'),'primeiro lance ativa o leilão agendado (rede de segurança do lazy-activation)');
+
+-- job do cron (activate_scheduled_listings): cobre o caso de ninguém dar lance antes da hora chegar.
+select tests.root();
+select tests.login('5e000000-0000-0000-0000-000000000005');
+select create_listing_draft_v2('Mouse gamer sem fio','Mouse gamer em ótimo estado, bateria boa','good','',5000,'both','Uberlândia','MG',(select id from categories where slug='pc-games'),'auction',null,null,now()+interval '1 hour',2);
+select set_listing_condition_report((select id from listings where title='Mouse gamer sem fio'),'{"powers_on":"yes","stable":"yes","ports_ok":"yes","accessories_ok":"yes","never_mined":"yes","never_repaired":"yes"}');
+insert into storage.objects(bucket_id,name) select 'listing-images','5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp' from listings cross join generate_series(0,2) i where title='Mouse gamer sem fio';
+insert into listing_images(listing_id,storage_path,sort_order) select id,'5e000000-0000-0000-0000-000000000005/'||id||'/'||i||'.webp',i from listings cross join generate_series(0,2) i where title='Mouse gamer sem fio';
+select publish_listing((select id from listings where title='Mouse gamer sem fio'),null,true);
+select tests.root();
+update listings set starts_at = now() - interval '1 second' where title='Mouse gamer sem fio';
+select tests.ok((select status='scheduled' from listings where title='Mouse gamer sem fio'),'continua "scheduled" até o job rodar (ninguém deu lance ainda)');
+select activate_scheduled_listings();
+select tests.ok((select status='active' from listings where title='Mouse gamer sem fio'),'activate_scheduled_listings ativa o leilão quando a hora chega, mesmo sem lance');
+
+select tests.root();
 select 'TESTES DE FUNCIONALIDADES: OK' as resultado;

@@ -71,7 +71,7 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
   mocks.update.mockResolvedValue({ error: null });
   let publishes = 0;
   mocks.rpc.mockImplementation(async (name: string) =>
-    name === 'create_listing_draft'
+    name === 'create_listing_draft_v2'
       ? { data: 'listing-id', error: null }
       : name !== 'publish_listing'
         ? { data: null, error: null }
@@ -131,7 +131,7 @@ it('valida dinheiro e retoma publicação sem recriar rascunho nem reenviar foto
   await screen.findByText(/Falha temporária/);
   fireEvent.click(screen.getByRole('button', { name: 'Publicar anúncio' }));
   await screen.findByText('Publicado com sucesso');
-  expect(mocks.rpc.mock.calls.filter(([name]) => name === 'create_listing_draft')).toHaveLength(1);
+  expect(mocks.rpc.mock.calls.filter(([name]) => name === 'create_listing_draft_v2')).toHaveLength(1);
   expect(mocks.upload).toHaveBeenCalledTimes(4);
   expect(mocks.insert.mock.calls.at(-1)?.[0]).toMatchObject({ sort_order: 3, is_defect: true });
   const report = mocks.rpc.mock.calls.find(([name]) => name === 'set_listing_condition_report');

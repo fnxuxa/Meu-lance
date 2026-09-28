@@ -4,9 +4,10 @@ import { supabase } from '../../lib/supabase';
 import { errorMessage } from '../../lib/errors';
 
 /**
- * Fase de validação (PAYMENTS_LIVE=false): ainda não há estrutura de pagamento/retenção.
- * Este card avisa o vencedor e registra, sem cobrança nem compromisso, se ele continua
- * interessado — serve de sinal de demanda antes de abrir CNPJ e contratar um provedor.
+ * Fase de validação (PAYMENTS_LIVE=false): ainda não há CNPJ nem provedor de pagamento escolhido.
+ * Por decisão do dono do produto, comprador e vendedor combinam e pagam diretamente entre si
+ * (Pix, dinheiro etc.) enquanto isso — a plataforma não processa nem retém nada. Este card só
+ * confirma que o comprador quer seguir e libera o contato para combinarem por fora.
  */
 export function BuyerInterestCard({
   orderId,
@@ -48,16 +49,19 @@ export function BuyerInterestCard({
         {itemTitle}&rdquo; no MeuLance 🎉
       </p>
       <p>
-        Estamos numa fase inicial de validação e ainda estamos finalizando a estrutura de pagamento seguro
-        (CNPJ + sistema de retenção). Você continua interessado em fechar essa compra? Se sim, te aviso assim
-        que a estrutura estiver pronta pra gente combinar o pagamento com segurança pra você e pro vendedor.
-        Sem compromisso nenhum até lá.
+        Estamos numa fase inicial de validação: ainda não temos CNPJ nem pagamento protegido pela plataforma.
+        Por enquanto, comprador e vendedor combinam e pagam diretamente entre si (Pix, dinheiro etc.).
+        Confirme que você continua interessado e liberamos o contato do vendedor pra vocês combinarem.
+      </p>
+      <p className="muted" style={{ margin: '4px 0 8px' }}>
+        Só entregue o pagamento depois de ver o valor realmente caído na sua conta — comprovante em print não
+        garante nada.
       </p>
       {confirmedAt ? (
         <p role="status">
           Interesse confirmado em{' '}
-          {new Date(confirmedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}. Assim que a
-          estrutura de pagamento estiver pronta, avisamos por aqui.
+          {new Date(confirmedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}. O contato do
+          vendedor já está liberado abaixo.
         </p>
       ) : (
         <>
@@ -72,7 +76,7 @@ export function BuyerInterestCard({
             />
           </label>
           <p className="muted" style={{ margin: '4px 0 8px' }}>
-            Usamos só para te avisar quando o pagamento estiver liberado. Nada de cobrança agora.
+            Usamos para o vendedor te chamar e combinar entrega e pagamento.
           </p>
           <button
             type="button"

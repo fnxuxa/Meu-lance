@@ -23,8 +23,10 @@ import {
 } from '../../lib/condition';
 import { PriceSuggestion } from './PriceSuggestion';
 import { isValidImei, normalizeImei } from '../../lib/imei';
+import { DRAFT_KEY, DUPLICATE_FLAG_KEY } from './draftKeys';
 type Photo = { file: File; url: string; defect: boolean };
 type Cat = { id: string; name: string; slug?: string };
+type SaleType = 'auction' | 'fixed_price' | 'fixed_price_offers';
 type Draft = {
   title?: string;
   category?: string;
@@ -37,9 +39,14 @@ type Draft = {
   city?: string;
   delivery?: string;
   secondChance?: string;
+  saleType?: string;
+  liveAuction?: string;
+  scheduledStart?: string;
+  liveMinutes?: string;
+  promoPrice?: string;
+  stockQty?: string;
   checklist?: Partial<Checklist>;
 };
-const DRAFT_KEY = 'meulance:draft:create-listing';
 const DRAFT_FIELDS: Exclude<keyof Draft, 'checklist'>[] = [
   'title',
   'category',
@@ -52,6 +59,12 @@ const DRAFT_FIELDS: Exclude<keyof Draft, 'checklist'>[] = [
   'city',
   'delivery',
   'secondChance',
+  'saleType',
+  'liveAuction',
+  'scheduledStart',
+  'liveMinutes',
+  'promoPrice',
+  'stockQty',
 ];
 const MAX_PHOTOS = 10;
 function loadDraft(): Draft {
@@ -91,6 +104,12 @@ export function CreateListingPage() {
     [title, setTitle] = useState(initialDraft.current.title ?? ''),
     [imei, setImei] = useState(''),
     [secondChance, setSecondChance] = useState(initialDraft.current.secondChance === 'on'),
+    [saleType, setSaleType] = useState<SaleType>((initialDraft.current.saleType as SaleType) ?? 'auction'),
+    [liveAuction, setLiveAuction] = useState(initialDraft.current.liveAuction === 'on'),
+    [scheduledStart, setScheduledStart] = useState(initialDraft.current.scheduledStart ?? ''),
+    [liveMinutes, setLiveMinutes] = useState(initialDraft.current.liveMinutes ?? '5'),
+    [promoPrice, setPromoPrice] = useState(initialDraft.current.promoPrice ?? ''),
+    [stockQty, setStockQty] = useState(initialDraft.current.stockQty ?? '1'),
     [uf, setUf] = useState(initialDraft.current.state ?? ''),
     [city, setCity] = useState(initialDraft.current.city ?? ''),
     [cityOptions, setCityOptions] = useState<string[]>([]),
@@ -101,7 +120,12 @@ export function CreateListingPage() {
         return null;
       }
     }),
-    [draftRestored] = useState(() => DRAFT_FIELDS.some((k) => initialDraft.current[k]));
+    [draftRestored] = useState(() => DRAFT_FIELDS.some((k) => initialDraft.current[k])),
+    [isDuplicate] = useState(() => {
+      const flagged = localStorage.getItem(DUPLICATE_FLAG_KEY) === '1';
+      if (flagged) localStorage.removeItem(DUPLICATE_FLAG_KEY);
+      return flagged;
+    });
   function updatePricePreview(text: string) {
     try {
       setPriceCents(parseBRLToCents(text));
@@ -212,9 +236,11 @@ export function CreateListingPage() {
     setMessage('Criando rascunho…');
     try {
       const cents = parseBRLToCents(String(fd.get('price') ?? ''));
+      const isAuction = saleType === 'auction';
+      const promoCents = !isAuction && promoPrice.trim() ? parseBRLToCents(promoPrice) : null;
       const { data: id, error } = draftId.current
         ? { data: draftId.current, error: null }
-        : await supabase.rpc('create_listing_draft', {
+        : await supabase.rpc('create_listing_draft_v2', {
             p_title: String(fd.get('title')),
             p_description: String(fd.get('description')),
             p_condition: String(fd.get('condition')),
@@ -224,6 +250,12 @@ export function CreateListingPage() {
             p_city: String(fd.get('city')),
             p_state: String(fd.get('state')),
             p_category: String(fd.get('category')) || null,
+            p_sale_type: saleType,
+            p_promo_price_cents: promoCents,
+            p_stock_qty: isAuction ? null : Number(stockQty) || 1,
+            p_scheduled_start:
+              isAuction && liveAuction && scheduledStart ? new Date(scheduledStart).toISOString() : null,
+            p_live_minutes: isAuction && liveAuction ? Number(liveMinutes) : null,
           });
       if (error || !id) throw error ?? new Error('Falha ao criar anúncio');
       draftId.current = id;
@@ -262,7 +294,7 @@ export function CreateListingPage() {
         uploadedCount.current = i + 1;
       }
       setMessage('Publicando anúncio…');
-      const duration = Number(fd.get('duration') ?? 7);
+      const duration = saleType === 'auction' && !liveAuction ? Number(fd.get('duration') ?? 7) : null;
       const { data: published, error: pub } = await supabase.rpc('publish_listing', {
         p_listing: id,
         p_duration_days: duration,
@@ -340,7 +372,9 @@ export function CreateListingPage() {
       {draftRestored && (
         <div className="notice">
           <ShieldCheck />
-          Continuando de um rascunho salvo automaticamente neste navegador.
+          {isDuplicate
+            ? 'Preenchido a partir de um anúncio seu. Adicione fotos novas e revise os dados antes de publicar.'
+            : 'Continuando de um rascunho salvo automaticamente neste navegador.'}
         </div>
       )}
       <form className="sell-form" onSubmit={submit} onChange={scheduleDraftSave} ref={formRef}>
@@ -531,10 +565,85 @@ export function CreateListingPage() {
             {photoGrid(defectPhotos, 'Foto do defeito')}
           </section>
           <section>
-            <h2>Configure os lances</h2>
+            <h2>Tipo de venda</h2>
             <div className="form-grid">
               <label>
-                Valor inicial (R$)
+                Como você quer vender
+                <select
+                  name="saleType"
+                  value={saleType}
+                  onChange={(e) => setSaleType(e.target.value as SaleType)}
+                >
+                  <option value="auction">Disputa por lance</option>
+                  <option value="fixed_price">Preço fixo</option>
+                  <option value="fixed_price_offers">Preço fixo com &quot;aceito ofertas&quot;</option>
+                </select>
+              </label>
+            </div>
+            {saleType === 'auction' && (
+              <label className="setting-row option-card">
+                <input
+                  type="checkbox"
+                  name="liveAuction"
+                  checked={liveAuction}
+                  onChange={(e) => setLiveAuction(e.target.checked)}
+                />
+                <span>
+                  <b>Disputa ao vivo (agendada, dura poucos minutos)</b>
+                  <small className="muted">
+                    Em vez de rodar por dias, você marca um horário de início e a disputa dura só alguns
+                    minutos a partir daí. Lance nos últimos 30s estende o fim em +30s.
+                  </small>
+                </span>
+              </label>
+            )}
+            {saleType !== 'auction' && !profile.data?.whatsapp_e164 && (
+              <div className="notice">
+                <AlertTriangle aria-hidden />
+                <div>
+                  <b>Cadastre seu WhatsApp antes de publicar.</b>
+                  <span>
+                    É por ele que o comprador vai te chamar para combinar entrega e pagamento. Configure em{' '}
+                    <Link to="/conta/configuracoes" target="_blank" rel="noopener">
+                      Minha conta
+                    </Link>
+                    .
+                  </span>
+                </div>
+              </div>
+            )}
+            {saleType === 'auction' && liveAuction && (
+              <div className="form-grid">
+                <label>
+                  Início agendado (deixe em branco pra começar assim que publicar)
+                  <input
+                    type="datetime-local"
+                    name="scheduledStart"
+                    value={scheduledStart}
+                    onChange={(e) => setScheduledStart(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Duração da disputa ao vivo
+                  <select
+                    name="liveMinutes"
+                    value={liveMinutes}
+                    onChange={(e) => setLiveMinutes(e.target.value)}
+                  >
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="5">5 minutos</option>
+                    <option value="10">10 minutos</option>
+                  </select>
+                </label>
+              </div>
+            )}
+          </section>
+          <section>
+            <h2>{saleType === 'auction' ? 'Configure os lances' : 'Preço e estoque'}</h2>
+            <div className="form-grid">
+              <label>
+                {saleType === 'auction' ? 'Valor inicial (R$)' : 'Preço (R$)'}
                 <input
                   ref={priceRef}
                   name="price"
@@ -551,15 +660,42 @@ export function CreateListingPage() {
                   </span>
                 )}
               </label>
-              <label>
-                Duração
-                <select name="duration" defaultValue={initialDraft.current.duration ?? '7'}>
-                  <option value="7">7 dias</option>
-                  <option value="3">3 dias</option>
-                  <option value="5">5 dias</option>
-                  <option value="10">10 dias</option>
-                </select>
-              </label>
+              {saleType === 'auction' && !liveAuction && (
+                <label>
+                  Duração
+                  <select name="duration" defaultValue={initialDraft.current.duration ?? '7'}>
+                    <option value="7">7 dias</option>
+                    <option value="3">3 dias</option>
+                    <option value="5">5 dias</option>
+                    <option value="10">10 dias</option>
+                  </select>
+                </label>
+              )}
+              {saleType !== 'auction' && (
+                <>
+                  <label>
+                    Preço promocional (opcional)
+                    <input
+                      name="promoPrice"
+                      inputMode="decimal"
+                      placeholder="Menor que o preço acima"
+                      value={promoPrice}
+                      onChange={(e) => setPromoPrice(e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Estoque (unidades disponíveis)
+                    <input
+                      name="stockQty"
+                      type="number"
+                      min={1}
+                      max={999}
+                      value={stockQty}
+                      onChange={(e) => setStockQty(e.target.value)}
+                    />
+                  </label>
+                </>
+              )}
               <label>
                 UF
                 <select
@@ -609,39 +745,43 @@ export function CreateListingPage() {
                 </select>
               </label>
             </div>
-            <PriceSuggestion
-              categoryId={category}
-              title={title}
-              onUse={(text) => {
-                if (priceRef.current) priceRef.current.value = text;
-                updatePricePreview(text);
-                scheduleDraftSave();
-              }}
-            />
-            <label className="setting-row option-card">
-              <input
-                type="checkbox"
-                name="secondChance"
-                checked={secondChance}
-                onChange={(e) => setSecondChance(e.target.checked)}
+            {saleType === 'auction' && (
+              <PriceSuggestion
+                categoryId={category}
+                title={title}
+                onUse={(text) => {
+                  if (priceRef.current) priceRef.current.value = text;
+                  updatePricePreview(text);
+                  scheduleDraftSave();
+                }}
               />
-              <span>
-                <b>Oferecer ao 2º colocado se o vencedor não pagar</b>
-                <small className="muted">
-                  O 2º maior lance recebe a oferta pelo valor do próprio lance e tem 24h para aceitar. Se não
-                  marcar, o pedido é cancelado e você pode anunciar de novo.
-                </small>
-              </span>
-            </label>
+            )}
+            {saleType === 'auction' && !liveAuction && (
+              <label className="setting-row option-card">
+                <input
+                  type="checkbox"
+                  name="secondChance"
+                  checked={secondChance}
+                  onChange={(e) => setSecondChance(e.target.checked)}
+                />
+                <span>
+                  <b>Oferecer ao 2º colocado se o vencedor não pagar</b>
+                  <small className="muted">
+                    O 2º maior lance recebe a oferta pelo valor do próprio lance e tem 24h para aceitar. Se
+                    não marcar, o pedido é cancelado e você pode anunciar de novo.
+                  </small>
+                </span>
+              </label>
+            )}
             <div className="notice">
               <ShieldCheck />
               Ao publicar, você declara que o item é seu e as informações são verdadeiras.
             </div>
             <div className="notice">
               <ShieldCheck />
-              Você pode cancelar livremente enquanto ninguém der lance. Depois do primeiro lance, só dá para
-              cancelar se faltar mais de 1 dia para o fim — perto do encerramento o compromisso do comprador é
-              respeitado e o anúncio não pode mais ser removido.
+              {saleType === 'auction'
+                ? 'Você pode cancelar livremente enquanto ninguém der lance. Depois do primeiro lance, só dá para cancelar se faltar mais de 1 dia para o fim — perto do encerramento o compromisso do comprador é respeitado e o anúncio não pode mais ser removido.'
+                : 'Você pode pausar ou marcar como vendido a qualquer momento em "Minha Loja". Ainda não há pagamento protegido pela plataforma: combine entrega e pagamento direto com o comprador pelo WhatsApp.'}
             </div>
           </section>
         </fieldset>

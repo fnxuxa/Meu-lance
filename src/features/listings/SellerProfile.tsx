@@ -130,7 +130,7 @@ export function SellerProfile() {
         supabase!
           .from('listings')
           .select(
-            'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,categories(name),listing_images(storage_path,sort_order)',
+            'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,starts_at,ends_at,bid_count,status,delivery_mode,description,defects_declared,sale_type,auction_mode,live_duration_minutes,promo_price_cents,stock_qty,stock_sold,categories(name),listing_images(storage_path,sort_order)',
           )
           .eq('seller_id', id!)
           .eq('status', 'active')

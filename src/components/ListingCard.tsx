@@ -1,12 +1,21 @@
-import { Gavel, MapPin, Timer, Truck } from 'lucide-react';
+import { Gavel, MapPin, Tag, Timer, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Listing } from '../types/domain';
 import { formatBRL } from '../lib/money';
 import { plural } from '../lib/text';
 import { formatTimeLeft, URGENT_MS, useServerNow } from '../lib/time';
 
-function TimeLeftBadge({ endsAt }: { endsAt: string }) {
+function TimeLeftBadge({ startsAt, endsAt }: { startsAt?: string | null; endsAt: string }) {
   const now = useServerNow();
+  const startMs = startsAt ? Date.parse(startsAt) : NaN;
+  if (Number.isFinite(startMs) && startMs > now) {
+    return (
+      <span className="ending">
+        <Timer size={13} aria-hidden />
+        Começa em breve
+      </span>
+    );
+  }
   const left = Date.parse(endsAt) - now;
   const label = formatTimeLeft(left);
   const urgent = label !== null && left <= URGENT_MS;
@@ -26,20 +35,43 @@ function TimeLeftBadge({ endsAt }: { endsAt: string }) {
 }
 
 export function ListingCard({ item, demo = false }: { item: Listing; demo?: boolean }) {
+  const isAuction = item.saleType === 'auction';
+  const effectivePrice = item.promoPriceCents ?? item.currentPriceCents;
   return (
     <Link className="card" to={`/l/${item.slug}`}>
       <div className="card-img">
         <img src={item.image} alt={item.title} loading="lazy" decoding="async" width={400} height={300} />
         {demo && <span className="demo-tag">DEMONSTRAÇÃO</span>}
-        <TimeLeftBadge endsAt={item.endsAt} />
+        {item.promoPriceCents && (
+          <span className="promo-tag" style={{ width: 'auto' }}>
+            PROMOÇÃO
+          </span>
+        )}
+        {isAuction && <TimeLeftBadge startsAt={item.startsAt} endsAt={item.endsAt} />}
       </div>
       <div className="card-body">
         <div className="eyebrow">
           {item.category} · {item.condition}
         </div>
         <h3>{item.title}</h3>
-        <div className="price-label">{item.bidCount ? 'Maior lance' : 'Lance inicial'}</div>
-        <div className="price">{formatBRL(item.currentPriceCents)}</div>
+        {isAuction ? (
+          <>
+            <div className="price-label">{item.bidCount ? 'Maior lance' : 'Lance inicial'}</div>
+            <div className="price">{formatBRL(item.currentPriceCents)}</div>
+          </>
+        ) : (
+          <>
+            <div className="price-label">
+              {item.saleType === 'fixed_price_offers' ? 'Preço · aceita ofertas' : 'Preço fixo'}
+            </div>
+            <div className="fixed-price-box" style={{ margin: '2px 0' }}>
+              {item.promoPriceCents && (
+                <span className="price-strike">{formatBRL(item.startPriceCents)}</span>
+              )}
+              <span className="price">{formatBRL(effectivePrice)}</span>
+            </div>
+          </>
+        )}
         <div className="meta">
           <span>
             <MapPin size={14} aria-hidden />
@@ -51,8 +83,17 @@ export function ListingCard({ item, demo = false }: { item: Listing; demo?: bool
           </span>
         </div>
         <div className="bids">
-          <Gavel size={13} aria-hidden />
-          {item.bidCount ? plural(item.bidCount, 'lance', 'lances') : 'Seja o primeiro a dar lance'}
+          {isAuction ? (
+            <>
+              <Gavel size={13} aria-hidden />
+              {item.bidCount ? plural(item.bidCount, 'lance', 'lances') : 'Seja o primeiro a dar lance'}
+            </>
+          ) : (
+            <>
+              <Tag size={13} aria-hidden />
+              Fale com o vendedor
+            </>
+          )}
         </div>
       </div>
     </Link>

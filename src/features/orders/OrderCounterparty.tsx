@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { MapPin } from 'lucide-react';
+import { MapPin, MessageCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 type Counterparty = {
   released: boolean;
   full_name?: string;
+  whatsapp?: string | null;
   address?: {
     zip: string | null;
     street: string | null;
@@ -54,6 +55,18 @@ export function OrderCounterparty({
             {line1}
             {line1 && line2 && <br />}
             {line2}
+          </p>
+        )}
+        {c.whatsapp && (
+          <p style={{ margin: '4px 0 0' }}>
+            <a
+              className="btn whatsapp-btn"
+              href={`https://wa.me/${c.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle size={16} aria-hidden /> Chamar no WhatsApp pra combinar o pagamento
+            </a>
           </p>
         )}
         {!a?.street && isSeller && (

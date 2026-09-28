@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, LogOut, MapPin, ShieldCheck, User } from 'lucide-react';
+import { Camera, LogOut, MapPin, MessageCircle, Share2, ShieldCheck, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from './useSession';
 import { useProfile } from './useProfile';
@@ -298,6 +298,135 @@ function AddressCard() {
     </div>
   );
 }
+function StoreCard() {
+  const { user } = useSession();
+  const profile = useProfile();
+  const [whatsapp, setWhatsapp] = useState(''),
+    [slug, setSlug] = useState(''),
+    [busy, setBusy] = useState(false),
+    [slugBusy, setSlugBusy] = useState(false),
+    [message, setMessage] = useState(''),
+    [status, setStatus] = useState<'error' | 'success' | ''>('');
+  useEffect(() => {
+    if (!profile.data) return;
+    setWhatsapp(profile.data.whatsapp_e164 ?? '');
+    setSlug(profile.data.store_slug ?? '');
+  }, [profile.data]);
+  if (!user) return null;
+  if (profile.isPending)
+    return (
+      <div className="account-card">
+        <p className="muted">Carregando loja…</p>
+      </div>
+    );
+  const storeUrl = profile.data?.store_slug
+    ? `${window.location.origin}/loja/${profile.data.store_slug}`
+    : '';
+  return (
+    <div className="account-card">
+      <h2>
+        <MessageCircle size={17} style={{ verticalAlign: 'text-bottom' }} /> Minha loja e contato
+      </h2>
+      <p className="muted">
+        Seu WhatsApp é usado para o comprador te chamar em anúncios de preço fixo e leilões vencidos. Ainda
+        não há pagamento protegido pela plataforma: combinem entrega e pagamento direto por lá.
+      </p>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!supabase || !user || busy) return;
+          setBusy(true);
+          setMessage('');
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .update({ whatsapp_e164: whatsapp.replace(/\D/g, '') || null })
+              .eq('id', user.id);
+            if (error) throw error;
+            setStatus('success');
+            setMessage('WhatsApp salvo.');
+            await profile.refetch();
+          } catch (err) {
+            setStatus('error');
+            setMessage(errorMessage(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          WhatsApp (com DDD)
+          <input
+            inputMode="tel"
+            placeholder="(11) 91234-5678"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+          />
+        </label>
+        <button className="btn primary" disabled={busy}>
+          {busy ? 'Salvando…' : 'Salvar WhatsApp'}
+        </button>
+        {message && (
+          <p className={`auth-message ${status}`} role="status">
+            {message}
+          </p>
+        )}
+      </form>
+      <div className="store-share" style={{ marginTop: 16 }}>
+        <label style={{ flex: 1, minWidth: 220 }}>
+          Link da sua loja
+          <input
+            placeholder="minha-loja"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            maxLength={40}
+          />
+        </label>
+        <button
+          type="button"
+          className="btn secondary"
+          disabled={slugBusy || !slug.trim()}
+          onClick={async () => {
+            if (!supabase || slugBusy) return;
+            setSlugBusy(true);
+            setMessage('');
+            try {
+              const { error } = await supabase.rpc('set_store_slug', { p_slug: slug.trim() });
+              if (error) throw error;
+              setStatus('success');
+              setMessage('Link da loja salvo.');
+              await profile.refetch();
+            } catch (err) {
+              setStatus('error');
+              setMessage(errorMessage(err));
+            } finally {
+              setSlugBusy(false);
+            }
+          }}
+        >
+          Salvar link
+        </button>
+        {storeUrl && (
+          <button
+            type="button"
+            className="btn secondary"
+            onClick={async () => {
+              try {
+                if (navigator.share)
+                  await navigator.share({ title: 'Minha loja no MeuLance', url: storeUrl });
+                else await navigator.clipboard.writeText(storeUrl);
+              } catch {
+                /* usuário cancelou o compartilhamento — sem erro a mostrar */
+              }
+            }}
+          >
+            <Share2 size={15} /> Compartilhar {storeUrl}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 export function AccountSettings() {
   const { user, loading } = useSession();
   useDocumentMeta({ title: 'Minha conta', noindex: true });
@@ -328,6 +457,7 @@ export function AccountSettings() {
       <div className="account-settings-shell">
         <BackButton />
         <ProfileCard />
+        <StoreCard />
         <AddressCard />
         <form
           className="account-card"

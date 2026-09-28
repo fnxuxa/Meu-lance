@@ -8,7 +8,7 @@ import { syncServerClock } from '../../lib/clock';
 import { minimumBid } from '../../lib/auction';
 import { conditionLabel, type Checklist } from '../../lib/condition';
 const selection =
-  'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,ends_at,bid_count,status,delivery_mode,description,defects_declared,condition_checklist,second_chance_enabled,categories(name,slug),listing_images(storage_path,sort_order,is_defect)';
+  'id,slug,seller_id,title,condition,city,state,current_price_cents,start_price_cents,starts_at,ends_at,bid_count,status,delivery_mode,description,defects_declared,condition_checklist,second_chance_enabled,sale_type,auction_mode,live_duration_minutes,promo_price_cents,stock_qty,stock_sold,categories(name,slug),listing_images(storage_path,sort_order,is_defect)';
 type Row = {
   id: string;
   slug: string;
@@ -19,7 +19,8 @@ type Row = {
   state: string;
   current_price_cents: number;
   start_price_cents: number;
-  ends_at: string;
+  starts_at: string | null;
+  ends_at: string | null;
   bid_count: number;
   status: string;
   delivery_mode: string;
@@ -27,6 +28,12 @@ type Row = {
   defects_declared: string | null;
   condition_checklist: Checklist | null;
   second_chance_enabled?: boolean;
+  sale_type: 'auction' | 'fixed_price' | 'fixed_price_offers';
+  auction_mode: 'classic' | 'live';
+  live_duration_minutes: number | null;
+  promo_price_cents: number | null;
+  stock_qty: number | null;
+  stock_sold: number;
   categories: { name: string; slug: string } | null;
   listing_images: { storage_path: string; sort_order: number; is_defect?: boolean }[];
 };
@@ -50,9 +57,16 @@ export function mapListing(r: Row): Listing {
     state: r.state,
     currentPriceCents: r.current_price_cents,
     startPriceCents: r.start_price_cents,
-    endsAt: r.ends_at,
+    startsAt: r.starts_at,
+    endsAt: r.ends_at ?? '',
     bidCount: r.bid_count,
     status: r.status,
+    saleType: r.sale_type,
+    auctionMode: r.auction_mode,
+    liveDurationMinutes: r.live_duration_minutes,
+    promoPriceCents: r.promo_price_cents,
+    stockQty: r.stock_qty,
+    stockSold: r.stock_sold,
     image: urls[0] ?? '/icon.svg',
     images: urls.length ? urls : ['/icon.svg'],
     delivery: r.delivery_mode === 'pickup' ? 'Retirada' : r.delivery_mode === 'shipping' ? 'Envio' : 'Ambos',
@@ -70,7 +84,8 @@ export function useListings() {
       const { data, error } = await supabase!
         .from('listings')
         .select(selection)
-        .eq('status', 'active')
+        .in('status', ['active', 'scheduled'])
+        .is('paused_at', null)
         .order('ends_at');
       if (error) throw error;
       return (data as unknown as Row[]).map(mapListing);
@@ -94,7 +109,7 @@ export function useListing(slug?: string) {
         .from('listings')
         .select(selection)
         .eq('slug', slug!)
-        .in('status', ['active', 'ended_no_bids', 'ended_with_winner', 'cancelled'])
+        .in('status', ['active', 'scheduled', 'ended_no_bids', 'ended_with_winner', 'cancelled'])
         .maybeSingle();
       if (error) throw error;
       if (!data) return null;
@@ -118,6 +133,13 @@ export function useListing(slug?: string) {
   });
   const id = query.data?.id,
     refresh = query.refetch;
+  useEffect(() => {
+    if (!supabase || !id) return;
+    const sb = supabase;
+    void (async () => {
+      await sb.rpc('register_listing_view', { p_listing: id });
+    })();
+  }, [id]);
   useEffect(() => {
     if (!supabase || !id) return;
     const sb = supabase;

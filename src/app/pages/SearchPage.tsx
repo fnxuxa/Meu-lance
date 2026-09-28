@@ -31,6 +31,13 @@ const DELIVERY = [
   { value: 'envio', label: 'Com envio', match: (l: Listing) => l.delivery !== 'Retirada' },
   { value: 'retirada', label: 'Retirada', match: (l: Listing) => l.delivery !== 'Envio' },
 ] as const;
+const SALE_TYPES = [
+  { value: 'auction', label: 'Leilão' },
+  { value: 'fixed_price', label: 'Preço fixo' },
+] as const;
+function effectivePrice(l: Listing) {
+  return l.promoPriceCents ?? l.currentPriceCents;
+}
 
 export default function SearchPage() {
   const { categoria } = useParams();
@@ -43,6 +50,9 @@ export default function SearchPage() {
     (params.get('ordem') as SortKey) in SORTS ? (params.get('ordem') as SortKey) : 'encerrando';
   const delivery = params.get('entrega') ?? '';
   const condition = params.get('condicao') ?? '';
+  const saleType = params.get('tipo') ?? '';
+  const priceMin = params.get('preco_min') ?? '';
+  const priceMax = params.get('preco_max') ?? '';
 
   // efeitos do pai rodam depois dos do filho: sem este ramo, o <NotFound /> abaixo perderia o noindex
   useDocumentMeta(
@@ -74,6 +84,8 @@ export default function SearchPage() {
     () => [...new Set(listingsData.map((x) => x.condition))].sort((a, b) => a.localeCompare(b, 'pt-BR')),
     [listingsData],
   );
+  const minCents = priceMin ? Math.round(Number(priceMin) * 100) : null;
+  const maxCents = priceMax ? Math.round(Number(priceMax) * 100) : null;
   const result = useMemo(() => {
     const terms = normalizeText(q).split(/\s+/).filter(Boolean);
     const del = DELIVERY.find((d) => d.value === delivery);
@@ -82,12 +94,19 @@ export default function SearchPage() {
         if (cat && x.categorySlug !== cat) return false;
         if (del && !del.match(x)) return false;
         if (condition && x.condition !== condition) return false;
+        if (saleType === 'auction' && x.saleType !== 'auction') return false;
+        if (saleType === 'fixed_price' && x.saleType === 'auction') return false;
+        const price = effectivePrice(x);
+        if (minCents !== null && price < minCents) return false;
+        if (maxCents !== null && price > maxCents) return false;
         const hay = normalizeText(`${x.title} ${x.category} ${x.city} ${x.state} ${x.condition}`);
         return terms.every((t) => hay.includes(t));
       })
       .sort(SORTS[sort].fn);
-  }, [q, cat, delivery, condition, sort, listingsData]);
-  const activeFilters = [!category && cat, delivery, condition].filter(Boolean).length;
+  }, [q, cat, delivery, condition, saleType, minCents, maxCents, sort, listingsData]);
+  const activeFilters = [!category && cat, delivery, condition, saleType, priceMin, priceMax].filter(
+    Boolean,
+  ).length;
 
   if (categoria && !category) return <NotFound />;
   return (
@@ -137,6 +156,37 @@ export default function SearchPage() {
       </div>
       <div className="filter-chips" role="group" aria-label="Filtros">
         <SlidersHorizontal size={16} aria-hidden />
+        {SALE_TYPES.map((t) => (
+          <button
+            type="button"
+            key={t.value}
+            className={'chip' + (saleType === t.value ? ' active' : '')}
+            aria-pressed={saleType === t.value}
+            onClick={() => update('tipo', saleType === t.value ? '' : t.value)}
+          >
+            {t.label}
+          </button>
+        ))}
+        <input
+          type="number"
+          inputMode="decimal"
+          aria-label="Preço mínimo"
+          placeholder="Preço mín."
+          className="price-range-input"
+          value={priceMin}
+          onChange={(e) => update('preco_min', e.target.value)}
+          min={0}
+        />
+        <input
+          type="number"
+          inputMode="decimal"
+          aria-label="Preço máximo"
+          placeholder="Preço máx."
+          className="price-range-input"
+          value={priceMax}
+          onChange={(e) => update('preco_max', e.target.value)}
+          min={0}
+        />
         {!category && (
           <select aria-label="Categoria" value={cat} onChange={(e) => update('cat', e.target.value)}>
             <option value="">Todas as categorias</option>

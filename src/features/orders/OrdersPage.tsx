@@ -395,9 +395,9 @@ export function OrderPage() {
       <OrderCounterparty orderId={o.id} status={o.status} isSeller={isSeller} />
       {o.status === 'pending_payment' && isSeller && (
         <p>
-          O comprador teve o maior lance. Ainda estamos validando a estrutura de pagamento (CNPJ + retenção)
-          antes de seguir com a cobrança — tenha paciência, você poderá enviar o item assim que tudo estiver
-          pronto. Não faça combinações fora da plataforma.
+          {o.buyer_confirmed_interest_at
+            ? 'O comprador confirmou interesse. Ainda não temos pagamento protegido pela plataforma (falta CNPJ e provedor definido), então combine e receba o pagamento diretamente com o comprador — só envie o item depois de ver o valor cair na conta.'
+            : 'O comprador teve o maior lance e ainda não confirmou se quer continuar. Assim que confirmar, o contato dele aparece aqui para vocês combinarem o pagamento diretamente.'}
         </p>
       )}
       {(o.tracking_code || o.carrier) && (

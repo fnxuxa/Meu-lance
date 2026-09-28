@@ -5,13 +5,15 @@ import {
   CheckCircle2,
   ChevronRight,
   Gavel,
+  Handshake,
   MapPin,
   PackageOpen,
   Search,
   ShieldCheck,
   Sparkles,
+  Store,
+  Tag,
   Truck,
-  WalletCards,
 } from 'lucide-react';
 import { useListings } from '../../features/listings/useListings';
 import { ListingGrid } from '../../components/ListingCard';
@@ -45,16 +47,16 @@ const SITE_LD = {
 };
 
 export default function Home() {
-  const { data: listings, loading, error, demo } = useListings();
+  const { data: listings, loading, demo } = useListings();
   useDocumentMeta({
-    title: 'MeuLance — compre e venda usados por lances',
+    title: 'MeuLance — leilão, preço fixo e vitrine de usados',
     description:
-      'Compre e venda usados por lances no Brasil. Anuncie de graça, deixe o preço subir com a disputa e feche negócio com histórico de lances transparente.',
+      'Compre e venda usados no Brasil: dispute por lance, publique com preço fixo ou monte sua vitrine com vários produtos. Anuncie de graça.',
     canonicalPath: '/',
   });
   useJsonLd('ld-org', ORG_LD);
   useJsonLd('ld-site', SITE_LD);
-  const featured = listings[0];
+  const featured = listings.find((l) => l.saleType === 'auction');
   const counts = useMemo(() => {
     const m = new Map<string, number>();
     for (const l of listings) if (l.categorySlug) m.set(l.categorySlug, (m.get(l.categorySlug) ?? 0) + 1);
@@ -65,16 +67,17 @@ export default function Home() {
       <section className="hero">
         <div className="hero-copy">
           <div className="pill hero-enter" style={{ animationDelay: '0ms' }}>
-            <Sparkles size={15} />O preço certo aparece quando as pessoas disputam.
+            <Sparkles size={15} />
+            Leilão, preço fixo ou sua vitrine própria — você escolhe como vender.
           </div>
           <h1 className="hero-enter" style={{ animationDelay: '80ms' }}>
-            Desapegue pelo <em>melhor lance.</em>
+            Desapegue do seu jeito.
             <br />
-            Encontre seu próximo achado.
+            Encontre seu próximo <em>achado.</em>
           </h1>
           <p className="hero-enter" style={{ animationDelay: '160ms' }}>
-            Compre e venda usados por lances entre pessoas, com histórico transparente e uma experiência feita
-            para acompanhar a disputa ao vivo.
+            Dispute por lance quando o valor é incerto, venda direto com preço fixo, ou monte sua vitrine com
+            vários produtos. Tudo num só lugar, com anúncio grátis.
           </p>
           <div className="hero-actions hero-enter" style={{ animationDelay: '240ms' }}>
             <Link className="btn primary" to="/buscar">
@@ -132,23 +135,71 @@ export default function Home() {
         )}
       </section>
       <Reveal>
+        <section className="section section-tight">
+          <div className="section-head">
+            <div>
+              <span className="kicker">TRÊS FORMAS DE VENDER</span>
+              <h2>Escolha o que combina com o seu item.</h2>
+            </div>
+          </div>
+          <div className="compare-grid compare-grid-3">
+            <div className="compare-card compare-card-hover">
+              <span className="compare-tag">
+                <Gavel size={14} /> Leilão
+              </span>
+              <p className="compare-lede">
+                Ideal pra relíquia, colecionável ou item raro — quando você não sabe quanto vale.
+              </p>
+              <ul>
+                <li>
+                  Vários interessados disputam ao mesmo tempo e o preço encontra o valor real de mercado.
+                </li>
+                <li>Contagem regressiva pública cria urgência real nos minutos finais.</li>
+              </ul>
+            </div>
+            <div className="compare-card compare-card-hover">
+              <span className="compare-tag">
+                <Tag size={14} /> Preço fixo
+              </span>
+              <p className="compare-lede">
+                Pra quando você já sabe o preço e quer vender rápido, sem esperar disputa.
+              </p>
+              <ul>
+                <li>Publica o valor (ou aceita ofertas) e negocia direto com quem se interessar.</li>
+                <li>Sem prazo de leilão — o anúncio fica até vender ou você pausar.</li>
+              </ul>
+            </div>
+            <div className="compare-card compare-card-hover">
+              <span className="compare-tag">
+                <Store size={14} /> Vitrine
+              </span>
+              <p className="compare-lede">
+                Pra quem tem várias peças ou já vende por conta própria e quer um lugar só pra tudo.
+              </p>
+              <ul>
+                <li>Página própria com todos os seus produtos, leilão e preço fixo juntos.</li>
+                <li>Link pra compartilhar no WhatsApp e nas redes.</li>
+              </ul>
+              <HammerLink className="compare-cta" to="/vender/novo">
+                Começar minha vitrine <ArrowRight size={15} />
+              </HammerLink>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+      <Reveal>
         <section className="section">
           <div className="section-head">
             <div>
-              <span className="kicker">ACABANDO AGORA</span>
-              <h2>Últimas chances</h2>
+              <span className="kicker">NA VITRINE</span>
+              <h2>Recém-publicados</h2>
             </div>
-            <Link to="/buscar?ordem=encerrando">
+            <Link to="/buscar">
               Ver todos <ChevronRight />
             </Link>
           </div>
           {demo && <p className="notice">Demonstração: anúncio ilustrativo, sem transações reais.</p>}
-          {error && (
-            <p className="auth-message" role="alert">
-              {error}
-            </p>
-          )}
-          {!loading && !error && !listings.length ? (
+          {!loading && !listings.length ? (
             <div className="empty-state home-empty">
               <PackageOpen />
               <h3>Nenhum anúncio ativo agora</h3>
@@ -186,7 +237,7 @@ export default function Home() {
         </section>
       </Reveal>
       <Reveal>
-        <section className="how">
+        <section className="how how-light">
           <div>
             <span className="kicker">SIMPLES E SEGURO</span>
             <h2>
@@ -197,7 +248,7 @@ export default function Home() {
               Entenda o passo a passo <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="steps">
+          <div className="steps steps-light">
             <article>
               <b>01</b>
               <Gavel />
@@ -206,9 +257,12 @@ export default function Home() {
             </article>
             <article>
               <b>02</b>
-              <WalletCards />
-              <h3>Pague com segurança</h3>
-              <p>Pagamento protegido, liberado em breve.</p>
+              <Handshake />
+              <h3>Combine o pagamento</h3>
+              <p>
+                Por enquanto, comprador e vendedor combinam o pagamento direto. Pagamento protegido pela
+                plataforma está a caminho.
+              </p>
             </article>
             <article>
               <b>03</b>
@@ -220,50 +274,18 @@ export default function Home() {
         </section>
       </Reveal>
       <Reveal>
-        <section className="section">
-          <div className="section-head">
-            <div>
-              <span className="kicker">POR QUE VENDA POR LANCES</span>
-              <h2>
-                Preço fixo trava seu anúncio num chute.
-                <br />O lance encontra o valor real.
-              </h2>
-            </div>
-          </div>
-          <div className="compare-grid">
-            <div className="compare-card">
-              <span className="compare-tag">Anúncio de preço fixo</span>
-              <ul>
-                <li>
-                  Você chuta um valor e torce: alto demais, ninguém compra; baixo demais, você perde dinheiro.
-                </li>
-                <li>Sem prazo, sem urgência — o anúncio junta poeira por semanas.</li>
-                <li>Cada comprador tenta pechinchar no particular, um de cada vez.</li>
-              </ul>
-            </div>
-            <div className="compare-card highlight">
-              <span className="compare-tag">Venda por lances no MeuLance</span>
-              <ul>
-                <li>
-                  Vários interessados disputam ao mesmo tempo e o preço sobe até o valor justo de mercado.
-                </li>
-                <li>Contagem regressiva pública cria urgência real — as disputas acirram no fim.</li>
-                <li>Histórico de lances transparente dá segurança para o comprador pagar mais.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-      </Reveal>
-      <Reveal>
         <div className="cta">
           <div>
             <span className="kicker">TEM ALGO PARADO EM CASA?</span>
-            <h2>Publique em minutos e deixe o mercado decidir o preço.</h2>
-            <p>Anúncio grátis. Você só paga uma pequena comissão quando o item é vendido.</p>
+            <h2>Publique em minutos, do jeito que fizer mais sentido pra você.</h2>
+            <p>
+              Leilão, preço fixo ou vitrine com várias peças — anúncio grátis, você só paga uma pequena
+              comissão quando o item é vendido.
+            </p>
           </div>
-          <Link className="btn light" to="/vender/novo">
+          <HammerLink className="btn light" to="/vender/novo">
             Anunciar agora <ArrowRight />
-          </Link>
+          </HammerLink>
         </div>
       </Reveal>
     </>

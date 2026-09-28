@@ -108,7 +108,7 @@ export function Header() {
                       <Star size={15} /> Meus lances
                     </Link>
                     <Link to="/conta/anuncios">
-                      <Tags size={15} /> Meus anúncios
+                      <Tags size={15} /> Minha loja
                     </Link>
                     <Link to="/conta/vendas">
                       <ListOrdered size={15} /> Minhas vendas
@@ -173,7 +173,7 @@ export function Header() {
           <div className="mobile-menu-divider" />
           <nav className="mobile-menu-links">
             <Link to="/conta/lances">Meus lances</Link>
-            <Link to="/conta/anuncios">Meus anúncios</Link>
+            <Link to="/conta/anuncios">Minha loja</Link>
             <Link to="/conta/vendas">Minhas vendas</Link>
             <Link to="/conta/compras">Meus pedidos</Link>
             <Link to="/conta/buscas">Buscas salvas</Link>

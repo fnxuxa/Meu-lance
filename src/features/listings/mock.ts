@@ -32,5 +32,7 @@ export const listings: Listing[] = [
       'Aparelho muito bem conservado, funcionando normalmente. Confira todas as fotos antes de ofertar.',
     defects: 'Pequenas marcas de uso compatíveis com o tempo de uso.',
     featured: true,
+    saleType: 'auction',
+    auctionMode: 'classic',
   }),
 ];

@@ -15,6 +15,8 @@ export type Profile = {
   address_number: string | null;
   address_complement: string | null;
   address_neighborhood: string | null;
+  whatsapp_e164: string | null;
+  store_slug: string | null;
 };
 export function useProfile() {
   const { user } = useSession();
@@ -25,7 +27,7 @@ export function useProfile() {
       const { data, error } = await supabase!
         .from('profiles')
         .select(
-          'id,display_name,full_name,city,state,avatar_url,identity_verified_at,seller_status,address_zip,address_street,address_number,address_complement,address_neighborhood',
+          'id,display_name,full_name,city,state,avatar_url,identity_verified_at,seller_status,address_zip,address_street,address_number,address_complement,address_neighborhood,whatsapp_e164,store_slug',
         )
         .eq('id', user!.id)
         .single();

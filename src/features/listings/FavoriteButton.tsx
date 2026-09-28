@@ -4,6 +4,7 @@ import { Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useSession } from '../auth/useSession';
 import { errorMessage } from '../../lib/errors';
+import { plural } from '../../lib/text';
 export function FavoriteButton({ listingId }: { listingId: string }) {
   const { user } = useSession();
   const client = useQueryClient();
@@ -23,6 +24,15 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
       return !!data;
     },
   });
+  const countQuery = useQuery({
+    queryKey: ['favorite-count', listingId],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!.rpc('get_listing_favorite_count', { p_listing: listingId });
+      if (error) throw error;
+      return data as number;
+    },
+  });
   return (
     <div>
       <button
@@ -39,6 +49,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
             if (error) throw error;
             await query.refetch();
             await client.invalidateQueries({ queryKey: ['my-auctions', user.id] });
+            await client.invalidateQueries({ queryKey: ['favorite-count', listingId] });
             setMessage(
               query.data ? 'Removido de "Acompanhando".' : 'Adicionado a "Acompanhando" em Meus lances.',
             );
@@ -52,6 +63,11 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
         <Star size={16} fill={query.data ? 'currentColor' : 'none'} />
         {query.data ? 'Seguindo' : 'Seguir anúncio'}
       </button>
+      {!!countQuery.data && (
+        <small className="favorite-count">
+          {plural(countQuery.data, 'pessoa de olho', 'pessoas de olho')}
+        </small>
+      )}
       {!user && <small>Entre para seguir este anúncio com uma estrela.</small>}
       {(message || query.error) && <p role="status">{message || errorMessage(query.error)}</p>}
     </div>

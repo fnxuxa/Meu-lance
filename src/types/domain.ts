@@ -19,6 +19,7 @@ export type Listing = {
   currentPriceCents: number;
   startPriceCents: number;
   minimumBidCents?: number;
+  startsAt?: string | null;
   endsAt: string;
   bidCount: number;
   status?: string;
@@ -30,4 +31,11 @@ export type Listing = {
   defectImages?: string[];
   featured?: boolean;
   participantCount?: number;
+  /** leilão | preço fixo | preço fixo com ofertas */
+  saleType: 'auction' | 'fixed_price' | 'fixed_price_offers';
+  auctionMode: 'classic' | 'live';
+  liveDurationMinutes?: number | null;
+  promoPriceCents?: number | null;
+  stockQty?: number | null;
+  stockSold?: number;
 };

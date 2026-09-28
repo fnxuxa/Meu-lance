@@ -24,6 +24,9 @@ const MyListings = lazy(() =>
 const SellerProfile = lazy(() =>
   import('../features/listings/SellerProfile').then((m) => ({ default: m.SellerProfile })),
 );
+const StorePage = lazy(() =>
+  import('../features/listings/StorePage').then((m) => ({ default: m.StorePage })),
+);
 const RecoveryCard = lazy(() =>
   import('../features/auth/RecoveryCard').then((m) => ({ default: m.RecoveryCard })),
 );
@@ -118,6 +121,7 @@ export function App() {
             <Route path="/vender/novo" element={<CreateListingPage />} />
             <Route path="/l/:slug" element={<ListingDetail />} />
             <Route path="/vendedor/:id" element={<SellerProfile />} />
+            <Route path="/loja/:slug" element={<StorePage />} />
             <Route path="/u/:id" element={<SellerProfile />} />
             <Route path="/recuperar-senha" element={<RecoveryCard />} />
             <Route path="/entrar" element={<AuthPage mode="login" />} />
